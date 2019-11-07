@@ -10,7 +10,7 @@ import (
 var (
 	needBinaries = []string{
 		"bash",
-		"debdep",
+		// "debdep",
 		"ld",
 		"gcc",
 		"g++",

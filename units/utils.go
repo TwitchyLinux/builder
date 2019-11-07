@@ -69,6 +69,8 @@ func CmdCombined(ctx context.Context, bin string, args ...string) (string, error
 	return string(out), err
 }
 
+// CompareExtractSemver extracts a semver from the version string,
+// returning the result of a version comparison with wantVersion.
 func CompareExtractSemver(version, wantVersion string) (int, error) {
 	version = strings.TrimSpace(version)
 	s := extractSemver(version, versTrailing)

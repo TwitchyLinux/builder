@@ -2,12 +2,21 @@ package units
 
 import "context"
 
+// DebianOpts configures the debian URL and track the system will
+// be based on.
+type DebianOpts struct {
+	URL   string
+	Track string
+}
+
 // Opts describes options provided to the units.
 type Opts struct {
-	// OutputDir represents the path the system is being built at.
-	OutputDir string
+	// Dir represents the path the system is being built at.
+	Dir string
 	// Num indicates which unit (in execution order) the unit is.
 	Num int
+
+	Debian DebianOpts
 }
 
 // Unit describes an execution unit for building the system.
@@ -21,4 +30,5 @@ type Unit interface {
 // TODO: Switch to method?
 var Units = []Unit{
 	&Preflight{},
+	&Debootstrap{},
 }
