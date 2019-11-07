@@ -31,4 +31,6 @@ type Unit interface {
 var Units = []Unit{
 	&Preflight{},
 	&Debootstrap{},
+	&FinalizeApt{},
+	&BaseBuildtools{},
 }
