@@ -69,6 +69,8 @@ var Units = []Unit{
 	cliToolsInstall,
 	usbInstall,
 	cToolchainInstall,
+	wifiInstall,
+	// nmapToolsInstall,
 	&InstallTools{name: "sudo", pkgs: []string{"sudo"}},
 	&InstallTools{name: "bash-completion", pkgs: []string{"bash-completion", "bash-doc", "bash-builtins"}},
 }

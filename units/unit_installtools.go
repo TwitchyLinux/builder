@@ -20,7 +20,7 @@ var (
 			"curl", "curlftpfs", "net-tools", "netbase", "netcat-openbsd", "netwox",
 			"iproute2", "iproute2-doc", "tcpdump", "tcpstat", "traceroute",
 			"inetutils-ftp", "inetutils-ping", "inetutils-tools",
-			"arping", "arptables", "dnsutils",
+			"arping", "arptables", "dnsutils", "irssi",
 		},
 	}
 	compressionToolsInstall = &InstallTools{
@@ -30,20 +30,28 @@ var (
 	cliToolsInstall = &InstallTools{
 		name: "cli-tools",
 		pkgs: []string{
-			"htop", "screen", "nano", "vim", "vim-doc", "git", "git-doc",
+			"htop", "screen", "tmux",
+			"nano", "vim", "vim-doc",
+			"git", "git-doc", "subversion", "subversion-tools",
+			"lua5.2", "python2.7", "python-pip", "python-numpy", "python-dev", "python-numpy-doc", "python3", "python3-numpy",
 			"figlet",
 			"sharutils", "sharutils-doc",
 			"pm-utils", "pciutils", "sysstat", "dpkg-dev",
 			"gnupg", "jq", "tidy", "dstat", "info", "attr",
 		},
 	}
-	usbInstall = &InstallTools{
+	nmapToolsInstall = &InstallTools{name: "nmap-tools", pkgs: []string{"nmap", "ncat", "ndiff", "zenmap"}}
+	usbInstall       = &InstallTools{
 		name: "usb",
 		pkgs: []string{"usbutils", "libusb-1.0-0", "libusb-1.0-0-dev", "libusb-1.0-doc"},
 	}
 	cToolchainInstall = &InstallTools{
 		name: "c-toolchain",
 		pkgs: []string{"build-essential", "cmake", "sqlite3", "libsqlite3-0", "libsqlite3-dev", "sqlite3-doc"},
+	}
+	wifiInstall = &InstallTools{
+		name: "wifi",
+		pkgs: []string{"iw", "wireless-tools", "wpasupplicant", "rfkill", "net-tools"},
 	}
 )
 
