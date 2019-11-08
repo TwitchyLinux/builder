@@ -4,8 +4,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/twitchylinux/builder/units"
 )
@@ -14,6 +16,9 @@ var (
 	debianURL    = flag.String("debian-url", "http://deb.debian.org/debian/", "Mirror to download debian packages from.")
 	debianTrack  = flag.String("debian-track", "stable", "Which debian track to use.")
 	resourcesDir = flag.String("resources-dir", "resources", "Path to the builder resources directory.")
+
+	defaultNumThreads = int(math.Max(1, float64(runtime.NumCPU()-1)))
+	numThreads        = flag.Int("j", defaultNumThreads, "Number of concurrent threads to use while building.")
 )
 
 func printUsage() {
@@ -27,8 +32,9 @@ func main() {
 	flag.Parse()
 
 	config := units.Opts{
-		Dir:       buildDir(),
-		Resources: *resourcesDir,
+		Dir:        buildDir(),
+		Resources:  resourceDir(),
+		NumThreads: *numThreads,
 		Debian: units.DebianOpts{
 			URL:   *debianURL,
 			Track: *debianTrack,
@@ -78,8 +84,23 @@ func run(ctx context.Context, config units.Opts) error {
 	return nil
 }
 
+// resourceDir returns the path to the resources directory. The program
+// exits if the path it references is not valid.
+func resourceDir() string {
+	s, err := os.Stat(*resourcesDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Could not stat resources directory: %v\n", err)
+		os.Exit(1)
+	}
+	if !s.IsDir() {
+		fmt.Fprintf(os.Stderr, "Error: %s is not a directory\n", *resourcesDir)
+		os.Exit(1)
+	}
+	return *resourcesDir
+}
+
 // buildDir returns the absolute path to the build directory, setting it up
-// if it does not exist. The program exists if it is not specified or
+// if it does not exist. The program exits if it is not specified or
 // the path it references is not a r/x directory.
 func buildDir() string {
 	if flag.NArg() < 1 {

@@ -2,6 +2,7 @@ package units
 
 import (
 	"context"
+	"fmt"
 	"io"
 )
 
@@ -24,7 +25,14 @@ type Opts struct {
 	// L is a logger which units can use to communicate state.
 	L Logger
 
+	// NumThreads is the number of concurrent threads to be used while building.
+	NumThreads int
+
 	Debian DebianOpts
+}
+
+func (o *Opts) makeNumThreadsArg() string {
+	return fmt.Sprintf("-j%d", o.NumThreads)
 }
 
 // Logger implements status reporting and logging for executing units.

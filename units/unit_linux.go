@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -57,7 +58,7 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
-	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), "-j6", "mrproper"); err != nil {
+	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), opts.makeNumThreadsArg(), "mrproper"); err != nil {
 		return err
 	}
 
@@ -69,11 +70,30 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
-	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), "-j6", "clean"); err != nil {
+	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), opts.makeNumThreadsArg(), "clean"); err != nil {
 		return err
 	}
-	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), "-j6", "deb-pkg"); err != nil {
+	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), opts.makeNumThreadsArg(), "deb-pkg"); err != nil {
 		return err
+	}
+
+	return l.runInstallLinux(ctx, chroot, opts)
+}
+
+func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) error {
+	files, err := ioutil.ReadDir(opts.Dir)
+	if err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		for _, wantPkg := range []string{"linux-headers-", "linux-image-"} {
+			if strings.Contains(f.Name(), wantPkg) && strings.HasSuffix(f.Name(), ".deb") {
+				if err := chroot.Shell(ctx, &opts, "dpkg", "--install", f.Name()); err != nil {
+					return err
+				}
+			}
+		}
 	}
 	return nil
 }
