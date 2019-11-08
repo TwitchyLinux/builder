@@ -56,4 +56,6 @@ var Units = []Unit{
 	&Locale{},
 	&BaseBuildtools{},
 	&Linux{},
+	&Systemd{},
+	&ShellCustomization{},
 }
