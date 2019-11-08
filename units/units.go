@@ -53,6 +53,7 @@ var Units = []Unit{
 	&Preflight{},
 	&Debootstrap{},
 	&FinalizeApt{},
+	&Locale{},
 	&BaseBuildtools{},
 	&Linux{},
 }
