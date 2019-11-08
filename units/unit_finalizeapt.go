@@ -41,7 +41,7 @@ func (u *FinalizeApt) fixAptSources(path string) error {
 
 	// Hack in the non-free component.
 	if !strings.Contains(s, "non-free") {
-		s = strings.Replace(s, " stable main\n", "stable main non-free", -1)
+		s = strings.Replace(s, " stable main\n", " stable main non-free\n", -1)
 	}
 	return ioutil.WriteFile(path, []byte(s), 0644)
 }
