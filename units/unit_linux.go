@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -46,7 +47,6 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	}
 	defer chroot.Close()
 
-	// TODO: Make util function for simple commands requiring no output.
 	if err := DownloadFile(&opts, linuxURL, l.tarPath(&opts, false)); err != nil {
 		return fmt.Errorf("Linux source download failed: %v", err)
 	}
@@ -81,6 +81,9 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 }
 
 func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) error {
+	if err := os.Mkdir(filepath.Join(opts.Dir, "var", "tmp"), 0777); err != nil && !os.IsExist(err) {
+		return err
+	}
 	files, err := ioutil.ReadDir(opts.Dir)
 	if err != nil {
 		return err
@@ -95,5 +98,9 @@ func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) 
 			}
 		}
 	}
-	return nil
+
+	if err := chroot.AptInstall(ctx, &opts, "initramfs-tools"); err != nil {
+		return err
+	}
+	return chroot.Shell(ctx, &opts, "update-initramfs", "-c", "-k", linuxVersion)
 }

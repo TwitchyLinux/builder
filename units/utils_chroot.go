@@ -78,6 +78,17 @@ func (c *Chroot) Shell(ctx context.Context, opts *Opts, bin string, args ...stri
 	return cmd.Run()
 }
 
+// AptInstall installs the given packages.
+func (c *Chroot) AptInstall(ctx context.Context, opts *Opts, packages ...string) error {
+	cmd, err := c.CmdContext(ctx, "apt-get", append([]string{"install", "-y"}, packages...)...)
+	if err != nil {
+		return err
+	}
+	cmd.Stdout = opts.L
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
 func prepareChroot(root string) (out *Chroot, err error) {
 	p, err := FindBinary("chroot")
 	if err != nil {
