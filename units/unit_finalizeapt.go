@@ -37,7 +37,13 @@ func (u *FinalizeApt) fixAptSources(path string) error {
 		}
 	}
 
-	return ioutil.WriteFile(path, []byte(out.String()), 0644)
+	s := out.String()
+
+	// Hack in the non-free component.
+	if !strings.Contains(s, "non-free") {
+		s = strings.Replace(s, " stable main\n", "stable main non-free", -1)
+	}
+	return ioutil.WriteFile(path, []byte(s), 0644)
 }
 
 func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {

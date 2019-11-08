@@ -58,4 +58,12 @@ var Units = []Unit{
 	&Linux{},
 	&Systemd{},
 	&ShellCustomization{},
+	fsToolsInstall,
+	netToolsInstall,
+	compressionToolsInstall,
+	cliToolsInstall,
+	usbInstall,
+	cToolchainInstall,
+	&InstallTools{name: "sudo", pkgs: []string{"sudo"}},
+	&InstallTools{name: "bash-completion", pkgs: []string{"bash-completion", "bash-doc", "bash-builtins"}},
 }
