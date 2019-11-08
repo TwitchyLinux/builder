@@ -16,6 +16,8 @@ type DebianOpts struct {
 type Opts struct {
 	// Dir represents the path the system is being built at.
 	Dir string
+	// Resources is the path to the builder resources directory.
+	Resources string
 
 	// Num indicates which unit (in execution order) the unit is.
 	Num int
@@ -44,4 +46,5 @@ var Units = []Unit{
 	&Debootstrap{},
 	&FinalizeApt{},
 	&BaseBuildtools{},
+	&Linux{},
 }

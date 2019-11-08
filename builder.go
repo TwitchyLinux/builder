@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	debianURL   = flag.String("debian-url", "http://deb.debian.org/debian/", "Mirror to download debian packages from.")
-	debianTrack = flag.String("debian-track", "stable", "Which debian track to use.")
+	debianURL    = flag.String("debian-url", "http://deb.debian.org/debian/", "Mirror to download debian packages from.")
+	debianTrack  = flag.String("debian-track", "stable", "Which debian track to use.")
+	resourcesDir = flag.String("resources-dir", "resources", "Path to the builder resources directory.")
 )
 
 func printUsage() {
@@ -26,7 +27,8 @@ func main() {
 	flag.Parse()
 
 	config := units.Opts{
-		Dir: buildDir(),
+		Dir:       buildDir(),
+		Resources: *resourcesDir,
 		Debian: units.DebianOpts{
 			URL:   *debianURL,
 			Track: *debianTrack,
@@ -65,7 +67,7 @@ func run(ctx context.Context, config units.Opts) error {
 		ul.setStarting()
 		if err := unit.Run(ctx, opts); err != nil {
 			ul.setFinalState(err)
-			return err
+			return fmt.Errorf("%s: %v", unit.Name(), err)
 		}
 
 		ul.setFinalState(nil)
