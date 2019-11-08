@@ -2,15 +2,19 @@ package units
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/semver"
+	"github.com/cavaliercoder/grab"
 )
 
 var (
@@ -108,4 +112,46 @@ func extractSemver(version string, regex *regexp.Regexp) string {
 		}
 	}
 	return ""
+}
+
+// CheckSHA256 compares the hash of the file with wantHash, returning an
+// error is a mismatch occurs.
+func CheckSHA256(path, wantHash string) error {
+	h := sha256.New()
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if _, err := io.Copy(h, f); err != nil {
+		return err
+	}
+
+	if got, want := fmt.Sprintf("%x", h.Sum(nil)), strings.ToLower(wantHash); got != want {
+		return fmt.Errorf("incorrect hash for %q: %q != %q", path, got, want)
+	}
+	return nil
+}
+
+// DownloadFile downloads a file.
+func DownloadFile(opts *Opts, url, outPath string) error {
+	client := grab.NewClient()
+	req, err := grab.NewRequest(outPath, url)
+	if err != nil {
+		return err
+	}
+	resp := client.Do(req)
+
+	t := time.NewTicker(time.Second)
+	defer t.Stop()
+	for {
+		select {
+		case <-t.C:
+			fmt.Fprintf(opts.L, "Downloading %v: %.01f%% complete\n", filepath.Base(outPath), resp.Progress()*100)
+
+		case <-resp.Done:
+			return resp.Err()
+		}
+	}
 }

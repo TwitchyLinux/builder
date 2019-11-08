@@ -4,17 +4,13 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
-	"strings"
-
-	ss "github.com/twitchylinux/builder/shellstr"
 )
 
 const (
 	linuxVersion = "5.1.18"
 	linuxURL     = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-" + linuxVersion + ".tar.xz"
-	linuxMD5     = "599391aef003a22abc1d3b7ba3758183"
+	linuxSHA256  = "6013e7dcf59d7c1b168d8edce3dbd61ce340ff289541f920dbd0958bef98f36a"
 )
 
 // Linux is a unit that builds the Linux kernel.
@@ -26,6 +22,21 @@ func (l *Linux) Name() string {
 	return "Linux"
 }
 
+func (l *Linux) dirFilename() string {
+	return "linux-" + linuxVersion
+}
+
+func (l *Linux) tarFilename() string {
+	return l.dirFilename() + ".tar.xz"
+}
+
+func (l *Linux) tarPath(opts *Opts, inChroot bool) string {
+	if inChroot {
+		return "/" + l.tarFilename()
+	}
+	return filepath.Join(opts.Dir, l.tarFilename())
+}
+
 // Run implements Unit.
 func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	chroot, err := prepareChroot(opts.Dir)
@@ -35,47 +46,18 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	defer chroot.Close()
 
 	// TODO: Make util function for simple commands requiring no output.
-	download, err := chroot.CmdContext(ctx, "wget", "-q", "-O", "/linux-"+linuxVersion+".tar.xz", linuxURL)
-	if err != nil {
-		return err
+	if err := DownloadFile(&opts, linuxURL, l.tarPath(&opts, false)); err != nil {
+		return fmt.Errorf("Linux source download failed: %v", err)
 	}
-	download.Stdout = opts.L
-	download.Stderr = os.Stderr
-	if err := download.Run(); err != nil {
+	if err := CheckSHA256(l.tarPath(&opts, false), linuxSHA256); err != nil {
 		return err
 	}
 
-	// TODO: Make pure-go util for computing/comparing the hash.
-	hsh, err := chroot.CmdContext(ctx, "md5sum", "/linux-"+linuxVersion+".tar.xz")
-	if err != nil {
-		return err
-	}
-	out, err := hsh.Output()
-	if err != nil {
-		return err
-	}
-	s := strings.TrimSpace(ss.Trim(string(out), &ss.Cut{Delim: " ", From: 1, To: 1}))
-	if s != linuxMD5 {
-		return fmt.Errorf("MD5 mismatch: %q != %q", s, linuxMD5)
-	}
-
-	xtract, err := chroot.CmdContext(ctx, "tar", "xf", "/linux-"+linuxVersion+".tar.xz")
-	if err != nil {
-		return err
-	}
-	xtract.Stdout = opts.L
-	xtract.Stderr = os.Stderr
-	if err := xtract.Run(); err != nil {
+	if err := chroot.Shell(ctx, &opts, "tar", "xf", l.tarPath(&opts, true)); err != nil {
 		return err
 	}
 
-	s1, err := chroot.CmdContext(ctx, "make", "-C", "linux-"+linuxVersion, "-j6", "mrproper")
-	if err != nil {
-		return err
-	}
-	s1.Stdout = opts.L
-	s1.Stderr = os.Stderr
-	if err := s1.Run(); err != nil {
+	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), "-j6", "mrproper"); err != nil {
 		return err
 	}
 
@@ -83,27 +65,14 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(filepath.Join(opts.Dir, "linux-"+linuxVersion, ".config"), d, 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(opts.Dir, l.dirFilename(), ".config"), d, 0644); err != nil {
 		return err
 	}
 
-	s2, err := chroot.CmdContext(ctx, "make", "-C", "linux-"+linuxVersion, "-j6", "clean")
-	if err != nil {
+	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), "-j6", "clean"); err != nil {
 		return err
 	}
-	s2.Stdout = opts.L
-	s2.Stderr = os.Stderr
-	if err := s2.Run(); err != nil {
-		return err
-	}
-
-	s3, err := chroot.CmdContext(ctx, "make", "-C", "linux-"+linuxVersion, "-j6", "deb-pkg")
-	if err != nil {
-		return err
-	}
-	s3.Stdout = opts.L
-	s3.Stderr = os.Stderr
-	if err := s3.Run(); err != nil {
+	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), "-j6", "deb-pkg"); err != nil {
 		return err
 	}
 	return nil

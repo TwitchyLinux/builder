@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"syscall"
@@ -64,6 +65,17 @@ func (c *Chroot) CmdContext(ctx context.Context, bin string, args ...string) (*e
 	cmd := exec.CommandContext(ctx, c.chrootPath)
 	cmd.Args = append([]string{c.chrootPath, c.Dir, p}, args...)
 	return cmd, nil
+}
+
+// Shell runs a simple command within the chroot.
+func (c *Chroot) Shell(ctx context.Context, opts *Opts, bin string, args ...string) error {
+	cmd, err := c.CmdContext(ctx, bin, args...)
+	if err != nil {
+		return err
+	}
+	cmd.Stdout = opts.L
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 func prepareChroot(root string) (out *Chroot, err error) {
