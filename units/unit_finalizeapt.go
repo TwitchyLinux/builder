@@ -56,7 +56,7 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 	if err != nil {
 		return err
 	}
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = opts.L
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return err
@@ -66,7 +66,7 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 	if err != nil {
 		return err
 	}
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = opts.L
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }

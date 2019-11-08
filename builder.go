@@ -40,21 +40,35 @@ func main() {
 }
 
 func run(ctx context.Context, config units.Opts) error {
+	logger := interactiveOutput{}
+
 	for i, unit := range units.Units {
 		opts := config
 		opts.Num = i
+		ul := &unitState{
+			opts:   &opts,
+			unit:   unit,
+			output: &logger,
+		}
+		opts.L = ul
+		logger.units = append(logger.units, ul)
+
 		shouldSkip, err := skipUnit(opts, unit)
 		if err != nil {
 			return err
 		}
 		if shouldSkip {
+			ul.setSkipped()
 			continue
 		}
 
+		ul.setStarting()
 		if err := unit.Run(ctx, opts); err != nil {
+			ul.setFinalState(err)
 			return err
 		}
 
+		ul.setFinalState(nil)
 		if err := recordUnitStatus(opts, unit, StatusDone); err != nil {
 			return err
 		}
