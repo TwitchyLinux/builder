@@ -89,7 +89,7 @@ var (
 		},
 		{
 			bin:        "uname",
-			args:       []string{"-a"},
+			args:       []string{"-r"},
 			trims:      []ss.Op{&ss.Head{N: 1}},
 			minVersion: "4",
 		},
