@@ -53,7 +53,12 @@ var Units = []Unit{
 	&Preflight{},
 	&Debootstrap{},
 	&FinalizeApt{},
-	&Locale{},
+	&Locale{
+		Area:     "America",
+		Zone:     "Los_Angeles",
+		Generate: []string{"en_US.UTF-8 UTF-8", "en_US ISO-8859-1"},
+		Default:  "en_US.UTF-8",
+	},
 	&BaseBuildtools{},
 	&Linux{},
 	&Systemd{},
