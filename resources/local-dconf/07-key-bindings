@@ -1,0 +1,16 @@
+[org/gnome/desktop/wm/keybindings]
+switch-applications=['<Alt>Tab', '<Alt>Tab']
+switch-group=['<Alt>Above_Tab', '<Alt>Above_Tab']
+cycle-windows=['']
+[org/gnome/shell/keybindings]
+focus-active-notification=['']
+toggle-message-tray=['']
+[org/gnome/settings-daemon/plugins/media-keys]
+focus-active-notification=['']
+toggle-message-tray=['']
+screensaver='<Primary><Alt>l'
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Primary><Alt>t'
+command='gnome-terminal'
+name='Gnome Terminal'

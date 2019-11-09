@@ -1,0 +1,10 @@
+[org/gnome/desktop/screensaver]
+idle-activation-enabled=true
+lock-delay=300
+lock-enabled=true
+[org/gnome/desktop/session]
+idle-delay=300
+[org/gnome/desktop/lockdown]
+disable-lock-screen=false
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/twitchy_background.png'

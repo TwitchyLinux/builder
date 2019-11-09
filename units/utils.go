@@ -44,6 +44,19 @@ func FindBinary(bin string) (string, error) {
 	return "", os.ErrNotExist
 }
 
+// Shell runs the command, connecting standard output to the terminal.
+func Shell(ctx context.Context, opts *Opts, bin string, args ...string) error {
+	p, err := FindBinary(bin)
+	if err != nil {
+		return fmt.Errorf("%s: %v", bin, err)
+	}
+	cmd := exec.CommandContext(ctx, p)
+	cmd.Args = append([]string{p}, args...)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L
+	return cmd.Run()
+}
+
 // CmdOutput returns the full standard output of invoking the given binary
 // given the provided arguments.
 func CmdOutput(ctx context.Context, bin string, args ...string) (string, error) {

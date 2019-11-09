@@ -54,7 +54,7 @@ alias reload='. ~/.bashrc'
 		{
 			Username: "twl",
 			Password: "twl",
-			Groups:   []string{"sudo", "systemd-journal"},
+			Groups:   []string{"sudo", "systemd-journal", "netdev"},
 		},
 	}
 )
@@ -67,6 +67,9 @@ type userSpec struct {
 
 // ShellCustomization is a unit which customizes the accounts + shell.
 type ShellCustomization struct {
+	AdditionalSkel          []byte
+	AddtionalProfileScripts map[string][]byte
+	Users                   []userSpec
 }
 
 // Name implements Unit.
@@ -104,7 +107,7 @@ func (d *ShellCustomization) makeUser(ctx context.Context, opts *Opts) error {
 		return err
 	}
 
-	for _, usr := range defaultUsers {
+	for _, usr := range d.Users {
 		if err := chroot.Shell(ctx, opts, "adduser", "--disabled-password", "--gecos", "", usr.Username); err != nil {
 			if _, ok := err.(*exec.ExitError); !ok {
 				return err
@@ -135,7 +138,7 @@ func (d *ShellCustomization) Run(ctx context.Context, opts Opts) error {
 	if err := os.MkdirAll(filepath.Join(opts.Dir, "etc", "profile.d"), 0755); err != nil && !os.IsExist(err) {
 		return err
 	}
-	for fname, contents := range profiledScripts {
+	for fname, contents := range d.AddtionalProfileScripts {
 		if err := ioutil.WriteFile(filepath.Join(opts.Dir, "etc", "profile.d", fname), contents, 0644); err != nil {
 			return err
 		}
@@ -145,7 +148,7 @@ func (d *ShellCustomization) Run(ctx context.Context, opts Opts) error {
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(filepath.Join(opts.Dir, "etc", "skel", ".bashrc"), append(skel, additionalSkel...), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(opts.Dir, "etc", "skel", ".bashrc"), append(skel, d.AdditionalSkel...), 0644); err != nil {
 		return err
 	}
 

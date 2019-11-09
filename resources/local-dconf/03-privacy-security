@@ -1,0 +1,13 @@
+[org/gnome/desktop/search-providers]
+disable-external=true
+[org/gnome/desktop/privacy]
+report-technical-problems=false
+remove-old-trash-files=true
+remember-recent-files=false
+old-files-age=7
+[org/gnome/shell]
+disable-user-extensions=true
+[org/gnome/desktop/media-handling]
+automount=false
+automount-open=false
+autorun-never=true
