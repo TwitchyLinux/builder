@@ -10,6 +10,11 @@ import (
 	"syscall"
 )
 
+var localeEnv = []string{
+	"DEBIAN_FRONTEND=noninteractive",
+	"DEBCONF_NONINTERACTIVE_SEEN=true",
+}
+
 // Chroot represents a directory configured to be used as a chroot.
 type Chroot struct {
 	Dir        string
@@ -56,7 +61,7 @@ func (c *Chroot) Close() error {
 	return nil
 }
 
-// CmdOutput prepares an execution within the chroot.
+// CmdContext prepares an execution within the chroot.
 func (c *Chroot) CmdContext(ctx context.Context, bin string, args ...string) (*exec.Cmd, error) {
 	p, err := FindBinary(bin)
 	if err != nil {
@@ -86,6 +91,7 @@ func (c *Chroot) AptInstall(ctx context.Context, opts *Opts, packages ...string)
 	}
 	cmd.Stdout = opts.L
 	cmd.Stderr = os.Stderr
+	cmd.Env = localeEnv
 	return cmd.Run()
 }
 

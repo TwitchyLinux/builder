@@ -7,13 +7,16 @@ import (
 	"path/filepath"
 )
 
+// Systemd is a unit which installs systemd and sets up basic configuration.
 type Systemd struct {
 }
 
+// Name implements Unit.
 func (s *Systemd) Name() string {
 	return "Systemd"
 }
 
+// Run implements Unit.
 func (s *Systemd) Run(ctx context.Context, opts Opts) error {
 	chroot, err := prepareChroot(opts.Dir)
 	if err != nil {

@@ -5,13 +5,17 @@ import (
 	"os"
 )
 
+// BaseBuildtools is a unit which installs build dependencies for
+// the Linux kernel.
 type BaseBuildtools struct {
 }
 
+// Name implements Unit.
 func (d *BaseBuildtools) Name() string {
 	return "Base-buildtools"
 }
 
+// Run implements Unit.
 func (d *BaseBuildtools) Run(ctx context.Context, opts Opts) error {
 	chroot, err := prepareChroot(opts.Dir)
 	if err != nil {

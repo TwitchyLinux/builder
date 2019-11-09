@@ -8,9 +8,11 @@ import (
 	"strings"
 )
 
+// FinalizeApt configures apt into an ideal state.
 type FinalizeApt struct {
 }
 
+// Name implements Unit.
 func (u *FinalizeApt) Name() string {
 	return "Finalize-apt"
 }
@@ -46,6 +48,7 @@ func (u *FinalizeApt) fixAptSources(path string) error {
 	return ioutil.WriteFile(path, []byte(s), 0644)
 }
 
+// Run implements Unit.
 func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 	if err := u.fixAptSources(filepath.Join(opts.Dir, "etc", "apt", "sources.list")); err != nil {
 		return err
@@ -58,7 +61,7 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 	defer chroot.Close()
 
 	// TODO: Detect if host ufw is enabled and would block traffic.
-	cmd, err := chroot.CmdContext(ctx, "apt", "--fix-broken", "-y", "install")
+	cmd, err := chroot.CmdContext(ctx, "apt-get", "--fix-broken", "-y", "install")
 	if err != nil {
 		return err
 	}

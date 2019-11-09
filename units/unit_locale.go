@@ -9,17 +9,14 @@ import (
 	"strings"
 )
 
-var localeEnv = []string{
-	"DEBIAN_FRONTEND=noninteractive",
-	"DEBCONF_NONINTERACTIVE_SEEN=true",
-}
-
+// Locale is a unit which sets the system locale and timezone.
 type Locale struct {
 	Area, Zone string
 	Generate   []string
 	Default    string
 }
 
+// Name implements Unit.
 func (d *Locale) Name() string {
 	return "Locale"
 }
@@ -66,6 +63,7 @@ lineLoop:
 	return ioutil.WriteFile(filepath.Join(opts.Dir, "etc", "locale.gen"), out.Bytes(), 0644)
 }
 
+// Run implements Unit.
 func (d *Locale) Run(ctx context.Context, opts Opts) error {
 	chroot, err := prepareChroot(opts.Dir)
 	if err != nil {

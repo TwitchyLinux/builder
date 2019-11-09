@@ -55,15 +55,18 @@ var (
 	}
 )
 
+// InstallTools is a unit which installs packages from apt.
 type InstallTools struct {
 	name string
 	pkgs []string
 }
 
+// Name implements Unit.
 func (i *InstallTools) Name() string {
 	return i.name
 }
 
+// Run implements Unit.
 func (i *InstallTools) Run(ctx context.Context, opts Opts) error {
 	chroot, err := prepareChroot(opts.Dir)
 	if err != nil {

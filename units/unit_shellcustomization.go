@@ -65,9 +65,11 @@ type userSpec struct {
 	Groups   []string
 }
 
+// ShellCustomization is a unit which customizes the accounts + shell.
 type ShellCustomization struct {
 }
 
+// Name implements Unit.
 func (d *ShellCustomization) Name() string {
 	return "Shell-customization"
 }
@@ -128,6 +130,7 @@ func (d *ShellCustomization) makeUser(ctx context.Context, opts *Opts) error {
 	return nil
 }
 
+// Run implements Unit.
 func (d *ShellCustomization) Run(ctx context.Context, opts Opts) error {
 	if err := os.MkdirAll(filepath.Join(opts.Dir, "etc", "profile.d"), 0755); err != nil && !os.IsExist(err) {
 		return err
