@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 // Debootstrap bootstraps the base debian system.
@@ -21,5 +22,9 @@ func (d *Debootstrap) Run(ctx context.Context, opts Opts) error {
 	dbstrp.Args = []string{"debootstrap", opts.Debian.Track, opts.Dir, opts.Debian.URL}
 	dbstrp.Stdout = opts.L
 	dbstrp.Stderr = os.Stderr
-	return dbstrp.Run()
+	if err := dbstrp.Run(); err != nil {
+		return err
+	}
+
+	return Shell(ctx, &opts, "cp", filepath.Join(opts.Resources, "fstab"), filepath.Join(opts.Dir, "etc", "fstab"))
 }

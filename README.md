@@ -2,4 +2,4 @@
 
 Moar TODO
 
- - Apply locale settings before Linux is built
+ - Refactor Gnome / Grub units to be customizable using arguments.
