@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
+	"syscall"
 
 	"github.com/twitchylinux/builder/units"
 )
@@ -47,8 +49,21 @@ func main() {
 	}
 }
 
+func cancelCtxOnSignal(cancel context.CancelFunc) {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
+
+	go func() {
+		defer signal.Reset(syscall.SIGTERM, os.Interrupt)
+		<-sigs
+		cancel()
+	}()
+}
+
 func run(ctx context.Context, config units.Opts) error {
 	logger := interactiveOutput{}
+	ctx, cancel := context.WithCancel(ctx)
+	cancelCtxOnSignal(cancel)
 
 	for i, unit := range units.Units {
 		opts := config
