@@ -82,15 +82,19 @@ func (d *ShellCustomization) updateShadowPassword(dir, user, pw string) error {
 	if err != nil {
 		return err
 	}
+
 	var out strings.Builder
-	for _, line := range strings.Split(string(shadowData), "\n") {
+	lines := strings.Split(string(shadowData), "\n")
+	for i, line := range lines {
 		if strings.HasPrefix(line, user+":") {
 			spl := strings.Split(line, ":")
-			out.WriteString(user + ":" + pw + strings.Join(spl[2:], ":"))
+			out.WriteString(user + ":" + pw + ":" + strings.Join(spl[2:], ":"))
 		} else {
 			out.WriteString(line)
 		}
-		out.WriteRune('\n')
+		if i < len(lines)-1 {
+			out.WriteRune('\n')
+		}
 	}
 
 	return ioutil.WriteFile(filepath.Join(dir, "etc", "shadow"), []byte(out.String()), 0640)
