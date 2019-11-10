@@ -2,6 +2,8 @@ package units
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 )
 
 // Clean is a unit which cleans up unneeded files from the system.
@@ -21,5 +23,15 @@ func (i *Clean) Run(ctx context.Context, opts Opts) error {
 	}
 	defer chroot.Close()
 
+	if err := os.Mkdir(filepath.Join(opts.Dir, "deb-pkgs"), 0755); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	if err := chroot.Shell(ctx, &opts, "bash", "-c", "mv -v /*.deb /deb-pkgs"); err != nil {
+		return err
+	}
+	if err := chroot.Shell(ctx, &opts, "bash", "-c", "rm -rf /linux-*"); err != nil {
+		return err
+	}
 	return chroot.Shell(ctx, &opts, "apt-get", "clean")
 }
