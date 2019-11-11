@@ -124,5 +124,16 @@ var Units = []Unit{
 	nmapToolsInstall,
 	&InstallTools{name: "gui-dev-tools", pkgs: []string{"gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev"}},
 	&Clean{},
-	&Grub2{},
+	&Grub2{
+		DistroName: "TwitchyLinux",
+		Quiet:      true,
+		ColorNormal: grubColorPair{
+			FG: "white",
+			BG: "black",
+		},
+		ColorHighlight: grubColorPair{
+			FG: "black",
+			BG: "light-gray",
+		},
+	},
 }
