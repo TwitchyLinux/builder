@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -167,4 +168,31 @@ func DownloadFile(opts *Opts, url, outPath string) error {
 			return resp.Err()
 		}
 	}
+}
+
+// CopyResource copies a file from the resource directory into the system.
+// Both paths are relative to the resource and base system directory
+// respectively.
+func CopyResource(ctx context.Context, opts *Opts, resourcePath, toPath string) error {
+	return Shell(ctx, opts, "cp", filepath.Join(opts.Resources, resourcePath), filepath.Join(opts.Dir, toPath))
+}
+
+// InstallConfigResources copies config files within resourceDir into the
+// directory at base. Both paths are relative to the resouce and base
+// system directory respectively.
+func InstallConfigResources(ctx context.Context, opts *Opts, base, resourceDir string) error {
+	files, err := ioutil.ReadDir(filepath.Join(opts.Resources, resourceDir))
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		d, err := ioutil.ReadFile(filepath.Join(opts.Resources, resourceDir, f.Name()))
+		if err != nil {
+			return err
+		}
+		if err := ioutil.WriteFile(filepath.Join(opts.Dir, base, f.Name()), d, 0644); err != nil {
+			return err
+		}
+	}
+	return nil
 }
