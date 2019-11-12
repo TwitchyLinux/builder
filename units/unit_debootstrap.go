@@ -2,7 +2,6 @@ package units
 
 import (
 	"context"
-	"os"
 	"os/exec"
 	"path/filepath"
 )
@@ -20,8 +19,8 @@ func (d *Debootstrap) Name() string {
 func (d *Debootstrap) Run(ctx context.Context, opts Opts) error {
 	dbstrp := exec.CommandContext(ctx, "debootstrap")
 	dbstrp.Args = []string{"debootstrap", opts.Debian.Track, opts.Dir, opts.Debian.URL}
-	dbstrp.Stdout = opts.L
-	dbstrp.Stderr = os.Stderr
+	dbstrp.Stdout = opts.L.Stdout()
+	dbstrp.Stderr = opts.L.Stderr()
 	if err := dbstrp.Run(); err != nil {
 		return err
 	}

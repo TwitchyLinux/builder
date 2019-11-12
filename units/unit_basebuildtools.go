@@ -2,7 +2,6 @@ package units
 
 import (
 	"context"
-	"os"
 )
 
 // BaseBuildtools is a unit which installs build dependencies for
@@ -27,8 +26,8 @@ func (d *BaseBuildtools) Run(ctx context.Context, opts Opts) error {
 	if err != nil {
 		return err
 	}
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -37,7 +36,7 @@ func (d *BaseBuildtools) Run(ctx context.Context, opts Opts) error {
 	if err != nil {
 		return err
 	}
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	return cmd.Run()
 }

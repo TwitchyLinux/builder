@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"syscall"
@@ -78,8 +77,8 @@ func (c *Chroot) Shell(ctx context.Context, opts *Opts, bin string, args ...stri
 	if err != nil {
 		return err
 	}
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	return cmd.Run()
 }
 
@@ -89,8 +88,8 @@ func (c *Chroot) AptInstall(ctx context.Context, opts *Opts, packages ...string)
 	if err != nil {
 		return err
 	}
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	cmd.Env = localeEnv
 	return cmd.Run()
 }
@@ -102,11 +101,11 @@ func prepareChroot(root string) (out *Chroot, err error) {
 	}
 	out = &Chroot{Dir: root, chrootPath: p}
 
-	defer func() {
+	defer func(out *Chroot) {
 		if err != nil {
 			out.Close()
 		}
-	}()
+	}(out)
 
 	if err = syscall.Mount("sysfs", filepath.Join(root, "sys"), "sysfs", 0, ""); err != nil {
 		return nil, err

@@ -39,7 +39,8 @@ func (o *Opts) makeNumThreadsArg() string {
 
 // Logger implements status reporting and logging for executing units.
 type Logger interface {
-	io.Writer
+	Stderr() io.Writer
+	Stdout() io.Writer
 }
 
 // Unit describes an execution unit for building the system.

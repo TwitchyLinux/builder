@@ -35,8 +35,8 @@ tzdata tzdata/Areas select `+d.Area+`
 		return err
 	}
 	cmd.Env = localeEnv
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	return cmd.Run()
 }
 
@@ -88,8 +88,8 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 	cmd.Env = localeEnv
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -99,8 +99,8 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 	}
 	cmd.Env = localeEnv
 	cmd.Stdin = strings.NewReader("locales locales/locales_to_be_generated multiselect " + strings.Join(d.Generate, ", ") + "\n")
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -110,8 +110,8 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 	}
 	cmd.Env = localeEnv
 	cmd.Stdin = strings.NewReader("locales locales/default_environment_locale select " + d.Default + "\n")
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 	cmd.Env = localeEnv
-	cmd.Stdout = opts.L
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	return cmd.Run()
 }

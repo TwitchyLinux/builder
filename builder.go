@@ -18,6 +18,7 @@ var (
 	debianURL    = flag.String("debian-url", "http://deb.debian.org/debian/", "Mirror to download debian packages from.")
 	debianTrack  = flag.String("debian-track", "stable", "Which debian track to use.")
 	resourcesDir = flag.String("resources-dir", "resources", "Path to the builder resources directory.")
+	outputOnly   = flag.Bool("output-only", false, "Only output to stdout in a non-interactive fashion.")
 
 	defaultNumThreads = int(math.Max(1, float64(runtime.NumCPU()-1)))
 	numThreads        = flag.Int("j", defaultNumThreads, "Number of concurrent threads to use while building.")
@@ -42,7 +43,14 @@ func main() {
 			Track: *debianTrack,
 		}}
 
-	err := run(ctx, config)
+	var logger logger
+	if *outputOnly {
+		logger = &rawOutput{}
+	} else {
+		logger = &interactiveOutput{}
+	}
+
+	err := run(ctx, config, logger)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -60,39 +68,51 @@ func cancelCtxOnSignal(cancel context.CancelFunc) {
 	}()
 }
 
-func run(ctx context.Context, config units.Opts) error {
-	logger := interactiveOutput{}
-	ctx, cancel := context.WithCancel(ctx)
-	cancelCtxOnSignal(cancel)
-
+func selectUnits(config units.Opts, logger logger) ([]*unitState, error) {
+	candidateUnits := make([]*unitState, 0, len(units.Units))
 	for i, unit := range units.Units {
 		opts := config
 		opts.Num = i
 		ul := &unitState{
 			opts:   &opts,
 			unit:   unit,
-			output: &logger,
+			output: logger,
 		}
 		opts.L = ul
-		logger.units = append(logger.units, ul)
+		logger.registerUnit(ul)
 
 		shouldSkip, err := skipUnit(opts, unit)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if shouldSkip {
 			ul.setSkipped()
 			continue
 		}
+		candidateUnits = append(candidateUnits, ul)
+	}
+	return candidateUnits, nil
+}
 
+func run(ctx context.Context, config units.Opts, logger logger) error {
+	ctx, cancel := context.WithCancel(ctx)
+	cancelCtxOnSignal(cancel)
+
+	candidateUnits, err := selectUnits(config, logger)
+	if err != nil {
+		return err
+	}
+
+	for _, ul := range candidateUnits {
+		unit := ul.unit
 		ul.setStarting()
-		if err := unit.Run(ctx, opts); err != nil {
+		if err := unit.Run(ctx, *ul.opts); err != nil {
 			ul.setFinalState(err)
 			return fmt.Errorf("%s: %v", unit.Name(), err)
 		}
 
 		ul.setFinalState(nil)
-		if err := recordUnitStatus(opts, unit, StatusDone); err != nil {
+		if err := recordUnitStatus(*ul.opts, unit, StatusDone); err != nil {
 			return err
 		}
 	}

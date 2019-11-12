@@ -53,8 +53,8 @@ func Shell(ctx context.Context, opts *Opts, bin string, args ...string) error {
 	}
 	cmd := exec.CommandContext(ctx, p)
 	cmd.Args = append([]string{p}, args...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = opts.L
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
 	return cmd.Run()
 }
 
@@ -157,12 +157,13 @@ func DownloadFile(opts *Opts, url, outPath string) error {
 	}
 	resp := client.Do(req)
 
+	stdout := opts.L.Stdout()
 	t := time.NewTicker(time.Second)
 	defer t.Stop()
 	for {
 		select {
 		case <-t.C:
-			fmt.Fprintf(opts.L, "Downloading %v: %.01f%% complete\n", filepath.Base(outPath), resp.Progress()*100)
+			fmt.Fprintf(stdout, "Downloading %v: %.01f%% complete\n", filepath.Base(outPath), resp.Progress()*100)
 
 		case <-resp.Done:
 			return resp.Err()
