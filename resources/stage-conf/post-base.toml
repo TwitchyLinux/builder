@@ -49,10 +49,6 @@ packages = ["iw", "wireless-tools", "wpasupplicant", "rfkill", "net-tools"]
 order_priority = 80
 packages = ["bash-completion", "bash-doc", "bash-builtins"]
 
-[post_base.install.nmap-tools]
-order_priority = 50
-packages = ["nmap", "ncat", "ndiff", "zenmap"]
-
 [post_base.install.cryptsetup]
 order_priority = 20
 packages = ["cryptsetup", "kbd", "console-setup", "keyutils"]

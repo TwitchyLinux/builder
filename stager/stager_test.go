@@ -30,6 +30,23 @@ func getUnits(t *testing.T, in []units.Unit, typ reflect.Type) []units.Unit {
 	return out
 }
 
+func TestLoadLocale(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/locale")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	l := getUnit(t, c, reflect.TypeOf(&units.Locale{})).(*units.Locale)
+	if got, want := l, (&units.Locale{
+		Area:     "HNNNNNG",
+		Zone:     "Los_Angeles",
+		Generate: []string{"en_US.UTF-8 UTF-8", "en_US ISO-8859-1"},
+		Default:  "en_US.UTF-8",
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("locale = %v, want %v", got, want)
+	}
+}
+
 func TestLoadGraphical(t *testing.T) {
 	c, err := UnitsFromConfig("testdata/graphics")
 	if err != nil {
@@ -148,6 +165,11 @@ func TestStageConfOrdering(t *testing.T) {
 		{
 			name:   "Apt before linux",
 			before: stageFinder(reflect.TypeOf(&units.FinalizeApt{}), ""),
+			after:  stageFinder(reflect.TypeOf(&units.Linux{}), ""),
+		},
+		{
+			name:   "Locale before linux",
+			before: stageFinder(reflect.TypeOf(&units.Locale{}), ""),
 			after:  stageFinder(reflect.TypeOf(&units.Linux{}), ""),
 		},
 		{

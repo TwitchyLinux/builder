@@ -1,4 +1,4 @@
-// Stager reads config to select and configure units to run during install.
+// Package stager reads config to pick units to run during install.
 package stager
 
 import (
@@ -11,8 +11,9 @@ import (
 
 const (
 	rootKeyGraphicalEnv = "graphical_environment"
+	rootKeyLocale       = "locale"
 	installKeyPostBase  = "post_base.install"
-	installKeyPostGUI   = "post_gui.install"
+	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
 )
 
 // UnitsFromConfig returns a set of units that represent the configuration
@@ -20,7 +21,7 @@ const (
 func UnitsFromConfig(dir string) ([]units.Unit, error) {
 	var (
 		conf, _ = toml.Load("")
-		out     = append([]units.Unit{}, baseSystemUnits...)
+		out     []units.Unit
 	)
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
@@ -38,6 +39,16 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 		}
 	}
 
+	// Build base system.
+	out = append(out, earlyBuildUnits...)
+	locale, err := localeConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, locale)
+	out = append(out, systemBuildUnits...)
+
+	// Install specified packages.
 	installs, err := installsUnderKey(conf, installKeyPostBase)
 	if err != nil {
 		return nil, err
@@ -50,10 +61,12 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 	}
 	out = append(out, ge)
 
+	// Install post-GUI packages.
 	if installs, err = installsUnderKey(conf, installKeyPostGUI); err != nil {
 		return nil, err
 	}
 	out = append(out, installs...)
+	out = append(out, afterGUIUnits...)
 
 	out = append(out, finalUnits...)
 	return out, nil

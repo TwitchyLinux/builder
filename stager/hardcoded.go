@@ -8,16 +8,12 @@ import (
 // Contains hardcoded stages.
 var (
 	// baseSystemUnits are run first.
-	baseSystemUnits = []units.Unit{
+	earlyBuildUnits = []units.Unit{
 		&units.Preflight{},
 		&units.Debootstrap{},
 		&units.FinalizeApt{},
-		&units.Locale{
-			Area:     "America",
-			Zone:     "Los_Angeles",
-			Generate: []string{"en_US.UTF-8 UTF-8", "en_US ISO-8859-1"},
-			Default:  "en_US.UTF-8",
-		},
+	}
+	systemBuildUnits = []units.Unit{
 		&units.BaseBuildtools{},
 		&units.Linux{},
 		&units.Systemd{},

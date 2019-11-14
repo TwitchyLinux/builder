@@ -1,3 +1,0 @@
-[post_gui.install.gui-dev-tools]
-order_priority = 10
-packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev"]

@@ -9,14 +9,14 @@ import (
 )
 
 var (
-	graphicalEnvDefault = GraphicsConf{Packages: []string{"gdm3", "adwaita-icon-theme", "at-spi2-core", "baobab", "caribou", "dconf-cli", "dconf-gsettings-backend", "eog", "evince",
-		"fonts-cantarell", "gedit", "glib-networking", "gnome-backgrounds", "gnome-bluetooth", "gnome-calculator", "gnome-characters", "gnome-control-center",
-		"gnome-disk-utility", "gnome-font-viewer", "gnome-keyring", "gnome-logs", "gnome-menus", "gnome-session", "gnome-shell", "gnome-settings-daemon",
-		"gnome-shell-extensions", "gnome-system-monitor", "gnome-terminal", "gsettings-desktop-schemas", "gstreamer1.0-packagekit", "gstreamer1.0-plugins-base",
-		"gstreamer1.0-plugins-good", "gstreamer1.0-pulseaudio", "gvfs-backends", "gvfs-fuse", "libatk-adaptor", "libcanberra-pulse", "libglib2.0-bin",
-		"libpam-gnome-keyring", "libproxy1-plugin-gsettings", "libproxy1-plugin-webkit", "nautilus", "pulseaudio", "pulseaudio-module-bluetooth",
-		"sound-theme-freedesktop", "system-config-printer-common", "system-config-printer-udev", "totem", "zenity", "libproxy1-plugin-networkmanager",
-		"network-manager-gnome"}}
+	graphicalEnvDefault = GraphicsConf{Packages: []string{"gnome"}}
+
+	localeDefault = LocaleConf{
+		Area:     "America",
+		Zone:     "Los_Angeles",
+		Generate: []string{"en_US.UTF-8 UTF-8", "en_US ISO-8859-1"},
+		Default:  "en_US.UTF-8",
+	}
 )
 
 // GraphicsConf describes how a graphical environment should be installed.
@@ -44,7 +44,38 @@ func graphicsConf(tree *toml.Tree) (*units.Gnome, error) {
 	}, nil
 }
 
-//.InstallConf desribes a set of packages to be installed.
+// LocaleConf describes the locale of the system.
+type LocaleConf struct {
+	Area     string   `toml:"area"`
+	Zone     string   `toml:"zone"`
+	Generate []string `toml:"generate_locales"`
+	Default  string   `toml:"default"`
+}
+
+func localeConf(tree *toml.Tree) (*units.Locale, error) {
+	conf := localeDefault
+	if t := tree.Get(rootKeyLocale); t != nil {
+		ge, ok := t.(*toml.Tree)
+		if !ok {
+			if i, isInt := t.(int64); isInt && i == 0 {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyGraphicalEnv, t)
+		}
+		if err := ge.Unmarshal(&conf); err != nil {
+			return nil, err
+		}
+	}
+
+	return &units.Locale{
+		Area:     conf.Area,
+		Zone:     conf.Zone,
+		Generate: conf.Generate,
+		Default:  conf.Default,
+	}, nil
+}
+
+// InstallConf desribes a set of packages to be installed.
 type InstallConf struct {
 	Order    int      `toml:"order_priority"`
 	Packages []string `toml:"packages"`
