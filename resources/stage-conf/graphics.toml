@@ -1,13 +1,21 @@
 [graphical_environment]
 packages = [
-  "gdm3", "adwaita-icon-theme", "at-spi2-core", "baobab", "caribou", "dconf-cli", "dconf-gsettings-backend", "eog", "evince",
-  "fonts-cantarell", "gedit", "glib-networking", "gnome-backgrounds", "gnome-bluetooth", "gnome-calculator", "gnome-characters", "gnome-control-center",
-  "gnome-disk-utility", "gnome-font-viewer", "gnome-keyring", "gnome-logs", "gnome-menus", "gnome-session", "gnome-shell", "gnome-settings-daemon",
-  "gnome-shell-extensions", "gnome-system-monitor", "gnome-terminal", "gsettings-desktop-schemas", "gstreamer1.0-packagekit", "gstreamer1.0-plugins-base",
+  # Basic components
+  "gdm3", "gnome-menus", "gnome-session", "gnome-shell", "at-spi2-core", "baobab", "caribou", "dconf-cli",
+  # Basic styling
+  "desktop-base", "adwaita-icon-theme", "gnome-backgrounds", "fonts-cantarell", "gnome-themes-extra",
+  # Useful programs
+  "cheese", "gnome-system-monitor", "gnome-terminal", "nautilus", "totem", "zenity", "network-manager-gnome",
+  "eog", "evince", "gedit", "gnome-calculator", "gnome-characters", "gnome-control-center", "gnome-disk-utility",
+  "gnome-font-viewer", "file-roller", "gnome-calendar", "gnome-clocks", "gnome-screenshot", "orca", "gnome-logs",
+  "transmission-gtk", "gnome-sushi",
+  # Seems important
+  "gnome-shell-extensions", "gsettings-desktop-schemas", "gstreamer1.0-packagekit", "gstreamer1.0-plugins-base",
   "gstreamer1.0-plugins-good", "gstreamer1.0-pulseaudio", "gvfs-backends", "gvfs-fuse", "libatk-adaptor", "libcanberra-pulse", "libglib2.0-bin",
-  "libpam-gnome-keyring", "libproxy1-plugin-gsettings", "libproxy1-plugin-webkit", "nautilus", "pulseaudio", "pulseaudio-module-bluetooth",
-  "sound-theme-freedesktop", "system-config-printer-common", "system-config-printer-udev", "totem", "zenity", "libproxy1-plugin-networkmanager",
-  "network-manager-gnome"
+  "libpam-gnome-keyring", "libproxy1-plugin-gsettings", "libproxy1-plugin-webkit", "pulseaudio", "pulseaudio-module-bluetooth",
+  "sound-theme-freedesktop", "system-config-printer-common", "system-config-printer-udev", "libproxy1-plugin-networkmanager",
+  "glib-networking", "gnome-bluetooth", "gnome-settings-daemon", "gnome-keyring", "gstreamer1.0-libav",
+  "dconf-gsettings-backend", "gnome-color-manager", "libgsf-bin", "gkbd-capplet", "tracker"
 ]
 
 [graphical_environment.post.install.nmap-tools]

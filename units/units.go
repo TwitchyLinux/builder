@@ -40,6 +40,7 @@ func (o *Opts) makeNumThreadsArg() string {
 type Logger interface {
 	Stderr() io.Writer
 	Stdout() io.Writer
+	SetSubstage(string)
 }
 
 // Unit describes an execution unit for building the system.

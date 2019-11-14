@@ -47,6 +47,7 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	}
 	defer chroot.Close()
 
+	opts.L.SetSubstage("Downloading Linux " + linuxVersion)
 	if err := DownloadFile(&opts, linuxURL, l.tarPath(&opts, false)); err != nil {
 		return fmt.Errorf("Linux source download failed: %v", err)
 	}
@@ -54,10 +55,12 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
+	opts.L.SetSubstage("Extracting")
 	if err := chroot.Shell(ctx, &opts, "tar", "xf", l.tarPath(&opts, true)); err != nil {
 		return err
 	}
 
+	opts.L.SetSubstage("Preparing")
 	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), opts.makeNumThreadsArg(), "mrproper"); err != nil {
 		return err
 	}
@@ -73,6 +76,7 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), opts.makeNumThreadsArg(), "clean"); err != nil {
 		return err
 	}
+	opts.L.SetSubstage("Building")
 	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), opts.makeNumThreadsArg(), "deb-pkg"); err != nil {
 		return err
 	}
@@ -92,6 +96,7 @@ func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) 
 	for _, f := range files {
 		for _, wantPkg := range []string{"linux-headers-", "linux-image-"} {
 			if strings.Contains(f.Name(), wantPkg) && strings.HasSuffix(f.Name(), ".deb") {
+				opts.L.SetSubstage("Install " + wantPkg + linuxVersion)
 				if err := chroot.Shell(ctx, &opts, "dpkg", "--install", f.Name()); err != nil {
 					return err
 				}
@@ -99,6 +104,7 @@ func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) 
 		}
 	}
 
+	opts.L.SetSubstage("Install initramfs")
 	if err := chroot.AptInstall(ctx, &opts, "initramfs-tools"); err != nil {
 		return err
 	}

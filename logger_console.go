@@ -50,7 +50,11 @@ func (o *interactiveOutput) writeConsoleBuffer(ws *term.Winsize) {
 }
 
 func (o *interactiveOutput) writeHeader(ws *term.Winsize) {
-	fmt.Fprintf(os.Stdout, "Building TwitchyLinux \033[1;32m(%d\033[1;0m/\033[1;32m%d)\033[1;0m --- \033[1;34m%s\033[1;0m\n", o.idx+1, len(o.units), o.currentUnit.unit.Name())
+	substage := ""
+	if o.currentUnit.subStage != "" {
+		substage = ": \033[1;34m" + o.currentUnit.subStage + "\033[1;0m"
+	}
+	fmt.Fprintf(os.Stdout, "Building TwitchyLinux \033[1;32m(%d\033[1;0m/\033[1;32m%d)\033[1;0m --- \033[1;34m%s\033[1;0m%s\n", o.idx+1, len(o.units), o.currentUnit.unit.Name(), substage)
 	o.stdoutLinesWritten++
 }
 

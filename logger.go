@@ -19,6 +19,7 @@ type unitState struct {
 	done     bool
 	skipped  bool
 	err      error
+	subStage string
 
 	output logger
 	unit   units.Unit
@@ -43,6 +44,12 @@ func (u *unitState) setFinalState(err error) {
 	u.finished = time.Now()
 	u.done = true
 	u.err = err
+	u.output.updated(u)
+}
+
+// SetSubstage tells the logger the unit is entering a new substage.
+func (u *unitState) SetSubstage(ss string) {
+	u.subStage = ss
 	u.output.updated(u)
 }
 
