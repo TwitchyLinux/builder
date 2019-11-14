@@ -1,0 +1,66 @@
+[post_base.install.fs-tools]
+packages = ["e2fsprogs", "e2fsck-static", "gpart", "parted", "kpartx",
+"libfuse2", "ntfs-3g", "fuse2fs", "fuseiso", "fatcat", "fatattr", "exfat-utils", "exfat-fuse",
+"cpio", "disktype", "cpio-doc", "multipath-tools", "smartmontools", "dosfstools",
+"sg3-utils", "squashfs-tools", "libext2fs2", "apt-file"]
+order_priority = 100
+
+[post_base.install.net-tools]
+packages = ["curl", "curlftpfs", "net-tools", "netbase", "netcat-openbsd", "netwox",
+"iproute2", "iproute2-doc", "tcpdump", "tcpstat", "traceroute",
+"inetutils-ftp", "inetutils-ping", "inetutils-tools",
+"arping", "arptables", "dnsutils", "irssi"]
+order_priority = 99
+
+[post_base.install.compression-tools]
+order_priority = 99
+packages = ["lzip", "unzip", "zip", "tar", "rar", "unrar"]
+
+[post_base.install.cli-tools]
+order_priority = 98
+packages = [
+  "htop", "screen", "tmux",
+  "nano", "vim", "vim-doc",
+  "git", "git-doc", "subversion", "subversion-tools",
+  "lua5.2", "python2.7", "python-pip", "python-numpy", "python-dev", "python-numpy-doc", "python3", "python3-numpy",
+  "figlet",
+  "sharutils", "sharutils-doc",
+  "pm-utils", "pciutils", "sysstat", "dpkg-dev",
+  "gnupg", "jq", "tidy", "dstat", "info", "attr"
+]
+
+[post_base.install.usb]
+order_priority = 90
+packages = ["usbutils", "libusb-1.0-0", "libusb-1.0-0-dev", "libusb-1.0-doc"]
+
+[post_base.install.c-toolchain]
+order_priority = 88
+packages = ["build-essential", "cmake", "sqlite3", "libsqlite3-0", "libsqlite3-dev", "sqlite3-doc"]
+
+[post_base.install.sudo]
+order_priority = 85
+packages = ["sudo"]
+
+[post_base.install.wifi]
+order_priority = 84
+packages = ["iw", "wireless-tools", "wpasupplicant", "rfkill", "net-tools"]
+
+[post_base.install.bash-completion]
+order_priority = 80
+packages = ["bash-completion", "bash-doc", "bash-builtins"]
+
+[post_base.install.nmap-tools]
+order_priority = 50
+packages = ["nmap", "ncat", "ndiff", "zenmap"]
+
+[post_base.install.cryptsetup]
+order_priority = 20
+packages = ["cryptsetup", "kbd", "console-setup", "keyutils"]
+
+[post_base.install.firmware]
+order_priority = 18
+packages = [
+  "firmware-iwlwifi", "firmware-amd-graphics", "firmware-atheros", "firmware-brcm80211",
+  "firmware-cavium", "firmware-intel-sound", "intel-microcode", "firmware-misc-nonfree",
+  "firmware-realtek", "firmware-zd1211"
+]

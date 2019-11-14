@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/twitchylinux/builder/stager"
 	"github.com/twitchylinux/builder/units"
 )
 
@@ -69,8 +70,13 @@ func cancelCtxOnSignal(cancel context.CancelFunc) {
 }
 
 func selectUnits(config units.Opts, logger logger) ([]*unitState, error) {
-	candidateUnits := make([]*unitState, 0, len(units.Units))
-	for i, unit := range units.Units {
+	uts, err := stager.UnitsFromConfig(filepath.Join(config.Resources, "stage-conf"))
+	if err != nil {
+		return nil, err
+	}
+
+	candidateUnits := make([]*unitState, 0, len(uts))
+	for i, unit := range uts {
 		opts := config
 		opts.Num = i
 		ul := &unitState{

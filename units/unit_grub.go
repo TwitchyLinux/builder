@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-type grubColorPair struct {
+// GrubColorPair describes a color pair in grub config.
+type GrubColorPair struct {
 	FG, BG string
 }
 
@@ -17,8 +18,8 @@ type Grub2 struct {
 	DistroName string
 	Quiet      bool
 
-	ColorNormal    grubColorPair
-	ColorHighlight grubColorPair
+	ColorNormal    GrubColorPair
+	ColorHighlight GrubColorPair
 }
 
 // Name implements Unit.

@@ -1,0 +1,2 @@
+[graphical_environment]
+packages = ['test', 'yolo']

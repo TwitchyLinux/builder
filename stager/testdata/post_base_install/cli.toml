@@ -1,0 +1,11 @@
+[post_base.install.cli]
+order_priority = 5
+packages = ["screen", "htop"]
+
+[post_base.install.last]
+order_priority = 1
+packages = ["last"]
+
+[post_base.install.med]
+order_priority = 2
+packages = ["med"]

@@ -50,7 +50,7 @@ alias reload='. ~/.bashrc'
 `),
 	}
 
-	defaultUsers = []userSpec{
+	defaultUsers = []UserSpec{
 		{
 			Username: "twl",
 			Password: "twl",
@@ -59,7 +59,8 @@ alias reload='. ~/.bashrc'
 	}
 )
 
-type userSpec struct {
+// UserSpec configures a user account.
+type UserSpec struct {
 	Username string
 	Password string
 	Groups   []string
@@ -69,7 +70,7 @@ type userSpec struct {
 type ShellCustomization struct {
 	AdditionalSkel          []byte
 	AddtionalProfileScripts map[string][]byte
-	Users                   []userSpec
+	Users                   []UserSpec
 }
 
 // Name implements Unit.
