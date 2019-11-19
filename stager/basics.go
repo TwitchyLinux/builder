@@ -23,6 +23,12 @@ var (
 		URL:     "https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz",
 		SHA256:  "692d17071736f74be04a72a06dab9cac1cd759377bd85316e52b2227604c004c",
 	}
+
+	linuxDefault = LinuxConf{
+		Version: "5.1.18",
+		URL:     "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.1.18.tar.xz",
+		SHA256:  "6013e7dcf59d7c1b168d8edce3dbd61ce340ff289541f920dbd0958bef98f36a",
+	}
 )
 
 // GolangConf describes what Go toolchain to install.
@@ -48,6 +54,35 @@ func golangConf(tree *toml.Tree) (*units.Golang, error) {
 	}
 
 	return &units.Golang{
+		Version: conf.Version,
+		URL:     conf.URL,
+		SHA256:  conf.SHA256,
+	}, nil
+}
+
+// LinuxConf describes what Linux kernel to install
+type LinuxConf struct {
+	Version string `toml:"version"`
+	URL     string `toml:"url"`
+	SHA256  string `toml:"sha256"`
+}
+
+func linuxConf(tree *toml.Tree) (*units.Linux, error) {
+	conf := linuxDefault
+	if t := tree.Get(rootKeyLinux); t != nil {
+		ge, ok := t.(*toml.Tree)
+		if !ok {
+			if i, isInt := t.(int64); isInt && i == 0 {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyLinux, t)
+		}
+		if err := ge.Unmarshal(&conf); err != nil {
+			return nil, err
+		}
+	}
+
+	return &units.Linux{
 		Version: conf.Version,
 		URL:     conf.URL,
 		SHA256:  conf.SHA256,

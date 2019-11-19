@@ -12,6 +12,7 @@ import (
 const (
 	rootKeyGraphicalEnv = "graphical_environment"
 	rootKeyLocale       = "locale"
+	rootKeyLinux        = "linux"
 	rootKeyGolang       = "go_toolchain"
 	installKeyPostBase  = "post_base.install"
 	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
@@ -64,6 +65,14 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 		return nil, err
 	}
 	out = append(out, locale)
+
+	out = append(out, &units.BaseBuildtools{})
+	linux, err := linuxConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, linux)
+
 	out = append(out, systemBuildUnits...)
 
 	// Install specified packages.

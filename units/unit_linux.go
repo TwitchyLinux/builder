@@ -9,14 +9,11 @@ import (
 	"strings"
 )
 
-const (
-	linuxVersion = "5.1.18"
-	linuxURL     = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-" + linuxVersion + ".tar.xz"
-	linuxSHA256  = "6013e7dcf59d7c1b168d8edce3dbd61ce340ff289541f920dbd0958bef98f36a"
-)
-
 // Linux is a unit that builds the Linux kernel.
 type Linux struct {
+	Version string
+	URL     string
+	SHA256  string
 }
 
 // Name implements Unit.
@@ -25,7 +22,7 @@ func (l *Linux) Name() string {
 }
 
 func (l *Linux) dirFilename() string {
-	return "linux-" + linuxVersion
+	return "linux-" + l.Version
 }
 
 func (l *Linux) tarFilename() string {
@@ -47,11 +44,11 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	}
 	defer chroot.Close()
 
-	opts.L.SetSubstage("Downloading Linux " + linuxVersion)
-	if err := DownloadFile(&opts, linuxURL, l.tarPath(&opts, false)); err != nil {
+	opts.L.SetSubstage("Downloading Linux " + l.Version)
+	if err := DownloadFile(&opts, l.URL, l.tarPath(&opts, false)); err != nil {
 		return fmt.Errorf("Linux source download failed: %v", err)
 	}
-	if err := CheckSHA256(l.tarPath(&opts, false), linuxSHA256); err != nil {
+	if err := CheckSHA256(l.tarPath(&opts, false), l.SHA256); err != nil {
 		return err
 	}
 
@@ -96,7 +93,7 @@ func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) 
 	for _, f := range files {
 		for _, wantPkg := range []string{"linux-headers-", "linux-image-"} {
 			if strings.Contains(f.Name(), wantPkg) && strings.HasSuffix(f.Name(), ".deb") {
-				opts.L.SetSubstage("Install " + wantPkg + linuxVersion)
+				opts.L.SetSubstage("Install " + wantPkg + l.Version)
 				if err := chroot.Shell(ctx, &opts, "dpkg", "--install", f.Name()); err != nil {
 					return err
 				}
@@ -108,5 +105,5 @@ func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) 
 	if err := chroot.AptInstall(ctx, &opts, "initramfs-tools"); err != nil {
 		return err
 	}
-	return chroot.Shell(ctx, &opts, "update-initramfs", "-c", "-k", linuxVersion)
+	return chroot.Shell(ctx, &opts, "update-initramfs", "-c", "-k", l.Version)
 }

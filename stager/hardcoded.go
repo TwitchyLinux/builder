@@ -14,8 +14,6 @@ var (
 		&units.FinalizeApt{},
 	}
 	systemBuildUnits = []units.Unit{
-		&units.BaseBuildtools{},
-		&units.Linux{},
 		&units.Systemd{},
 		&units.ShellCustomization{
 			AdditionalSkel:          additionalSkel,

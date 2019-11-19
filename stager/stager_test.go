@@ -47,6 +47,38 @@ func TestLoadLocale(t *testing.T) {
 	}
 }
 
+func TestLoadGolangDefaults(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/empty")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := getUnit(t, c, reflect.TypeOf(&units.Golang{})).(*units.Golang)
+	if want := (&units.Golang{
+		Version: golangDefault.Version,
+		URL:     golangDefault.URL,
+		SHA256:  golangDefault.SHA256,
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("golang = %v, want %v", got, want)
+	}
+}
+
+func TestLoadLinuxDefaults(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/empty")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := getUnit(t, c, reflect.TypeOf(&units.Linux{})).(*units.Linux)
+	if want := (&units.Linux{
+		Version: linuxDefault.Version,
+		URL:     linuxDefault.URL,
+		SHA256:  linuxDefault.SHA256,
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("linux = %v, want %v", got, want)
+	}
+}
+
 func TestLoadGraphical(t *testing.T) {
 	c, err := UnitsFromConfig("testdata/graphics")
 	if err != nil {
@@ -220,22 +252,6 @@ func TestStageConfOrdering(t *testing.T) {
 				t.Errorf("%T (%+v) was before %T (%+v)", c[before], c[before], c[after], c[after])
 			}
 		})
-	}
-}
-
-func TestLoadGolangDefaults(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/empty")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	got := getUnit(t, c, reflect.TypeOf(&units.Golang{})).(*units.Golang)
-	if want := (&units.Golang{
-		Version: golangDefault.Version,
-		URL:     golangDefault.URL,
-		SHA256:  golangDefault.SHA256,
-	}); !reflect.DeepEqual(got, want) {
-		t.Errorf("golang = %v, want %v", got, want)
 	}
 }
 
