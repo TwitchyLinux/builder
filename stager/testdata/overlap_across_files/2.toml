@@ -1,0 +1,3 @@
+[post_base.install.med]
+order_priority = 2
+packages = ["med"]

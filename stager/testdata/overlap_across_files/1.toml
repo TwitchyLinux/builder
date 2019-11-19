@@ -1,0 +1,3 @@
+[post_base.install.cli]
+order_priority = 5
+packages = ["screen", "htop"]

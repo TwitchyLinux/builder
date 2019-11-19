@@ -17,6 +17,23 @@ const (
 	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
 )
 
+func unionTree(target, in *toml.Tree, inPrefix []string) error {
+	for _, k := range in.Keys() {
+		v := in.Get(k)
+		t, isTree := v.(*toml.Tree)
+
+		if !isTree {
+			target.SetPath(append(inPrefix, k), v)
+			continue
+		}
+
+		if err := unionTree(target, t, append(inPrefix, k)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // UnitsFromConfig returns a set of units that represent the configuration
 // in the directory provided.
 func UnitsFromConfig(dir string) ([]units.Unit, error) {
@@ -34,8 +51,8 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 			if err != nil {
 				return nil, err
 			}
-			for _, k := range t.Keys() {
-				conf.Set(k, t.Get(k))
+			if err := unionTree(conf, t, nil); err != nil {
+				return nil, err
 			}
 		}
 	}

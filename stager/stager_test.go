@@ -238,3 +238,37 @@ func TestLoadGolangDefaults(t *testing.T) {
 		t.Errorf("golang = %v, want %v", got, want)
 	}
 }
+
+func TestLoadUnionsOverlaps(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/overlap_across_files")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expect := []*units.InstallTools{
+		{
+			UnitName: "cli",
+			Pkgs:     []string{"screen", "htop"},
+			Order:    5,
+		},
+		{
+			UnitName: "med",
+			Pkgs:     []string{"med"},
+			Order:    2,
+		},
+	}
+
+expectLoop:
+	for _, exp := range expect {
+		for _, unit := range c {
+			it, ok := unit.(*units.InstallTools)
+			if !ok {
+				continue
+			}
+			if reflect.DeepEqual(it, exp) {
+				continue expectLoop
+			}
+		}
+		t.Errorf("missing unit: %+v", exp)
+	}
+}

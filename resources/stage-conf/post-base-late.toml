@@ -1,0 +1,23 @@
+[post_base.install.sudo]
+order_priority = 85
+packages = ["sudo"]
+
+[post_base.install.wifi]
+order_priority = 84
+packages = ["iw", "wireless-tools", "wpasupplicant", "rfkill", "net-tools"]
+
+[post_base.install.bash-completion]
+order_priority = 80
+packages = ["bash-completion", "bash-doc", "bash-builtins"]
+
+[post_base.install.cryptsetup]
+order_priority = 20
+packages = ["cryptsetup", "kbd", "console-setup", "keyutils"]
+
+[post_base.install.firmware]
+order_priority = 18
+packages = [
+  "firmware-iwlwifi", "firmware-amd-graphics", "firmware-atheros", "firmware-brcm80211",
+  "firmware-cavium", "firmware-intel-sound", "intel-microcode", "firmware-misc-nonfree",
+  "firmware-realtek", "firmware-zd1211"
+]
