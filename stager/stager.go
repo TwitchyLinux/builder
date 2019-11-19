@@ -12,6 +12,7 @@ import (
 const (
 	rootKeyGraphicalEnv = "graphical_environment"
 	rootKeyLocale       = "locale"
+	rootKeyGolang       = "go_toolchain"
 	installKeyPostBase  = "post_base.install"
 	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
 )
@@ -54,6 +55,13 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 		return nil, err
 	}
 	out = append(out, installs...)
+
+	// Pre-graphics packages.
+	got, err := golangConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, got)
 
 	ge, err := graphicsConf(conf)
 	if err != nil {

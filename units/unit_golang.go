@@ -8,14 +8,11 @@ import (
 	"path/filepath"
 )
 
-const (
-	goVersion = "1.13.4"
-	goURL     = "https://dl.google.com/go/go" + goVersion + ".linux-amd64.tar.gz"
-	goSHA256  = "692d17071736f74be04a72a06dab9cac1cd759377bd85316e52b2227604c004c"
-)
-
 // Golang is a unit that install the Go toolchain.
 type Golang struct {
+	Version string
+	URL     string
+	SHA256  string
 }
 
 // Name implements Unit.
@@ -24,7 +21,7 @@ func (l *Golang) Name() string {
 }
 
 func (l *Golang) dirFilename() string {
-	return "go-" + goVersion
+	return "go-" + l.Version
 }
 
 func (l *Golang) tarFilename() string {
@@ -46,11 +43,11 @@ func (l *Golang) Run(ctx context.Context, opts Opts) error {
 	}
 	defer chroot.Close()
 
-	opts.L.SetSubstage("Downloading Go " + goVersion)
-	if err := DownloadFile(&opts, goURL, l.tarPath(&opts, false)); err != nil {
+	opts.L.SetSubstage("Downloading Go " + l.Version)
+	if err := DownloadFile(&opts, l.URL, l.tarPath(&opts, false)); err != nil {
 		return fmt.Errorf("Go source download failed: %v", err)
 	}
-	if err := CheckSHA256(l.tarPath(&opts, false), goSHA256); err != nil {
+	if err := CheckSHA256(l.tarPath(&opts, false), l.SHA256); err != nil {
 		return err
 	}
 

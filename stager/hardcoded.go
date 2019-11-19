@@ -22,7 +22,6 @@ var (
 			AddtionalProfileScripts: profiledScripts,
 			Users:                   defaultUsers,
 		},
-		&units.Golang{},
 	}
 
 	afterGUIUnits = []units.Unit{
