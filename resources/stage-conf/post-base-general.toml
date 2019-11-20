@@ -34,5 +34,5 @@ order_priority = 90
 packages = ["usbutils", "libusb-1.0-0", "libusb-1.0-0-dev", "libusb-1.0-doc"]
 
 [post_base.install.c-toolchain]
-order_priority = 88
+order_priority = 90
 packages = ["build-essential", "cmake", "sqlite3", "libsqlite3-0", "libsqlite3-dev", "sqlite3-doc"]

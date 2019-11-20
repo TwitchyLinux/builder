@@ -25,3 +25,11 @@ packages = ["nmap", "ncat", "ndiff", "zenmap"]
 [graphical_environment.post.install.gui-dev-tools]
 order_priority = 10
 packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev"]
+
+[graphical_environment.post.install.openscad]
+order_priority = 10
+packages = ["openscad"]
+
+[graphical_environment.post.install.qemu-gui]
+order_priority = 10
+packages = ["qemu-system-gui"]

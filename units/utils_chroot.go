@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"syscall"
@@ -45,6 +46,12 @@ func (c *Chroot) Close() error {
 		c.mounts.dev = false
 	}
 	if c.mounts.proc {
+		miscPath := filepath.Join(c.Dir, "proc", "sys", "fs", "binfmt_misc")
+		if _, err := os.Stat(miscPath); err != nil {
+			if err := syscall.Unmount(miscPath, 0); err != nil {
+				return err
+			}
+		}
 		if err := syscall.Unmount(filepath.Join(c.Dir, "proc"), 0); err != nil {
 			return err
 		}

@@ -1,0 +1,7 @@
+[post_base.install.ffmpeg]
+order_priority = 88
+packages = ["ffmpeg", "ffmpeg-doc", "libavcodec-dev", "libavdevice-dev", "libavdevice58", "libavfilter-dev"]
+
+[post_base.install.qemu]
+order_priority = 88
+packages = ["libqcow-utils", "qemu-utils", "qemu-user", "qemu-kvm", "qemu-system-arm", "qemu-system-x86"]
