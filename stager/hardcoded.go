@@ -7,12 +7,6 @@ import (
 
 // Contains hardcoded stages.
 var (
-	// baseSystemUnits are run first.
-	earlyBuildUnits = []units.Unit{
-		&units.Preflight{},
-		&units.Debootstrap{},
-		&units.FinalizeApt{},
-	}
 	systemBuildUnits = []units.Unit{
 		&units.Systemd{},
 		&units.ShellCustomization{

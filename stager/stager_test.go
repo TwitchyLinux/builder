@@ -47,6 +47,21 @@ func TestLoadLocale(t *testing.T) {
 	}
 }
 
+func TestLoadDebootstrapDefaults(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/empty")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := getUnit(t, c, reflect.TypeOf(&units.Debootstrap{})).(*units.Debootstrap)
+	if want := (&units.Debootstrap{
+		Track: debootstrapDefault.Track,
+		URL:   debootstrapDefault.URL,
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("debian = %v, want %v", got, want)
+	}
+}
+
 func TestLoadGolangDefaults(t *testing.T) {
 	c, err := UnitsFromConfig("testdata/empty")
 	if err != nil {
@@ -160,6 +175,11 @@ toolLoop:
 			}
 		}
 		t.Errorf("Could not find stage for install.post_base.%s", tool)
+	}
+
+	linux := getUnit(t, c, reflect.TypeOf(&units.Linux{})).(*units.Linux)
+	if len(linux.BuildDepPkgs) == 0 {
+		t.Error("len(linux.BuildDepPkgs) = 0, want >0")
 	}
 }
 

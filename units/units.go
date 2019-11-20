@@ -7,13 +7,6 @@ import (
 	"io"
 )
 
-// DebianOpts configures the debian URL and track the system will
-// be based on.
-type DebianOpts struct {
-	URL   string
-	Track string
-}
-
 // Opts describes options provided to the units.
 type Opts struct {
 	// Dir represents the path the system is being built at.
@@ -28,8 +21,6 @@ type Opts struct {
 
 	// NumThreads is the number of concurrent threads to be used while building.
 	NumThreads int
-
-	Debian DebianOpts
 }
 
 func (o *Opts) makeNumThreadsArg() string {

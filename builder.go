@@ -16,8 +16,6 @@ import (
 )
 
 var (
-	debianURL    = flag.String("debian-url", "http://deb.debian.org/debian/", "Mirror to download debian packages from.")
-	debianTrack  = flag.String("debian-track", "stable", "Which debian track to use.")
 	resourcesDir = flag.String("resources-dir", "resources", "Path to the builder resources directory.")
 	outputOnly   = flag.Bool("output-only", false, "Only output to stdout in a non-interactive fashion.")
 
@@ -39,10 +37,7 @@ func main() {
 		Dir:        buildDir(),
 		Resources:  resourceDir(),
 		NumThreads: *numThreads,
-		Debian: units.DebianOpts{
-			URL:   *debianURL,
-			Track: *debianTrack,
-		}}
+	}
 
 	var logger logger
 	if *outputOnly {

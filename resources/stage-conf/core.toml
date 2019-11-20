@@ -1,0 +1,15 @@
+[base]
+debian.track = "stable"
+debian.url = "http://deb.debian.org/debian/"
+
+[base.locale]
+area = "America"
+zone = "Los_Angeles"
+generate_locales = ["en_US.UTF-8 UTF-8", "en_US ISO-8859-1"]
+default = "en_US.UTF-8"
+
+[base.linux]
+version = "5.1.18"
+url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.1.18.tar.xz"
+sha256 = "6013e7dcf59d7c1b168d8edce3dbd61ce340ff289541f920dbd0958bef98f36a"
+build_packages = ["build-essential", "fakeroot", "devscripts", "wget", "libncurses-dev"]

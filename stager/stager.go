@@ -10,9 +10,12 @@ import (
 )
 
 const (
+	rootKeyBase = "base"
+	keyDebian   = rootKeyBase + ".debian"
+	keyLocale   = rootKeyBase + ".locale"
+	keyLinux    = rootKeyBase + ".linux"
+
 	rootKeyGraphicalEnv = "graphical_environment"
-	rootKeyLocale       = "locale"
-	rootKeyLinux        = "linux"
 	rootKeyGolang       = "go_toolchain"
 	installKeyPostBase  = "post_base.install"
 	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
@@ -59,21 +62,10 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 	}
 
 	// Build base system.
-	out = append(out, earlyBuildUnits...)
-	locale, err := localeConf(conf)
+	out, err = baseUnitsFromConf(out, conf)
 	if err != nil {
 		return nil, err
 	}
-	out = append(out, locale)
-
-	out = append(out, &units.BaseBuildtools{})
-	linux, err := linuxConf(conf)
-	if err != nil {
-		return nil, err
-	}
-	out = append(out, linux)
-
-	out = append(out, systemBuildUnits...)
 
 	// Install specified packages.
 	installs, err := installsUnderKey(conf, installKeyPostBase)
@@ -103,5 +95,30 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 	out = append(out, afterGUIUnits...)
 
 	out = append(out, finalUnits...)
+	return out, nil
+}
+
+func baseUnitsFromConf(out []units.Unit, conf *toml.Tree) ([]units.Unit, error) {
+	out = append(out, &units.Preflight{})
+	dbstrp, err := debootstrapConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, dbstrp)
+	out = append(out, &units.FinalizeApt{})
+
+	locale, err := localeConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, locale)
+
+	linux, err := linuxConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, linux)
+
+	out = append(out, systemBuildUnits...)
 	return out, nil
 }

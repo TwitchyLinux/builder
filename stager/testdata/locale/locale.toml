@@ -1,4 +1,4 @@
-[locale]
+[base.locale]
 area = "HNNNNNG"
 zone = "Los_Angeles"
 generate_locales = ["en_US.UTF-8 UTF-8", "en_US ISO-8859-1"]

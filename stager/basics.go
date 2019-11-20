@@ -11,6 +11,11 @@ import (
 var (
 	graphicalEnvDefault = GraphicsConf{Packages: []string{"gnome"}}
 
+	debootstrapDefault = DebootstrapConf{
+		Track: "stable",
+		URL:   "http://deb.debian.org/debian/",
+	}
+
 	localeDefault = LocaleConf{
 		Area:     "America",
 		Zone:     "Los_Angeles",
@@ -30,6 +35,33 @@ var (
 		SHA256:  "6013e7dcf59d7c1b168d8edce3dbd61ce340ff289541f920dbd0958bef98f36a",
 	}
 )
+
+// DebootstrapConf describes what to tell debootstrap.
+type DebootstrapConf struct {
+	Track string `toml:"track"`
+	URL   string `toml:"url"`
+}
+
+func debootstrapConf(tree *toml.Tree) (*units.Debootstrap, error) {
+	conf := debootstrapDefault
+	if t := tree.Get(keyDebian); t != nil {
+		ge, ok := t.(*toml.Tree)
+		if !ok {
+			if i, isInt := t.(int64); isInt && i == 0 {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", keyDebian, t)
+		}
+		if err := ge.Unmarshal(&conf); err != nil {
+			return nil, err
+		}
+	}
+
+	return &units.Debootstrap{
+		Track: conf.Track,
+		URL:   conf.URL,
+	}, nil
+}
 
 // GolangConf describes what Go toolchain to install.
 type GolangConf struct {
@@ -62,20 +94,21 @@ func golangConf(tree *toml.Tree) (*units.Golang, error) {
 
 // LinuxConf describes what Linux kernel to install
 type LinuxConf struct {
-	Version string `toml:"version"`
-	URL     string `toml:"url"`
-	SHA256  string `toml:"sha256"`
+	Version      string   `toml:"version"`
+	URL          string   `toml:"url"`
+	SHA256       string   `toml:"sha256"`
+	BuildDepPkgs []string `toml:"build_packages"`
 }
 
 func linuxConf(tree *toml.Tree) (*units.Linux, error) {
 	conf := linuxDefault
-	if t := tree.Get(rootKeyLinux); t != nil {
+	if t := tree.Get(keyLinux); t != nil {
 		ge, ok := t.(*toml.Tree)
 		if !ok {
 			if i, isInt := t.(int64); isInt && i == 0 {
 				return nil, nil
 			}
-			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyLinux, t)
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", keyLinux, t)
 		}
 		if err := ge.Unmarshal(&conf); err != nil {
 			return nil, err
@@ -83,9 +116,10 @@ func linuxConf(tree *toml.Tree) (*units.Linux, error) {
 	}
 
 	return &units.Linux{
-		Version: conf.Version,
-		URL:     conf.URL,
-		SHA256:  conf.SHA256,
+		Version:      conf.Version,
+		URL:          conf.URL,
+		SHA256:       conf.SHA256,
+		BuildDepPkgs: conf.BuildDepPkgs,
 	}, nil
 }
 
@@ -124,13 +158,13 @@ type LocaleConf struct {
 
 func localeConf(tree *toml.Tree) (*units.Locale, error) {
 	conf := localeDefault
-	if t := tree.Get(rootKeyLocale); t != nil {
+	if t := tree.Get(keyLocale); t != nil {
 		ge, ok := t.(*toml.Tree)
 		if !ok {
 			if i, isInt := t.(int64); isInt && i == 0 {
 				return nil, nil
 			}
-			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyLocale, t)
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", keyLocale, t)
 		}
 		if err := ge.Unmarshal(&conf); err != nil {
 			return nil, err

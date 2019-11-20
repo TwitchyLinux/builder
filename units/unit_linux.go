@@ -11,9 +11,10 @@ import (
 
 // Linux is a unit that builds the Linux kernel.
 type Linux struct {
-	Version string
-	URL     string
-	SHA256  string
+	Version      string
+	URL          string
+	SHA256       string
+	BuildDepPkgs []string
 }
 
 // Name implements Unit.
@@ -43,6 +44,11 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 	defer chroot.Close()
+
+	opts.L.SetSubstage("Installing build dependencies")
+	if err := l.installDeps(ctx, chroot, opts); err != nil {
+		return err
+	}
 
 	opts.L.SetSubstage("Downloading Linux " + l.Version)
 	if err := DownloadFile(&opts, l.URL, l.tarPath(&opts, false)); err != nil {
@@ -79,6 +85,26 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	}
 
 	return l.runInstallLinux(ctx, chroot, opts)
+}
+
+func (l *Linux) installDeps(ctx context.Context, chroot *Chroot, opts Opts) error {
+	cmd, err := chroot.CmdContext(ctx, "apt-get", append([]string{"install", "-y"}, l.BuildDepPkgs...)...)
+	if err != nil {
+		return err
+	}
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	cmd, err = chroot.CmdContext(ctx, "apt-get", "-y", "build-dep", "linux")
+	if err != nil {
+		return err
+	}
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
+	return cmd.Run()
 }
 
 func (l *Linux) runInstallLinux(ctx context.Context, chroot *Chroot, opts Opts) error {
