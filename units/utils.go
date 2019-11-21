@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/Masterminds/semver"
@@ -21,6 +22,10 @@ import (
 var (
 	vers         = regexp.MustCompile("([0-9]+\\.?)+")
 	versTrailing = regexp.MustCompile("([0-9]+\\.?)+$")
+
+	// ErrNotMountpoint is returned from mountpointType if the given path
+	// was not a mountpoint.
+	ErrNotMountpoint = errors.New("not a mountpoint")
 )
 
 func binarySearchPaths() []string {
@@ -196,4 +201,46 @@ func InstallConfigResources(ctx context.Context, opts *Opts, base, resourceDir s
 		}
 	}
 	return nil
+}
+
+func mountpointType(path string) (string, error) {
+	s, err := os.Lstat(path)
+	if err != nil {
+		return "", err
+	}
+	stat, ok := s.Sys().(*syscall.Stat_t)
+	if !ok {
+		return "", fmt.Errorf("stat.sys is %T, expected syscall.Stat_t", s.Sys())
+	}
+	mpMajor, mpMinor := (stat.Dev>>8)&0xff, stat.Dev&0xff
+
+	if s, err = os.Lstat(filepath.Dir(path)); err != nil {
+		return "", err
+	}
+
+	if stat, ok = s.Sys().(*syscall.Stat_t); !ok {
+		return "", fmt.Errorf("stat.sys is %T, expected syscall.Stat_t", s.Sys())
+	}
+	pMajor, pMinor := (stat.Dev>>8)&0xff, stat.Dev&0xff
+
+	if pMajor == mpMajor && pMinor == mpMinor {
+		return "", ErrNotMountpoint
+	}
+
+	// The path and its parent have different device major/minor numbers, so
+	// the path must be a mountpoint. Parse through /proc/self/mountinfo to
+	// determine the type of mount.
+	d, err := ioutil.ReadFile("/proc/self/mountinfo")
+	if err != nil {
+		return "", err
+	}
+	for _, line := range strings.Split(string(d), "\n") {
+		line = strings.TrimSpace(line)
+		spl := strings.Split(line, " ")
+		if len(spl) >= 9 && spl[2] == fmt.Sprintf("%d:%d", mpMajor, mpMinor) {
+			return spl[8], nil
+		}
+	}
+
+	return "", ErrNotMountpoint
 }

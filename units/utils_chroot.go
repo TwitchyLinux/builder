@@ -119,12 +119,17 @@ func prepareChroot(root string) (out *Chroot, err error) {
 		}
 	}(out)
 
-	if err = syscall.Mount("sysfs", filepath.Join(root, "sys"), "sysfs", 0, ""); err != nil {
-		return nil, fmt.Errorf("mounting sysfs: %v", err)
+	if mp, err := mountpointType(filepath.Join(root, "sys")); err != nil || mp != "sysfs" {
+		if err = syscall.Mount("sysfs", filepath.Join(root, "sys"), "sysfs", 0, ""); err != nil {
+			return nil, fmt.Errorf("mounting sysfs: %v", err)
+		}
 	}
 	out.mounts.sys = true
-	if err = syscall.Mount("proc", filepath.Join(root, "proc"), "proc", 0, ""); err != nil {
-		return nil, fmt.Errorf("mounting proc: %v", err)
+	if mp, err := mountpointType(filepath.Join(root, "proc")); err != nil || mp != "proc" {
+
+		if err = syscall.Mount("proc", filepath.Join(root, "proc"), "proc", 0, ""); err != nil {
+			return nil, fmt.Errorf("mounting proc: %v", err)
+		}
 	}
 	out.mounts.proc = true
 	if err = syscall.Mount("/dev", filepath.Join(root, "dev"), "bind", syscall.MS_BIND, ""); err != nil {
