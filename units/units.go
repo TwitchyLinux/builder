@@ -13,6 +13,8 @@ type Opts struct {
 	Dir string
 	// Resources is the path to the builder resources directory.
 	Resources string
+	// Version is the current version of TwitchyLinux.
+	Version string
 
 	// Num indicates which unit (in execution order) the unit is.
 	Num int

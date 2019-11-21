@@ -18,6 +18,7 @@ import (
 var (
 	resourcesDir = flag.String("resources-dir", "resources", "Path to the builder resources directory.")
 	outputOnly   = flag.Bool("output-only", false, "Only output to stdout in a non-interactive fashion.")
+	version      = flag.String("twl-version", "0.3.0", "The current version of TwitchyLinux.")
 
 	defaultNumThreads = int(math.Max(1, float64(runtime.NumCPU()-1)))
 	numThreads        = flag.Int("j", defaultNumThreads, "Number of concurrent threads to use while building.")
@@ -37,6 +38,7 @@ func main() {
 		Dir:        buildDir(),
 		Resources:  resourceDir(),
 		NumThreads: *numThreads,
+		Version:    *version,
 	}
 
 	var logger logger

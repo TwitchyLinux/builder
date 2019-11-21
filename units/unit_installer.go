@@ -3,8 +3,10 @@ package units
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Installer is a unit which installs the graphical installer.
@@ -38,10 +40,10 @@ func (i *Installer) Run(ctx context.Context, opts Opts) error {
 	if err := i.build(ctx, &opts, chroot); err != nil {
 		return err
 	}
-	if err := Shell(ctx, &opts, "cp", filepath.Join(opts.Dir, "tmp-twlinst-build", "layout.glade"), filepath.Join(opts.Dir, "usr", "share", "twlinst", "layout.glade")); err != nil {
+	if err := i.copyResources(ctx, &opts); err != nil {
 		return err
 	}
-	return i.copyResources(ctx, &opts)
+	return i.installVersion(ctx, &opts)
 }
 
 func (i *Installer) build(ctx context.Context, opts *Opts, chroot *Chroot) error {
@@ -77,5 +79,18 @@ func (i *Installer) copyResources(ctx context.Context, opts *Opts) error {
 	if err := CopyResource(ctx, opts, filepath.Join("installer", "twl-plain-background.png"), "usr/share/backgrounds/twl-plain-background.png"); err != nil {
 		return err
 	}
+	if err := Shell(ctx, opts, "cp", filepath.Join(opts.Dir, "tmp-twlinst-build", "layout.glade"), filepath.Join(opts.Dir, "usr", "share", "twlinst", "layout.glade")); err != nil {
+		return err
+	}
 	return nil
+}
+
+func (i *Installer) installVersion(ctx context.Context, opts *Opts) error {
+	scriptPath := filepath.Join(opts.Dir, "usr", "sbin", "twlinst-start")
+	script, err := ioutil.ReadFile(scriptPath)
+	if err != nil {
+		return err
+	}
+	newScript := strings.Replace(string(script), "VERSION_MARKER", opts.Version, -1)
+	return ioutil.WriteFile(scriptPath, []byte(newScript), 0755)
 }
