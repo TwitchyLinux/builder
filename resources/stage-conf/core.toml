@@ -13,3 +13,10 @@ version = "5.1.18"
 url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.1.18.tar.xz"
 sha256 = "6013e7dcf59d7c1b168d8edce3dbd61ce340ff289541f920dbd0958bef98f36a"
 build_packages = ["build-essential", "fakeroot", "devscripts", "wget", "libncurses-dev"]
+
+[base.release_info]
+name = "TwitchyLinux (/w Debian GNU/Linux)"
+pretty_name = "TwitchyLinux (Debian GNU/Linux stable derivative)"
+id = "twitchylinux"
+url = "https://github.com/TwitchyLinux"
+issue = "TwitchyLinux (/w GNU/Linux on Debian buster) \\n \\l"

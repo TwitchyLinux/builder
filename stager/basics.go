@@ -1,7 +1,9 @@
 package stager
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"sort"
 
 	"github.com/pelletier/go-toml"
@@ -210,6 +212,62 @@ func installsUnderKey(tree *toml.Tree, key string) ([]units.Unit, error) {
 		sort.Slice(out, func(i int, j int) bool {
 			return out[i].(*units.InstallTools).Order > out[j].(*units.InstallTools).Order
 		})
+		return out, nil
+	}
+
+	return nil, nil
+}
+
+// ReleaseConf describes how the system should self-describe.
+type ReleaseConf struct {
+	Name       string `toml:"name"`
+	PrettyName string `toml:"pretty_name"`
+	ID         string `toml:"id"`
+	URL        string `toml:"url"`
+	Issue      string `toml:"issue"`
+}
+
+var osReleaseTmpl = `PRETTY_NAME="{{.PrettyName}}"
+NAME="{{.Name}}"
+ID={{.ID}}
+HOME_URL="{{.URL}}"
+`
+
+func releaseConf(tree *toml.Tree) ([]units.Unit, error) {
+	var out []units.Unit
+
+	if t := tree.Get(keyReleaseInfo); t != nil {
+		ge, ok := t.(*toml.Tree)
+		if !ok {
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyGolang, t)
+		}
+		var conf ReleaseConf
+		if err := ge.Unmarshal(&conf); err != nil {
+			return nil, err
+		}
+
+		tmpl, err := template.New("").Parse(osReleaseTmpl)
+		if err != nil {
+			return nil, err
+		}
+		var osRelease bytes.Buffer
+		if err := tmpl.Execute(&osRelease, conf); err != nil {
+			return nil, err
+		}
+		out = append(out, &units.InstallFiles{
+			UnitName: "release-info",
+			Files: []units.FileInfo{
+				{
+					Path: "/etc/os-release",
+					Data: osRelease.Bytes(),
+				},
+				{
+					Path: "/etc/issue",
+					Data: []byte(conf.Issue + "\n"),
+				},
+			},
+		})
+
 		return out, nil
 	}
 

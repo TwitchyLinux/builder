@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	rootKeyBase = "base"
-	keyDebian   = rootKeyBase + ".debian"
-	keyLocale   = rootKeyBase + ".locale"
-	keyLinux    = rootKeyBase + ".linux"
+	rootKeyBase    = "base"
+	keyDebian      = rootKeyBase + ".debian"
+	keyLocale      = rootKeyBase + ".locale"
+	keyLinux       = rootKeyBase + ".linux"
+	keyReleaseInfo = rootKeyBase + ".release_info"
 
 	rootKeyGraphicalEnv = "graphical_environment"
 	rootKeyGolang       = "go_toolchain"
@@ -120,5 +121,11 @@ func baseUnitsFromConf(out []units.Unit, conf *toml.Tree) ([]units.Unit, error) 
 	out = append(out, linux)
 
 	out = append(out, systemBuildUnits...)
+
+	releaseConfUnits, err := releaseConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, releaseConfUnits...)
 	return out, nil
 }

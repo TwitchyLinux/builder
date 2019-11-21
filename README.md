@@ -1,7 +1,5 @@
 # builder
 
- - Write the `/etc/os-release` & `/etc/issue` files.
-
 ## Building TwitchyLinux
 
 ```shell
