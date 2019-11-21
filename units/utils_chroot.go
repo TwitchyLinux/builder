@@ -68,11 +68,16 @@ func (c *Chroot) Close() error {
 }
 
 // CmdContext prepares an execution within the chroot.
-func (c *Chroot) CmdContext(ctx context.Context, bin string, args ...string) (*exec.Cmd, error) {
-	p, err := FindBinary(bin)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", bin, err)
+func (c *Chroot) CmdContext(ctx context.Context, opts *Opts, bin string, args ...string) (*exec.Cmd, error) {
+	var p string
+	if _, err := os.Stat(filepath.Join(opts.Dir, bin)); err == nil {
+		p = bin
+	} else {
+		if p, err = FindBinary(bin); err != nil {
+			return nil, fmt.Errorf("%s: %v", bin, err)
+		}
 	}
+
 	cmd := exec.CommandContext(ctx, c.chrootPath)
 	cmd.Args = append([]string{c.chrootPath, c.Dir, p}, args...)
 	return cmd, nil
@@ -80,7 +85,7 @@ func (c *Chroot) CmdContext(ctx context.Context, bin string, args ...string) (*e
 
 // Shell runs a simple command within the chroot.
 func (c *Chroot) Shell(ctx context.Context, opts *Opts, bin string, args ...string) error {
-	cmd, err := c.CmdContext(ctx, bin, args...)
+	cmd, err := c.CmdContext(ctx, opts, bin, args...)
 	if err != nil {
 		return err
 	}
@@ -91,7 +96,7 @@ func (c *Chroot) Shell(ctx context.Context, opts *Opts, bin string, args ...stri
 
 // AptInstall installs the given packages.
 func (c *Chroot) AptInstall(ctx context.Context, opts *Opts, packages ...string) error {
-	cmd, err := c.CmdContext(ctx, "apt-get", append([]string{"install", "-y"}, packages...)...)
+	cmd, err := c.CmdContext(ctx, opts, "apt-get", append([]string{"install", "-y"}, packages...)...)
 	if err != nil {
 		return err
 	}
@@ -115,28 +120,28 @@ func prepareChroot(root string) (out *Chroot, err error) {
 	}(out)
 
 	if err = syscall.Mount("sysfs", filepath.Join(root, "sys"), "sysfs", 0, ""); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("mounting sysfs: %v", err)
 	}
 	out.mounts.sys = true
 	if err = syscall.Mount("proc", filepath.Join(root, "proc"), "proc", 0, ""); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("mounting proc: %v", err)
 	}
 	out.mounts.proc = true
 	if err = syscall.Mount("/dev", filepath.Join(root, "dev"), "bind", syscall.MS_BIND, ""); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("bind-mounting dev: %v", err)
 	}
 	out.mounts.dev = true
 
 	prev, err := ioutil.ReadFile(filepath.Join(root, "etc", "resolv.conf"))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("reading initial resolv.conf: %v", err)
 	}
 	d, err := ioutil.ReadFile("/etc/resolv.conf")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("reading system resolv.conf: %v", err)
 	}
 	if err = ioutil.WriteFile(filepath.Join(root, "etc", "resolv.conf"), d, 0755); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("writing resolv.conf: %v", err)
 	}
 	out.previousResolv = prev
 	return out, nil

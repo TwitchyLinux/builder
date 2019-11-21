@@ -1,0 +1,7 @@
+# Installer for TwitchyLinux.
+[Unit]
+Description=TwitchyLinux Installer
+Wants=twl-installer.service
+Requires=multi-user.target
+Conflicts=rescue.service rescue.target display-manager.service
+After=multi-user.target rescue.service rescue.target systemd-user-sessions.service

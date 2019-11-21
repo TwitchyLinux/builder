@@ -57,6 +57,7 @@ var (
 	}
 
 	finalUnits = []units.Unit{
+		&units.Installer{},
 		&units.Clean{},
 		&units.Grub2{
 			DistroName: "TwitchyLinux",

@@ -88,7 +88,7 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 }
 
 func (l *Linux) installDeps(ctx context.Context, chroot *Chroot, opts Opts) error {
-	cmd, err := chroot.CmdContext(ctx, "apt-get", append([]string{"install", "-y"}, l.BuildDepPkgs...)...)
+	cmd, err := chroot.CmdContext(ctx, &opts, "apt-get", append([]string{"install", "-y"}, l.BuildDepPkgs...)...)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (l *Linux) installDeps(ctx context.Context, chroot *Chroot, opts Opts) erro
 		return err
 	}
 
-	cmd, err = chroot.CmdContext(ctx, "apt-get", "-y", "build-dep", "linux")
+	cmd, err = chroot.CmdContext(ctx, &opts, "apt-get", "-y", "build-dep", "linux")
 	if err != nil {
 		return err
 	}

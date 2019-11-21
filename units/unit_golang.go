@@ -61,5 +61,8 @@ func (l *Golang) Run(ctx context.Context, opts Opts) error {
 	if err := ioutil.WriteFile(goProfPath, []byte("# Make Go tools available via path\nexport PATH=$PATH:/usr/local/go/bin\n"), 0644); err != nil {
 		return err
 	}
+	if err := os.Remove(l.tarPath(&opts, false)); err != nil {
+		return err
+	}
 	return os.Chmod(goProfPath, 0755)
 }

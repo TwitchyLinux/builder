@@ -60,7 +60,7 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 	defer chroot.Close()
 
 	// TODO: Detect if host ufw is enabled and would block traffic.
-	cmd, err := chroot.CmdContext(ctx, "apt-get", "--fix-broken", "-y", "install")
+	cmd, err := chroot.CmdContext(ctx, &opts, "apt-get", "--fix-broken", "-y", "install")
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
-	cmd, err = chroot.CmdContext(ctx, "apt-get", "update")
+	cmd, err = chroot.CmdContext(ctx, &opts, "apt-get", "update")
 	if err != nil {
 		return err
 	}

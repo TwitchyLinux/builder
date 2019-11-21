@@ -1,0 +1,20 @@
+# Installer service for TwitchyLinux.
+[Unit]
+Description=Installer for TwitchyLinux
+# replaces the getty
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+# replaces plymouth-quit since it quits plymouth on its own
+Conflicts=plymouth-quit.service
+After=plymouth-quit.service
+# Random shit?
+After=rc-local.service plymouth-start.service systemd-user-sessions.service
+[Service]
+ExecStart=/bin/bash /usr/sbin/twlinst-start
+KillMode=control-group
+TimeoutStopSec=5s
+Restart=always
+RestartSec=15s
+IgnoreSIGPIPE=no
+StandardOutput=journal+console
+StandardError=inherit

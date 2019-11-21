@@ -1,0 +1,39 @@
+#!/bin/bash
+# Installer startup for TwitchyLinux.
+set +e
+
+trap : SIGUSR1
+(trap '' SIGUSR1; exec Xorg -noreset -nolisten tcp) &
+wait
+
+export DISPLAY=:0
+
+if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
+    eval `dbus-launch --sh-syntax`
+fi
+
+export XDG_SESSION_TYPE=x11
+export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+dbus-update-activation-environment --verbose --systemd XDG_CURRENT_DESKTOP
+
+gsettings set org.gnome.desktop.lockdown       disable-lock-screen       true   || true
+gsettings set org.gnome.desktop.lockdown       disable-user-switching    true   || true
+gsettings set org.gnome.desktop.background     show-desktop-icons        false  || true
+gsettings set org.gnome.desktop.wm.preferences num-workspaces            1      || true
+
+gsettings set org.gnome.desktop.background     draw-background           false
+gsettings set org.gnome.desktop.background     primary-color             0b0202
+gsettings set org.gnome.desktop.background     secondary-color           FFFFFF
+gsettings set org.gnome.desktop.background     color-shading-type        "solid"
+gsettings set org.gnome.desktop.background     picture-uri               "file:///usr/share/backgrounds/twitchy_background.png"
+gsettings set org.gnome.desktop.background     picture-options           "stretched"
+gsettings set org.gnome.desktop.background     picture-opacity           100
+gsettings set org.gnome.desktop.background     draw-background           true
+
+gnome-shell --sm-disable --mode=initial-setup &
+
+sleep 5
+
+cd /usr/share/twlinst
+/usr/share/twlinst/twlinst --version VERSION_MARKER
+rc=$?; if [[ $rc == 0 ]]; then shutdown -h 0; fi

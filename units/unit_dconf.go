@@ -66,7 +66,7 @@ func (d *Dconf) Run(ctx context.Context, opts Opts) error {
 }
 
 func (d *Dconf) setupDefaultTerminal(ctx context.Context, chroot *Chroot, opts *Opts) error {
-	cmd, err := chroot.CmdContext(ctx, "gsettings", "get", "org.gnome.Terminal.ProfilesList", "default")
+	cmd, err := chroot.CmdContext(ctx, opts, "gsettings", "get", "org.gnome.Terminal.ProfilesList", "default")
 	if err != nil {
 		return err
 	}

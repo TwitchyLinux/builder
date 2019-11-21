@@ -30,7 +30,7 @@ tzdata tzdata/Areas select `+d.Area+`
 	}
 	defer os.Remove(filepath.Join(opts.Dir, "tz-data"))
 
-	cmd, err := chroot.CmdContext(ctx, "debconf-set-selections", "/tz-data")
+	cmd, err := chroot.CmdContext(ctx, opts, "debconf-set-selections", "/tz-data")
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
-	cmd, err := chroot.CmdContext(ctx, "locale-gen", d.Default)
+	cmd, err := chroot.CmdContext(ctx, &opts, "locale-gen", d.Default)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
-	if cmd, err = chroot.CmdContext(ctx, "debconf-set-selections"); err != nil {
+	if cmd, err = chroot.CmdContext(ctx, &opts, "debconf-set-selections"); err != nil {
 		return err
 	}
 	cmd.Env = localeEnv
@@ -105,7 +105,7 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
-	if cmd, err = chroot.CmdContext(ctx, "debconf-set-selections"); err != nil {
+	if cmd, err = chroot.CmdContext(ctx, &opts, "debconf-set-selections"); err != nil {
 		return err
 	}
 	cmd.Env = localeEnv
@@ -116,7 +116,7 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
-	if cmd, err = chroot.CmdContext(ctx, "dpkg-reconfigure", "--frontend=noninteractive", "locales"); err != nil {
+	if cmd, err = chroot.CmdContext(ctx, &opts, "dpkg-reconfigure", "--frontend=noninteractive", "locales"); err != nil {
 		return err
 	}
 	cmd.Env = localeEnv

@@ -1,5 +1,8 @@
 # builder
 
+ - Write the `/etc/os-release` & `/etc/issue` files.
+ - Update the VERSION_MARKER in `/usr/sbin/twlinst-start`.
+
 ## Building TwitchyLinux
 
 ```shell
