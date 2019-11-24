@@ -20,8 +20,19 @@ order_priority = 8
 do = [
   {action = 'download', url = 'https://dl.google.com/linux/linux_signing_key.pub', to = '/chrome-signing-key.pub'},
   {action = 'run', bin = 'apt-key', args = ['add', '/chrome-signing-key.pub']},
-  {action = 'append', to = '/etc/apt/sources.list', data = "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main\n"},
+  {action = 'append', to = '/etc/apt/sources.list.d/google-chrome.list', data = "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main\n"},
   {action = 'run', bin = 'rm', args = ['/chrome-signing-key.pub']},
   {action = 'run', bin = 'apt-get', args = ['update']},
   {action = 'run', bin = 'apt-get', args = ['-y', 'install', 'google-chrome-stable']},
+]
+
+[graphical_environment.post.install.atom]
+order_priority = 7
+do = [
+  {action = 'download', url = 'https://packagecloud.io/AtomEditor/atom/gpgkey', to = '/atom-signing-key.pub'},
+  {action = 'run', bin = 'apt-key', args = ['add', '/atom-signing-key.pub']},
+  {action = 'append', to = '/etc/apt/sources.list', data = "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main\n"},
+  {action = 'run', bin = 'rm', args = ['/atom-signing-key.pub']},
+  {action = 'run', bin = 'apt-get', args = ['update']},
+  {action = 'run', bin = 'apt-get', args = ['-y', 'install', 'atom']},
 ]
