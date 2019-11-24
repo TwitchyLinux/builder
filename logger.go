@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"time"
 
@@ -20,6 +21,10 @@ type unitState struct {
 	skipped  bool
 	err      error
 	subStage string
+
+	showProgress bool
+	progress     float64
+	progressMsg  string
 
 	output logger
 	unit   units.Unit
@@ -50,6 +55,22 @@ func (u *unitState) setFinalState(err error) {
 // SetSubstage tells the logger the unit is entering a new substage.
 func (u *unitState) SetSubstage(ss string) {
 	u.subStage = ss
+	u.output.updated(u)
+}
+
+// SetProgress shows a progress bar.
+func (u *unitState) SetProgress(msg string, fraction float64) {
+	if _, supportsProgress := u.output.(*interactiveOutput); supportsProgress {
+		if fraction == 0 {
+			u.showProgress = false
+		} else {
+			u.showProgress = true
+			u.progress = fraction
+			u.progressMsg = msg
+		}
+	} else {
+		u.output.unitWrite(u, []byte(msg+": "+fmt.Sprint(int(fraction*100))+"%\n"), false)
+	}
 	u.output.updated(u)
 }
 

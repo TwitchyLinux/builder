@@ -154,21 +154,25 @@ func CheckSHA256(path, wantHash string) error {
 }
 
 // DownloadFile downloads a file.
-func DownloadFile(opts *Opts, url, outPath string) error {
+func DownloadFile(ctx context.Context, opts *Opts, url, outPath string) error {
 	client := grab.NewClient()
 	req, err := grab.NewRequest(outPath, url)
 	if err != nil {
 		return err
 	}
+	req = req.WithContext(ctx)
 	resp := client.Do(req)
 
-	stdout := opts.L.Stdout()
-	t := time.NewTicker(time.Second)
+	defer func() {
+		opts.L.SetProgress("", 0)
+	}()
+
+	t := time.NewTicker(time.Millisecond * 500)
 	defer t.Stop()
 	for {
 		select {
 		case <-t.C:
-			fmt.Fprintf(stdout, "Downloading %v: %.01f%% complete\n", filepath.Base(outPath), resp.Progress()*100)
+			opts.L.SetProgress(fmt.Sprintf("Downloading %v", filepath.Base(outPath)), resp.Progress())
 
 		case <-resp.Done:
 			return resp.Err()
@@ -243,4 +247,22 @@ func mountpointType(path string) (string, error) {
 	}
 
 	return "", ErrNotMountpoint
+}
+
+const umountRetries = 5
+
+func unmount(path string) error {
+	if _, err := mountpointType(path); err == ErrNotMountpoint { // must have succeeded.
+		return nil
+	}
+
+	for i := 0; i < umountRetries; i++ {
+		if err := syscall.Unmount(path, 0); err != nil {
+			return err
+		}
+		if _, err := mountpointType(path); err == ErrNotMountpoint { // must have succeeded.
+			return nil
+		}
+	}
+	return fmt.Errorf("failed unmount of %q", path)
 }

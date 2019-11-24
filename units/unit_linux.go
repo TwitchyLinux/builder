@@ -51,7 +51,7 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	}
 
 	opts.L.SetSubstage("Downloading Linux " + l.Version)
-	if err := DownloadFile(&opts, l.URL, l.tarPath(&opts, false)); err != nil {
+	if err := DownloadFile(ctx, &opts, l.URL, l.tarPath(&opts, false)); err != nil {
 		return fmt.Errorf("Linux source download failed: %v", err)
 	}
 	if err := CheckSHA256(l.tarPath(&opts, false), l.SHA256); err != nil {

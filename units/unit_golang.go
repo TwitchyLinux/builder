@@ -44,7 +44,7 @@ func (l *Golang) Run(ctx context.Context, opts Opts) error {
 	defer chroot.Close()
 
 	opts.L.SetSubstage("Downloading Go " + l.Version)
-	if err := DownloadFile(&opts, l.URL, l.tarPath(&opts, false)); err != nil {
+	if err := DownloadFile(ctx, &opts, l.URL, l.tarPath(&opts, false)); err != nil {
 		return fmt.Errorf("Go source download failed: %v", err)
 	}
 	if err := CheckSHA256(l.tarPath(&opts, false), l.SHA256); err != nil {
@@ -52,7 +52,7 @@ func (l *Golang) Run(ctx context.Context, opts Opts) error {
 	}
 
 	opts.L.SetSubstage("Extracting")
-	if err := chroot.Shell(ctx, &opts, "tar", "-C", "/usr/local", "-xzf", l.tarPath(&opts, true)); err != nil {
+	if err := chroot.Shell(ctx, &opts, "tar", "-v", "-C", "/usr/local", "-xzf", l.tarPath(&opts, true)); err != nil {
 		return err
 	}
 

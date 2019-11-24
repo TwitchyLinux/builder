@@ -58,6 +58,34 @@ func (o *interactiveOutput) writeHeader(ws *term.Winsize) {
 	o.stdoutLinesWritten++
 }
 
+func (o *interactiveOutput) writeProgress(ws *term.Winsize) {
+	msg := o.currentUnit.progressMsg
+	msgSize := len(msg)
+	progSize := int(ws.Width) - msgSize
+
+	// Truncate / resize if the message will not fit.
+	if progSize < 12 {
+		msgSize = int(ws.Width) - 12
+		progSize = 12
+		if msgSize-3 < len(msg) {
+			msg = msg[:msgSize-3] + "..."
+		}
+	}
+
+	barUnits := progSize - 6
+	doneUnits := int(float64(barUnits) * o.currentUnit.progress)
+	emptyUnits := barUnits - doneUnits
+	if barUnits > 15 && doneUnits > 0 {
+		doneUnits--
+	}
+
+	fmt.Fprint(os.Stdout, o.currentUnit.progressMsg)
+	fmt.Fprint(os.Stdout, "[")
+	fmt.Fprint(os.Stdout, strings.Repeat("=", doneUnits)+">"+strings.Repeat(" ", emptyUnits))
+	fmt.Fprintf(os.Stdout, "] %d%%\n", int(o.currentUnit.progress*100))
+	o.stdoutLinesWritten++
+}
+
 func (o *interactiveOutput) flush() {
 	ws, err := term.GetWinsize(os.Stdin.Fd())
 	if err != nil {
@@ -67,6 +95,12 @@ func (o *interactiveOutput) flush() {
 	o.resetCursor()
 	o.writeHeader(ws)
 	o.writeConsoleBuffer(ws)
+	if o.currentUnit != nil && o.currentUnit.showProgress {
+		o.writeProgress(ws)
+	} else {
+		fmt.Fprint(os.Stdout, "\n")
+		o.stdoutLinesWritten++
+	}
 }
 
 func (o *interactiveOutput) findIndex(unit *unitState) (int, bool) {

@@ -40,25 +40,25 @@ func (c *Chroot) Close() error {
 	}
 
 	if c.mounts.dev {
-		if err := syscall.Unmount(filepath.Join(c.Dir, "dev"), 0); err != nil {
+		if err := unmount(filepath.Join(c.Dir, "dev")); err != nil {
 			return err
 		}
 		c.mounts.dev = false
 	}
 	if c.mounts.proc {
 		miscPath := filepath.Join(c.Dir, "proc", "sys", "fs", "binfmt_misc")
-		if _, err := os.Stat(miscPath); err != nil {
-			if err := syscall.Unmount(miscPath, 0); err != nil {
+		if _, err := os.Stat(miscPath); err == nil {
+			if err := unmount(miscPath); err != nil {
 				return err
 			}
 		}
-		if err := syscall.Unmount(filepath.Join(c.Dir, "proc"), 0); err != nil {
+		if err := unmount(filepath.Join(c.Dir, "proc")); err != nil {
 			return err
 		}
 		c.mounts.proc = false
 	}
 	if c.mounts.sys {
-		if err := syscall.Unmount(filepath.Join(c.Dir, "sys"), 0); err != nil {
+		if err := unmount(filepath.Join(c.Dir, "sys")); err != nil {
 			return err
 		}
 		c.mounts.sys = false

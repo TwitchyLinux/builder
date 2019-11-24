@@ -34,6 +34,7 @@ type Logger interface {
 	Stderr() io.Writer
 	Stdout() io.Writer
 	SetSubstage(string)
+	SetProgress(msg string, fraction float64)
 }
 
 // Unit describes an execution unit for building the system.

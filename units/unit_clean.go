@@ -23,7 +23,7 @@ func (i *Clean) Run(ctx context.Context, opts Opts) error {
 	}
 	defer chroot.Close()
 
-	if err := os.Mkdir(filepath.Join(opts.Dir, "deb-pkgs"), 0755); err != nil && !os.IsNotExist(err) {
+	if err := os.Mkdir(filepath.Join(opts.Dir, "deb-pkgs"), 0755); err != nil && !os.IsNotExist(err) && !os.IsExist(err) {
 		return err
 	}
 
