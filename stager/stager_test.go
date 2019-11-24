@@ -161,6 +161,40 @@ func TestLoadPostInstall(t *testing.T) {
 	}
 }
 
+func TestLoadComposites(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/composite")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	i := getUnit(t, c, reflect.TypeOf(&units.Composite{})).(*units.Composite)
+	if got, want := i.UnitName, "cli"; got != want {
+		t.Errorf("UnitName = %v, want %v", got, want)
+	}
+	if got, want := len(i.Ops), 3; got != want {
+		t.Fatalf("len(Ops) = %v, want %v", got, want)
+	}
+
+	if got, want := i.Ops[0], (&units.InstallTools{
+		UnitName: "cli",
+		Pkgs:     []string{"screen", "htop"},
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("Op[0] = %v, want %v", got, want)
+	}
+	if got, want := i.Ops[1], (&units.Download{
+		URL: "https://dl.google.com/linux/linux_signing_key.pub",
+		To:  "/chrome-signing-key.pub",
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("Op[1] = %v, want %v", got, want)
+	}
+	if got, want := i.Ops[2], (&units.Cmd{
+		Bin:  "apt-key",
+		Args: []string{"add", "/chrome-signing-key.pub"},
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("Op[2] = %v, want %v", got, want)
+	}
+}
+
 func TestLoadStageConf(t *testing.T) {
 	c, err := UnitsFromConfig("../resources/stage-conf")
 	if err != nil {

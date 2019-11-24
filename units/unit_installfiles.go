@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// FileInfo describes a file to be installed in the target system.
 type FileInfo struct {
 	Path  string
 	Data  []byte
@@ -25,8 +26,8 @@ func (i *InstallFiles) Name() string {
 }
 
 // Run implements Unit.
-func (d *InstallFiles) Run(ctx context.Context, opts Opts) error {
-	for _, f := range d.Files {
+func (i *InstallFiles) Run(ctx context.Context, opts Opts) error {
+	for _, f := range i.Files {
 		opts.L.SetSubstage("Install " + filepath.Base(f.Path))
 		var perms os.FileMode = 0644
 		if f.Perms != 0 {

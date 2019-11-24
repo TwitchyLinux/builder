@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"sort"
 
 	"github.com/pelletier/go-toml"
 	"github.com/twitchylinux/builder/units"
@@ -179,43 +178,6 @@ func localeConf(tree *toml.Tree) (*units.Locale, error) {
 		Generate: conf.Generate,
 		Default:  conf.Default,
 	}, nil
-}
-
-// InstallConf desribes a set of packages to be installed.
-type InstallConf struct {
-	Order    int      `toml:"order_priority"`
-	Packages []string `toml:"packages"`
-}
-
-func installsUnderKey(tree *toml.Tree, key string) ([]units.Unit, error) {
-	if t := tree.Get(key); t != nil {
-		installs, ok := t.(*toml.Tree)
-		if !ok {
-			if i, isInt := t.(int64); isInt && i == 0 {
-				return nil, nil
-			}
-			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", key, t)
-		}
-		var conf map[string]InstallConf
-		if err := installs.Unmarshal(&conf); err != nil {
-			return nil, err
-		}
-
-		out := make([]units.Unit, 0, len(conf))
-		for k, c := range conf {
-			out = append(out, &units.InstallTools{
-				UnitName: k,
-				Pkgs:     c.Packages,
-				Order:    c.Order,
-			})
-		}
-		sort.Slice(out, func(i int, j int) bool {
-			return out[i].(*units.InstallTools).Order > out[j].(*units.InstallTools).Order
-		})
-		return out, nil
-	}
-
-	return nil, nil
 }
 
 // ReleaseConf describes how the system should self-describe.

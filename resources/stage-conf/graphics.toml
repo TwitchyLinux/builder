@@ -17,19 +17,3 @@ packages = [
   "glib-networking", "gnome-bluetooth", "gnome-settings-daemon", "gnome-keyring", "gstreamer1.0-libav",
   "dconf-gsettings-backend", "gnome-color-manager", "libgsf-bin", "gkbd-capplet", "tracker"
 ]
-
-[graphical_environment.post.install.nmap-tools]
-order_priority = 20
-packages = ["nmap", "ncat", "ndiff", "zenmap"]
-
-[graphical_environment.post.install.gui-dev-tools]
-order_priority = 10
-packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev"]
-
-[graphical_environment.post.install.openscad]
-order_priority = 10
-packages = ["openscad"]
-
-[graphical_environment.post.install.qemu-gui]
-order_priority = 10
-packages = ["qemu-system-gui"]

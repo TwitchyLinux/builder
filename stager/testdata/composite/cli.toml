@@ -1,0 +1,7 @@
+[graphical_environment.post.install.cli]
+order_priority = 5
+packages = ["screen", "htop"]
+do = [
+  {action = 'download', url = 'https://dl.google.com/linux/linux_signing_key.pub', to = '/chrome-signing-key.pub'},
+  {action = 'run', bin = 'apt-key', args = ['add', '/chrome-signing-key.pub']},
+]
