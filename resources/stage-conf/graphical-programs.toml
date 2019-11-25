@@ -1,25 +1,26 @@
 [graphical_environment.post.install.nmap-tools]
-order_priority = 20
+order_priority = 90
 packages = ["nmap", "ncat", "ndiff", "zenmap"]
 
 [graphical_environment.post.install.gui-dev-tools]
-order_priority = 10
+order_priority = 85
 packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev"]
 
 [graphical_environment.post.install.openscad]
-order_priority = 10
+order_priority = 80
 packages = ["openscad"]
 
 [graphical_environment.post.install.qemu-gui]
-order_priority = 10
+order_priority = 80
 packages = ["qemu-system-gui"]
 
 
 [graphical_environment.post.install.chrome]
-order_priority = 8
+order_priority = 50
 do = [
   {action = 'download', url = 'https://dl.google.com/linux/linux_signing_key.pub', to = '/chrome-signing-key.pub'},
   {action = 'run', bin = 'apt-key', args = ['add', '/chrome-signing-key.pub']},
+  {action = 'mkdir', dir = '/etc/apt/sources.list.d'},
   {action = 'append', to = '/etc/apt/sources.list.d/google-chrome.list', data = "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main\n"},
   {action = 'run', bin = 'rm', args = ['/chrome-signing-key.pub']},
   {action = 'run', bin = 'apt-get', args = ['update']},
@@ -27,7 +28,7 @@ do = [
 ]
 
 [graphical_environment.post.install.atom]
-order_priority = 7
+order_priority = 45
 do = [
   {action = 'download', url = 'https://packagecloud.io/AtomEditor/atom/gpgkey', to = '/atom-signing-key.pub'},
   {action = 'run', bin = 'apt-key', args = ['add', '/atom-signing-key.pub']},

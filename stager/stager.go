@@ -89,11 +89,13 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 	out = append(out, ge)
 
 	// Install post-GUI packages.
-	if installs, err = installsUnderKey(conf, installKeyPostGUI); err != nil {
-		return nil, err
+	if ge != nil {
+		if installs, err = installsUnderKey(conf, installKeyPostGUI); err != nil {
+			return nil, err
+		}
+		out = append(out, installs...)
+		out = append(out, afterGUIUnits...)
 	}
-	out = append(out, installs...)
-	out = append(out, afterGUIUnits...)
 
 	out = append(out, finalUnits...)
 	return out, nil

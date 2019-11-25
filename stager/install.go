@@ -15,6 +15,7 @@ type InstallAction struct {
 	URL  string `toml:"url"`
 	To   string `toml:"to"`
 	Data string `toml:"data"`
+	Dir  string `toml:"dir"`
 
 	Bin  string   `toml:"bin"`
 	Args []string `toml:"args"`
@@ -111,6 +112,8 @@ func actionToUnit(a InstallAction) (units.Unit, error) {
 		return &units.Cmd{Bin: a.Bin, Args: a.Args}, nil
 	case "append":
 		return &units.Append{To: a.To, Data: a.Data}, nil
+	case "mkdir":
+		return &units.Mkdir{Dir: a.Dir}, nil
 	}
 	return nil, fmt.Errorf("unknown action: %q", a.Action)
 }

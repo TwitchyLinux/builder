@@ -29,6 +29,26 @@ func (c *Cmd) Run(ctx context.Context, opts Opts) error {
 	return chroot.Shell(ctx, &opts, c.Bin, c.Args...)
 }
 
+// Mkdir represents the execution of mkdir on the target system.
+type Mkdir struct {
+	Dir string
+}
+
+// Name implements Unit.
+func (c *Mkdir) Name() string {
+	return "mkdir " + filepath.Base(c.Dir)
+}
+
+// Run implements Unit.
+func (c *Mkdir) Run(ctx context.Context, opts Opts) error {
+	chroot, err := prepareChroot(opts.Dir)
+	if err != nil {
+		return err
+	}
+	defer chroot.Close()
+	return chroot.Shell(ctx, &opts, "mkdir", "-pv", c.Dir)
+}
+
 // Append appends a line to a file
 type Append struct {
 	To   string
