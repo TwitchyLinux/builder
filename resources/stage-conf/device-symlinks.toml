@@ -1,0 +1,28 @@
+[udev.rules.buspirate]
+name = 'buspirate'
+
+[[udev.rules.buspirate.rules]]
+  comment = 'Bus pirate v3'
+  if = [
+    {key = 'SUBSYSTEM', value = 'tty'},
+    {key = 'ATTRS{idVendor}', value = '0403'},
+    {key = 'ATTRS{idProduct}', value = '6001'},
+  ]
+  then = [
+    {action = 'MODE', value = '0666'},
+    {action = 'GROUP', value = 'users'},
+    {action = 'SYMLINK', value = 'buspirate', op = '+='},
+  ]
+
+[[udev.rules.buspirate.rules]]
+  comment = 'Bus pirate v4'
+  if = [
+    {key = 'SUBSYSTEM', value = 'tty'},
+    {key = 'ATTRS{idVendor}', value = '04d8'},
+    {key = 'ATTRS{idProduct}', value = 'fb00'},
+  ]
+  then = [
+    {action = 'MODE', value = '0666'},
+    {action = 'GROUP', value = 'users'},
+    {action = 'SYMLINK', value = 'buspirate', op = '+='},
+  ]

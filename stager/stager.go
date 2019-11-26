@@ -20,6 +20,8 @@ const (
 	rootKeyGolang       = "go_toolchain"
 	installKeyPostBase  = "post_base.install"
 	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
+	rootKeyUdev         = "udev"
+	keyUdevRules        = rootKeyUdev + ".rules"
 )
 
 func unionTree(target, in *toml.Tree, inPrefix []string) error {
@@ -96,6 +98,12 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 		out = append(out, installs...)
 		out = append(out, afterGUIUnits...)
 	}
+
+	udev, err := udevConf(conf)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, udev)
 
 	out = append(out, finalUnits...)
 	return out, nil

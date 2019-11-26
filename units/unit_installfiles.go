@@ -17,6 +17,7 @@ type FileInfo struct {
 // InstallFiles installs files into the target system.
 type InstallFiles struct {
 	UnitName string
+	Mkdir    string
 	Files    []FileInfo
 }
 
@@ -27,6 +28,12 @@ func (i *InstallFiles) Name() string {
 
 // Run implements Unit.
 func (i *InstallFiles) Run(ctx context.Context, opts Opts) error {
+	if i.Mkdir != "" {
+		if err := os.Mkdir(filepath.Join(opts.Dir, i.Mkdir), 0755); err != nil && !os.IsExist(err) {
+			return err
+		}
+	}
+
 	for _, f := range i.Files {
 		opts.L.SetSubstage("Install " + filepath.Base(f.Path))
 		var perms os.FileMode = 0644
