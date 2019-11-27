@@ -14,6 +14,10 @@ packages = ["bash-completion", "bash-doc", "bash-builtins"]
 order_priority = 20
 packages = ["cryptsetup", "kbd", "console-setup", "keyutils"]
 
+[post_base.install.mac]
+order_priority = 20
+packages = ["apparmor", "apparmor-utils", "auditd", "libapparmor-dev"]
+
 [post_base.install.firmware]
 order_priority = 18
 packages = [

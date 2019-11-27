@@ -26,7 +26,8 @@ packages = [
   "figlet",
   "sharutils", "sharutils-doc",
   "pm-utils", "pciutils", "sysstat", "dpkg-dev",
-  "gnupg", "jq", "tidy", "dstat", "info", "attr"
+  "gnupg", "jq", "tidy", "dstat", "info", "attr",
+  "bubblewrap"
 ]
 
 [post_base.install.usb]

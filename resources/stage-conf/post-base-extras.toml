@@ -5,3 +5,10 @@ packages = ["ffmpeg", "ffmpeg-doc", "libavcodec-dev", "libavdevice-dev", "libavd
 [post_base.install.qemu]
 order_priority = 88
 packages = ["libqcow-utils", "qemu-utils", "qemu-user", "qemu-kvm", "qemu-system-arm", "qemu-system-x86"]
+
+[post_base.install.tor]
+order_priority = 88
+packages = ["tor", "nyx", "torsocks"]
+do = [
+  {action = 'run', bin = 'systemctl', args = ['disable', 'tor.service']},
+]
