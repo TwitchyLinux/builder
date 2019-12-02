@@ -2,14 +2,14 @@ package units
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/tredoe/osutil/user/crypt"
 	_ "github.com/tredoe/osutil/user/crypt/sha512_crypt"
+	"github.com/twitchylinux/builder/conf/user"
 )
 
 var (
@@ -111,29 +111,34 @@ func (d *ShellCustomization) makeUser(ctx context.Context, opts *Opts) error {
 	if err := chroot.AptInstall(ctx, opts, "passwd"); err != nil {
 		return err
 	}
+	c, err := user.ReadConfig(opts.Dir)
+	if err != nil {
+		return fmt.Errorf("reading static user configuration: %v", err)
+	}
 
 	for _, usr := range d.Users {
-		if err := chroot.Shell(ctx, opts, "adduser", "--disabled-password", "--gecos", "", usr.Username); err != nil {
-			if _, ok := err.(*exec.ExitError); !ok {
-				return err
-			}
+		if err := c.UpsertUser(usr.Username); err != nil {
+			return fmt.Errorf("could not upsert user %q: %v", usr.Username, err)
 		}
 
 		if usr.Password != "" {
-			s, err := crypt.New(crypt.SHA512).Generate([]byte(usr.Password), nil)
+			s, err := user.ShadowHash(usr.Password)
 			if err != nil {
 				return err
 			}
-			if err := d.updateShadowPassword(opts.Dir, usr.Username, s); err != nil {
+			if err := c.SetPassword(usr.Username, s); err != nil {
 				return err
 			}
 		}
-
 		for _, g := range usr.Groups {
-			if err := chroot.Shell(ctx, opts, "usermod", "-a", "-G", g, usr.Username); err != nil {
+			if err := c.UpsertMembership(usr.Username, g); err != nil {
 				return err
 			}
 		}
+	}
+
+	if err := c.Flush(); err != nil {
+		return fmt.Errorf("writing static user config: %v", err)
 	}
 	return nil
 }
