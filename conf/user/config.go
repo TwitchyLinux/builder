@@ -1,11 +1,13 @@
 package user
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/twitchylinux/builder/conf/kv"
@@ -334,14 +336,14 @@ func (m *Config) Flush() error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(m.RootPath, "etc", "passwd"), passwd, 0644); err != nil {
+	if err := writeFile(filepath.Join(m.RootPath, "etc", "passwd"), passwd, 0644); err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(filepath.Join(m.RootPath, "etc", "group"), groups, 0644); err != nil {
+	if err := writeFile(filepath.Join(m.RootPath, "etc", "group"), groups, 0644); err != nil {
 		return err
 	}
 	if m.shadowDirty {
-		if err := ioutil.WriteFile(filepath.Join(m.RootPath, "etc", "shadow"), shadow, 0640); err != nil {
+		if err := writeFile(filepath.Join(m.RootPath, "etc", "shadow"), shadow, 0640); err != nil {
 			return err
 		}
 	}
@@ -364,6 +366,28 @@ func ReadConfig(rootPath string) (*Config, error) {
 		return nil, fmt.Errorf("reading shadow: %v", err)
 	}
 	return &m, nil
+}
+
+func writeFile(path string, data []byte, perm os.FileMode) error {
+	var uid, gid int
+
+	if s, err := os.Stat(path); err == nil {
+		perm = s.Mode()
+		uid = int(s.Sys().(*syscall.Stat_t).Uid)
+		gid = int(s.Sys().(*syscall.Stat_t).Gid)
+	}
+
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(f, bytes.NewReader(data)); err != nil {
+		return err
+	}
+	if err := f.Chown(uid, gid); err != nil {
+		return err
+	}
+	return f.Close()
 }
 
 func readGroups(rootPath string) ([]GroupEntry, error) {
