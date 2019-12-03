@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -43,9 +44,11 @@ func TestUpsertUser(t *testing.T) {
 		group    string
 		adduser  string
 		newUsers []string
+		opts     []AddUserOpt
 		users    []PasswdEntry
 		groups   []GroupEntry
 		shadow   []ShadowEntry
+		wantSkel bool
 	}{
 		{
 			name: "no-config",
@@ -87,10 +90,54 @@ func TestUpsertUser(t *testing.T) {
 			newUsers: []string{"test"},
 			users:    []PasswdEntry{{Username: "test", UID: 123, GID: 123}},
 		},
+		{
+			name:     "option-systemaccount",
+			newUsers: []string{"test"},
+			opts:     []AddUserOpt{{sysAccount: true}},
+			users:    []PasswdEntry{{Username: "test", UID: 100, GID: 100, HomeDir: "/home/test", ShellPath: "/bin/bash"}},
+			groups:   []GroupEntry{{Name: "test", Pass: "x", ID: 100}},
+			shadow:   []ShadowEntry{{Username: "test", LastChanged: now, MaxChangeDays: 99999, WarnBeforeMaxDays: 7}},
+		},
+		{
+			name:     "option-homedir",
+			newUsers: []string{"test"},
+			opts:     []AddUserOpt{{homeDir: "/kek"}},
+			users:    []PasswdEntry{{Username: "test", UID: 1000, GID: 1000, HomeDir: "/kek", ShellPath: "/bin/bash"}},
+			groups:   []GroupEntry{{Name: "test", Pass: "x", ID: 1000}},
+			shadow:   []ShadowEntry{{Username: "test", LastChanged: now, MaxChangeDays: 99999, WarnBeforeMaxDays: 7}},
+		},
+		{
+			name:     "option-nousergroup",
+			newUsers: []string{"test"},
+			opts:     []AddUserOpt{{noUserGroup: true}},
+			users:    []PasswdEntry{{Username: "test", UID: 1000, GID: 1000, HomeDir: "/home/test", ShellPath: "/bin/bash"}},
+			shadow:   []ShadowEntry{{Username: "test", LastChanged: now, MaxChangeDays: 99999, WarnBeforeMaxDays: 7}},
+		},
+		{
+			name:     "option-skel",
+			newUsers: []string{"test"},
+			opts:     []AddUserOpt{{skel: true}},
+			users:    []PasswdEntry{{Username: "test", UID: 1000, GID: 1000, HomeDir: "/home/test", ShellPath: "/bin/bash"}},
+			groups:   []GroupEntry{{Name: "test", Pass: "x", ID: 1000}},
+			shadow:   []ShadowEntry{{Username: "test", LastChanged: now, MaxChangeDays: 99999, WarnBeforeMaxDays: 7}},
+			wantSkel: true,
+		},
+		{
+			name:     "options",
+			newUsers: []string{"test"},
+			opts:     []AddUserOpt{{homeDir: "/kek"}, {sysAccount: true}, {shell: "/bin/false"}},
+			users:    []PasswdEntry{{Username: "test", UID: 100, GID: 100, HomeDir: "/kek", ShellPath: "/bin/false"}},
+			groups:   []GroupEntry{{Name: "test", Pass: "x", ID: 100}},
+			shadow:   []ShadowEntry{{Username: "test", LastChanged: now, MaxChangeDays: 99999, WarnBeforeMaxDays: 7}},
+		},
 	}
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.wantSkel && os.Getuid() != 0 {
+				t.SkipNow()
+			}
+
 			root, cleanup := makeTestRoot(t, tc.passwd, tc.group, tc.adduser)
 			defer cleanup()
 			c, err := ReadConfig(root)
@@ -100,9 +147,12 @@ func TestUpsertUser(t *testing.T) {
 			c.now = now
 
 			for _, name := range tc.newUsers {
-				if err := c.UpsertUser(name); err != nil {
+				if err := c.UpsertUser(name, tc.opts...); err != nil {
 					t.Errorf("UpsertUser(%q) failed: %v", name, err)
 				}
+			}
+			if err := c.flushSkel(); err != nil {
+				t.Errorf("flushSkel() failed: %v", err)
 			}
 
 			if got, want := c.users, tc.users; !reflect.DeepEqual(got, want) {
@@ -113,6 +163,26 @@ func TestUpsertUser(t *testing.T) {
 			}
 			if got, want := c.shadow, tc.shadow; !reflect.DeepEqual(got, want) {
 				t.Errorf("c.shadow = %v, want %v", got, want)
+			}
+
+			if tc.wantSkel {
+				for _, u := range c.users {
+					s, err := os.Stat(filepath.Join(root, u.HomeDir))
+					if err != nil {
+						t.Errorf("os.Stat(homedir) failed: %v", err)
+						continue
+					}
+
+					if got, want := s.Mode()&os.ModePerm, os.FileMode(0700); got != want {
+						t.Errorf("homedir perms = %#o, want %#o", got, want)
+					}
+					if got, want := int(s.Sys().(*syscall.Stat_t).Uid), u.UID; got != want {
+						t.Errorf("homedir UID = %v, want %v", got, want)
+					}
+					if got, want := int(s.Sys().(*syscall.Stat_t).Gid), u.GID; got != want {
+						t.Errorf("homedir GID = %v, want %v", got, want)
+					}
+				}
 			}
 		})
 	}
@@ -125,6 +195,9 @@ func makeTestRoot(t *testing.T, passwd, group, adduser string) (string, func()) 
 		t.Fatal(err)
 	}
 	if err := os.MkdirAll(filepath.Join(dir, "etc"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(dir, "home"), 0755); err != nil {
 		t.Fatal(err)
 	}
 

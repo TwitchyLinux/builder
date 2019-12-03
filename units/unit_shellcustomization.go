@@ -117,7 +117,7 @@ func (d *ShellCustomization) makeUser(ctx context.Context, opts *Opts) error {
 	}
 
 	for _, usr := range d.Users {
-		if err := c.UpsertUser(usr.Username); err != nil {
+		if err := c.UpsertUser(usr.Username, user.OptCreateSkel()); err != nil {
 			return fmt.Errorf("could not upsert user %q: %v", usr.Username, err)
 		}
 

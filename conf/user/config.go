@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"syscall"
@@ -22,6 +23,8 @@ type Config struct {
 
 	shadow      []ShadowEntry
 	shadowDirty bool
+
+	createSkel []PasswdEntry
 }
 
 func decodeIDPair(conf map[string]string, lKey, rKey string, lDefault, rDefault int) (int, int, error) {
@@ -156,7 +159,73 @@ func (m *Config) SetPassword(name string, pass ShadowPass) error {
 	return nil
 }
 
-type AddUserOpt struct{}
+// OptSystemAccount indicates any created user should use the system UID/GID
+// ranges.
+func OptSystemAccount() AddUserOpt {
+	return AddUserOpt{sysAccount: true}
+}
+
+// OptNoUserGroup indicates no user group should be created for any
+// created user.
+func OptNoUserGroup() AddUserOpt {
+	return AddUserOpt{noUserGroup: true}
+}
+
+// OptCreateSkel indicates that a skeleton homedir should be created
+// based on /etc/skel.
+func OptCreateSkel() AddUserOpt {
+	return AddUserOpt{skel: true}
+}
+
+// OptErrIfExists will cause UpsertUser to fail if the user already exists.
+func OptErrIfExists() AddUserOpt {
+	return AddUserOpt{errIfExists: true}
+}
+
+// OptHomedir configures the homedir for the user.
+func OptHomedir(dir string) AddUserOpt {
+	return AddUserOpt{homeDir: dir}
+}
+
+// OptShell configures the shell for the user.
+func OptShell(shell string) AddUserOpt {
+	return AddUserOpt{shell: shell}
+}
+
+// AddUserOpt represents an option configuring an invocation to UpsertUser().
+type AddUserOpt struct {
+	sysAccount  bool
+	noUserGroup bool
+	skel        bool
+	errIfExists bool
+	homeDir     string
+	shell       string
+}
+
+func flattenAddUserOpts(opts ...AddUserOpt) AddUserOpt {
+	out := AddUserOpt{}
+	for _, o := range opts {
+		if o.sysAccount {
+			out.sysAccount = true
+		}
+		if o.errIfExists {
+			out.errIfExists = true
+		}
+		if o.homeDir != "" {
+			out.homeDir = o.homeDir
+		}
+		if o.shell != "" {
+			out.shell = o.shell
+		}
+		if o.noUserGroup {
+			out.noUserGroup = true
+		}
+		if o.skel {
+			out.skel = true
+		}
+	}
+	return out
+}
 
 func (m *Config) userIndex(name string) int {
 	idx := -1
@@ -205,27 +274,20 @@ func (m *Config) UpsertMembership(user, group string) error {
 // UpsertUser creates the given user if it does not exist, or updates the
 // homedir, shell, and user info otherwise.
 func (m *Config) UpsertUser(name string, opts ...AddUserOpt) error {
-	// TODO: Read these from options.
-	var (
-		errIfExists  = false
-		systemUser   = false
-		homeDir      = ""
-		shell        = ""
-		userInfo     = ""
-		makeUsrGroup = true
-	)
+	options := flattenAddUserOpts(opts...)
+	var userInfo = ""
 
 	idx := m.userIndex(name)
-	if errIfExists && idx >= 0 {
+	if options.errIfExists && idx >= 0 {
 		return os.ErrExist
 	}
 
 	if idx >= 0 { // user exists, update values
-		if homeDir != "" {
-			m.users[idx].HomeDir = homeDir
+		if options.homeDir != "" {
+			m.users[idx].HomeDir = options.homeDir
 		}
-		if shell != "" {
-			m.users[idx].ShellPath = shell
+		if options.shell != "" {
+			m.users[idx].ShellPath = options.shell
 		}
 		if userInfo != "" {
 			m.users[idx].UserInfo = userInfo
@@ -234,14 +296,17 @@ func (m *Config) UpsertUser(name string, opts ...AddUserOpt) error {
 	}
 
 	// User doesnt exist, determine defaults.
-	usr, err := m.newUserEntry(name, systemUser, homeDir, shell, userInfo)
+	usr, err := m.newUserEntry(name, options.sysAccount, options.homeDir, options.shell, userInfo)
 	if err != nil {
 		return fmt.Errorf("generating user: %v", err)
 	}
-	if makeUsrGroup {
+	if !options.noUserGroup {
 		m.groups = append(m.groups, GroupEntry{ID: usr.GID, Name: usr.Username, Pass: "x"})
 	}
 	m.users = append(m.users, usr)
+	if options.skel {
+		m.createSkel = append(m.createSkel, usr)
+	}
 	return m.SetPassword(name, ShadowPass{Mode: PassAccountDisabled})
 }
 
@@ -347,7 +412,32 @@ func (m *Config) Flush() error {
 			return err
 		}
 	}
+	return m.flushSkel()
+}
+
+func (c *Config) flushSkel() error {
+	for _, u := range c.createSkel {
+		if err := c.makeHomedir(u.HomeDir, "/etc/skel", u.UID, u.GID); err != nil {
+			return fmt.Errorf("failed to create home directory for %s: %v", u.Username, err)
+		}
+	}
+	c.createSkel = nil
 	return nil
+}
+
+func (c *Config) makeHomedir(home, skel string, uid, gid int) error {
+	home = filepath.Join(c.RootPath, home)
+
+	if err := os.Mkdir(home, 02700); err != nil {
+		return fmt.Errorf("mkdir failed: %v", err)
+	}
+
+	cmd := exec.Command("cp", "-a", filepath.Clean(skel)+"/.", home)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed copying %q to %q: %v", skel, home, err)
+	}
+	cmd = exec.Command("chown", "-R", fmt.Sprintf("%d:%d", uid, gid), home)
+	return cmd.Run()
 }
 
 // ReadConfig reads the static user/group configuration in the
