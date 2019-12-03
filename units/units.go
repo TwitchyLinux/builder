@@ -23,6 +23,8 @@ type Opts struct {
 
 	// NumThreads is the number of concurrent threads to be used while building.
 	NumThreads int
+
+	DebProxy string
 }
 
 func (o *Opts) makeNumThreadsArg() string {

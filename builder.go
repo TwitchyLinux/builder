@@ -19,6 +19,7 @@ var (
 	resourcesDir = flag.String("resources-dir", "resources", "Path to the builder resources directory.")
 	outputOnly   = flag.Bool("output-only", false, "Only output to stdout in a non-interactive fashion.")
 	version      = flag.String("twl-version", "0.3.0", "The current version of TwitchyLinux.")
+	debProxyAddr = flag.String("deb-proxy-addr", "", "The address:port of a proxy to use when fetching deb packages.")
 
 	defaultNumThreads = int(math.Max(1, float64(runtime.NumCPU()-1)))
 	numThreads        = flag.Int("j", defaultNumThreads, "Number of concurrent threads to use while building.")
@@ -39,6 +40,7 @@ func main() {
 		Resources:  resourceDir(),
 		NumThreads: *numThreads,
 		Version:    *version,
+		DebProxy:   *debProxyAddr,
 	}
 
 	var logger logger

@@ -103,6 +103,9 @@ func (c *Chroot) AptInstall(ctx context.Context, opts *Opts, packages ...string)
 	cmd.Stdout = opts.L.Stdout()
 	cmd.Stderr = opts.L.Stderr()
 	cmd.Env = localeEnv
+	if opts.DebProxy != "" {
+		cmd.Env = append(cmd.Env, "http_proxy=http://"+opts.DebProxy)
+	}
 	return cmd.Run()
 }
 

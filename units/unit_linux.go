@@ -94,6 +94,9 @@ func (l *Linux) installDeps(ctx context.Context, chroot *Chroot, opts Opts) erro
 	}
 	cmd.Stdout = opts.L.Stdout()
 	cmd.Stderr = opts.L.Stderr()
+	if opts.DebProxy != "" {
+		cmd.Env = append(cmd.Env, "http_proxy=http://"+opts.DebProxy)
+	}
 	if err := cmd.Run(); err != nil {
 		return err
 	}

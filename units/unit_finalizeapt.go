@@ -53,6 +53,13 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
+	if opts.DebProxy != "" {
+		if err := ioutil.WriteFile(filepath.Join(opts.Dir, "etc", "apt", "apt.conf.d", "05-temp-install-proxy"),
+			[]byte("Acquire::http::proxy::deb.debian.org \"http://"+opts.DebProxy+"/\";\n"), 0644); err != nil {
+			return err
+		}
+	}
+
 	chroot, err := prepareChroot(opts.Dir)
 	if err != nil {
 		return err
@@ -66,6 +73,9 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 	}
 	cmd.Stdout = opts.L.Stdout()
 	cmd.Stderr = opts.L.Stderr()
+	if opts.DebProxy != "" {
+		cmd.Env = append(cmd.Env, "http_proxy=http://"+opts.DebProxy)
+	}
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -76,5 +86,8 @@ func (u *FinalizeApt) Run(ctx context.Context, opts Opts) error {
 	}
 	cmd.Stdout = opts.L.Stdout()
 	cmd.Stderr = opts.L.Stderr()
+	if opts.DebProxy != "" {
+		cmd.Env = append(cmd.Env, "http_proxy=http://"+opts.DebProxy)
+	}
 	return cmd.Run()
 }

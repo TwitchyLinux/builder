@@ -20,6 +20,9 @@ func (d *Debootstrap) Name() string {
 // Run implements Unit.
 func (d *Debootstrap) Run(ctx context.Context, opts Opts) error {
 	dbstrp := exec.CommandContext(ctx, "debootstrap")
+	if opts.DebProxy != "" {
+		dbstrp.Env = append(dbstrp.Env, "http_proxy=http://"+opts.DebProxy)
+	}
 	dbstrp.Args = []string{"debootstrap", d.Track, opts.Dir, d.URL}
 	dbstrp.Stdout = opts.L.Stdout()
 	dbstrp.Stderr = opts.L.Stderr()
