@@ -41,38 +41,16 @@ type Cache struct {
 	Entries []CacheEntry
 }
 
-func archAlignment(arch string) int {
-	return (archIntSize(arch) * 2 * 8) - 1
+func libc5EntrySize() int {
+	return 12 // 3 'ints'.
 }
 
-func archIntSize(arch string) int {
-	if arch == "x86" || arch == "arm" {
-		return 2
-	}
-	return 4
-}
-
-func libc5EntrySize(arch string) int {
-	// 3 'ints'.
-	if arch == "x86" || arch == "arm" {
-		return 6
-	}
-	return 12
-}
-
-func libc5NumEntries(r io.Reader, arch string) (int, error) {
-	var (
-		buff  [4]byte
-		iSize = archIntSize(arch)
-	)
-	if n, err := r.Read(buff[:iSize]); err != nil || n != iSize {
+func libc5NumEntries(r io.Reader) (int, error) {
+	var buff [4]byte
+	if n, err := r.Read(buff[:]); err != nil || n != 4 {
 		return 0, fmt.Errorf("reading number of entries: %v", err)
 	}
 	return int(binary.LittleEndian.Uint32(buff[:])), nil
-}
-
-func glibc11EntrySize() int {
-	return 4*4 + 8
 }
 
 type glibc1v1Hdr struct {
@@ -125,7 +103,7 @@ func parseGlibc1v1(r io.ReadSeeker, glibcSectionOffset int64, numLibs, lenString
 }
 
 // ParseCache parses an ld.so.cache file.
-func ParseCache(r io.ReadSeeker, arch string) (*Cache, error) {
+func ParseCache(r io.ReadSeeker) (*Cache, error) {
 	var glibcCheckOffset int64
 	var checkLibc5Magic [len(libc5Magic)]byte
 	if n, err := r.Read(checkLibc5Magic[:]); err != nil || n != len(checkLibc5Magic) {
@@ -137,10 +115,10 @@ func ParseCache(r io.ReadSeeker, arch string) (*Cache, error) {
 		numLibc5Sections int
 	)
 	if string(checkLibc5Magic[:]) == libc5Magic {
-		if numLibc5Sections, err = libc5NumEntries(r, arch); err != nil {
+		if numLibc5Sections, err = libc5NumEntries(r); err != nil {
 			return nil, err
 		}
-		glibcCheckOffset = int64(len(libc5Magic) + archIntSize(arch) + numLibc5Sections*libc5EntrySize(arch))
+		glibcCheckOffset = int64(len(libc5Magic) + 4 + numLibc5Sections*libc5EntrySize())
 	}
 
 	var checkGlibcMagic [len(glibc1v1Magic)]byte

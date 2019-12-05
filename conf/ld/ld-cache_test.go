@@ -12,7 +12,7 @@ func TestParseCache(t *testing.T) {
 	}
 	defer f.Close()
 
-	out, err := ParseCache(f, "amd64")
+	out, err := ParseCache(f)
 	if err != nil {
 		t.Errorf("ParseCache() failed: %v", err)
 	}
