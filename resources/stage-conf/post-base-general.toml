@@ -27,7 +27,8 @@ packages = [
   "sharutils", "sharutils-doc",
   "pm-utils", "pciutils", "sysstat", "dpkg-dev",
   "gnupg", "jq", "tidy", "dstat", "info", "attr",
-  "bubblewrap"
+  "bubblewrap",
+  "asciidoc",
 ]
 
 [post_base.install.usb]
