@@ -19,7 +19,7 @@ packages = ["lzip", "unzip", "zip", "tar", "rar", "unrar"]
 [post_base.install.cli-tools]
 order_priority = 98
 packages = [
-  "htop", "screen", "tmux",
+  "htop", "screen", "tmux", "minicom",
   "nano", "vim", "vim-doc",
   "git", "git-doc", "subversion", "subversion-tools",
   "lua5.2", "python2.7", "python-pip", "python-numpy", "python-dev", "python-numpy-doc", "python3", "python3-numpy",
@@ -38,3 +38,17 @@ packages = ["usbutils", "libusb-1.0-0", "libusb-1.0-0-dev", "libusb-1.0-doc"]
 [post_base.install.c-toolchain]
 order_priority = 90
 packages = ["build-essential", "cmake", "sqlite3", "libsqlite3-0", "libsqlite3-dev", "sqlite3-doc"]
+
+[post_base.install.c-toolchain-arm]
+order_priority = 90
+packages = ["gcc-arm-none-eabi"]
+
+[post_base.install.rust]
+order_priority = 89
+do = [
+  {action = 'download', url = 'https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init', to = '/rustup-init'},
+  {action = 'run', bin = 'chmod', args = ['+x', '/rustup-init']},
+  {action = 'run', bin = 'runuser', args = ['-l', 'twl', '-c', '/rustup-init --verbose --no-modify-path -y --default-toolchain stable']},
+  {action = 'run', bin = 'rm', args = ['/rustup-init']},
+  {action = 'append', to = '/home/twl/.bashrc', data = "\n# Start rustup section\nsource $HOME/.cargo/env\n# End rustup section\n"},
+]

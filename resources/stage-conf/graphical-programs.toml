@@ -4,7 +4,7 @@ packages = ["nmap", "ncat", "ndiff", "zenmap"]
 
 [graphical_environment.post.install.gui-dev-tools]
 order_priority = 85
-packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev"]
+packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-dev"]
 
 [graphical_environment.post.install.openscad]
 order_priority = 80
@@ -14,6 +14,9 @@ packages = ["openscad"]
 order_priority = 80
 packages = ["qemu-system-gui"]
 
+[graphical_environment.post.install.wireshark]
+order_priority = 75
+packages = ["wireshark"]
 
 [graphical_environment.post.install.chrome]
 order_priority = 50
