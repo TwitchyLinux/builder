@@ -6,9 +6,9 @@ packages = ["nmap", "ncat", "ndiff", "zenmap"]
 order_priority = 85
 packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-dev"]
 
-[graphical_environment.post.install.openscad]
+[graphical_environment.post.install.cad-and-images]
 order_priority = 80
-packages = ["openscad"]
+packages = ["openscad", "inkscape"]
 
 [graphical_environment.post.install.qemu-gui]
 order_priority = 80
