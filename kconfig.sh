@@ -13,4 +13,8 @@ chroot $1 bash -c "cd \"/linux-${K_VERS}\" && make mrproper"
 
 cp -v "${SCRIPT_BASE_DIR}/resources/linux/.config" "${1}/linux-${K_VERS}/.config"
 
-chroot $1 bash -c "cd \"/linux-${K_VERS}\" && make menuconfig"
+if [[ "${2}" == '--upgrade' ]]; then
+  chroot $1 bash -c "cd \"/linux-${K_VERS}\" && make syncconfig"
+else
+  chroot $1 bash -c "cd \"/linux-${K_VERS}\" && make menuconfig"
+fi
