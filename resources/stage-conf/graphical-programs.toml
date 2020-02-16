@@ -1,3 +1,7 @@
+[graphical_environment.post.install.non-latin-fonts]
+order_priority = 95
+packages = ["fonts-indic", "fonts-noto", "fonts-noto-cjk"]
+
 [graphical_environment.post.install.nmap-tools]
 order_priority = 90
 packages = ["nmap", "ncat", "ndiff", "zenmap"]
