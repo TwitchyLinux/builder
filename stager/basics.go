@@ -25,9 +25,9 @@ var (
 	}
 
 	golangDefault = GolangConf{
-		Version: "1.13.4",
-		URL:     "https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz",
-		SHA256:  "692d17071736f74be04a72a06dab9cac1cd759377bd85316e52b2227604c004c",
+		Version: "1.13.8",
+		URL:     "https://dl.google.com/go/go1.13.8.linux-amd64.tar.gz",
+		SHA256:  "0567734d558aef19112f2b2873caa0c600f1b4a5827930eb5a7f35235219e9d8",
 	}
 
 	linuxDefault = LinuxConf{
