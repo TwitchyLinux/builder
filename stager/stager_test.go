@@ -114,6 +114,24 @@ func TestLoadGraphicalDisabled(t *testing.T) {
 	}
 }
 
+func TestLoadShellCustomization(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/shell")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sc := getUnit(t, c, reflect.TypeOf(&units.ShellCustomization{})).(*units.ShellCustomization)
+	if got, want := sc, (&units.ShellCustomization{
+		AdditionalSkel: []byte("yeet"),
+		AdditionalProfileScripts: map[string][]byte{
+			"twl.sh": []byte("maaaaate\n"),
+		},
+		Users: defaultUsers,
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("sc.AdditionalSkel = %v, want %v", got, want)
+	}
+}
+
 func TestLoadPostInstall(t *testing.T) {
 	c, err := UnitsFromConfig("testdata/post_base_install")
 	if err != nil {

@@ -1,0 +1,8 @@
+
+[base.shell_customization]
+skel = '''yeet'''
+
+[[base.shell_customization.profile]]
+  name = 'twl.sh'
+  script = '''maaaaate
+'''

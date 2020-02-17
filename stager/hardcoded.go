@@ -9,11 +9,6 @@ import (
 var (
 	systemBuildUnits = []units.Unit{
 		&units.Systemd{},
-		&units.ShellCustomization{
-			AdditionalSkel:          additionalSkel,
-			AddtionalProfileScripts: profiledScripts,
-			Users:                   defaultUsers,
-		},
 	}
 
 	afterGUIUnits = []units.Unit{
@@ -71,46 +66,6 @@ var (
 				BG: "light-gray",
 			},
 		},
-	}
-)
-
-// Hardcoded shell customization.
-var (
-	additionalSkel = []byte(`
-
-  # Start TwitchyLinux section
-  alias ls='ls --color=auto'
-  alias grep='grep --color=auto'
-  export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-  export PS1="\[\033[38;5;2m\][\u\[$(tput sgr0)\]\[\033[38;5;1m\]@\[$(tput sgr0)\]\[\033[38;5;2m\]\h]\[$(tput sgr0)\]\[\033[38;5;15m\]:\[$(tput bold)\]\[\033[38;5;6m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\]> \[$(tput sgr0)\]"
-  if [ "$UID" -eq "0" ]; then
-    export PS1="\[\033[38;5;2m\][\[$(tput sgr0)\]\[\033[38;5;11m\]\u\[$(tput sgr0)\]\[\033[38;5;1m\]@\[$(tput sgr0)\]\[\033[38;5;2m\]\h]\[$(tput sgr0)\]\[\033[38;5;15m\]:\[$(tput bold)\]\[\033[38;5;6m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\]> \[$(tput sgr0)\]"
-  fi
-  alias edit='nano'
-  # End TwitchyLinux section
-  `)
-
-	profiledScripts = map[string][]byte{
-		"twl.sh": []byte(`
-  export LANG=en_US.UTF-8
-  # Setup for /bin/ls and /bin/grep to support color.
-  if [ -f "/etc/dircolors" ] ; then
-          eval $(dircolors -b /etc/dircolors)
-  fi
-  if [ -f "$HOME/.dircolors" ] ; then
-          eval $(dircolors -b $HOME/.dircolors)
-  fi
-  alias ls='ls --color=auto'
-  alias grep='grep --color=auto'
-  #colored GCC stuff
-  export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-  export PS1="\[\033[38;5;2m\][\u\[$(tput sgr0)\]\[\033[38;5;1m\]@\[$(tput sgr0)\]\[\033[38;5;2m\]\h]\[$(tput sgr0)\]\[\033[38;5;15m\]:\[$(tput bold)\]\[\033[38;5;6m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\]> \[$(tput sgr0)\]"
-  if [ "$UID" -eq "0" ]; then
-    export PS1="\[\033[38;5;2m\][\[$(tput sgr0)\]\[\033[38;5;11m\]\u\[$(tput sgr0)\]\[\033[38;5;1m\]@\[$(tput sgr0)\]\[\033[38;5;2m\]\h]\[$(tput sgr0)\]\[\033[38;5;15m\]:\[$(tput bold)\]\[\033[38;5;6m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\]> \[$(tput sgr0)\]"
-  fi
-  alias edit='nano'
-  alias reload='. ~/.bashrc'
-  `),
 	}
 
 	defaultUsers = []units.UserSpec{

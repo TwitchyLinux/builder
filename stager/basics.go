@@ -200,3 +200,42 @@ func releaseConf(tree *toml.Tree) ([]units.Unit, error) {
 
 	return nil, nil
 }
+
+// ShellProfile describes a profile to be installed in /etc/profile.d.
+type ShellProfile struct {
+	Name   string `toml:"name"`
+	Script string `toml:"script"`
+}
+
+// ShellConf describes the customization of the shell.
+type ShellConf struct {
+	Skel     string         `toml:"skel"`
+	Profiles []ShellProfile `toml:"profile"`
+}
+
+func shellConf(tree *toml.Tree) (*units.ShellCustomization, error) {
+	conf := ShellConf{}
+	if t := tree.Get(keyShellCust); t != nil {
+		ge, ok := t.(*toml.Tree)
+		if !ok {
+			if i, isInt := t.(int64); isInt && i == 0 {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", keyShellCust, t)
+		}
+		if err := ge.Unmarshal(&conf); err != nil {
+			return nil, err
+		}
+	}
+
+	out := &units.ShellCustomization{
+		AdditionalSkel:           []byte(conf.Skel),
+		AdditionalProfileScripts: map[string][]byte{},
+		Users:                    defaultUsers,
+	}
+	for _, p := range conf.Profiles {
+		out.AdditionalProfileScripts[p.Name] = []byte(p.Script)
+	}
+
+	return out, nil
+}
