@@ -49,6 +49,22 @@ func (c *Mkdir) Run(ctx context.Context, opts Opts) error {
 	return chroot.Shell(ctx, &opts, "mkdir", "-pv", c.Dir)
 }
 
+// CheckHash represents the validation of the sha256 checksum of a file.
+type CheckHash struct {
+	File         string
+	ExpectedHash string
+}
+
+// Name implements Unit.
+func (c *CheckHash) Name() string {
+	return "sha256sum " + filepath.Base(c.File)
+}
+
+// Run implements Unit.
+func (c *CheckHash) Run(ctx context.Context, opts Opts) error {
+	return CheckSHA256(filepath.Join(opts.Dir, c.File), c.ExpectedHash)
+}
+
 // Append appends a line to a file
 type Append struct {
 	To   string

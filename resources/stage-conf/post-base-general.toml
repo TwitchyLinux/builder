@@ -54,3 +54,13 @@ do = [
   {action = 'run', bin = 'rm', args = ['/rustup-init']},
   {action = 'append', to = '/home/twl/.bashrc', data = "\n# Start rustup section\nsource $HOME/.cargo/env\n# End rustup section\n"},
 ]
+
+[post_base.install.golang]
+order_priority = 89
+do = [
+  {action = 'download', url = 'https://dl.google.com/go/go1.13.8.linux-amd64.tar.gz', to = '/go1.13.8.linux-amd64.tar.gz'},
+  {action = 'sha256sum', from = '/go1.13.8.linux-amd64.tar.gz', expected = '0567734d558aef19112f2b2873caa0c600f1b4a5827930eb5a7f35235219e9d8'},
+  {action = 'run', bin = 'tar', args = ['-v', '-C', '/usr/local', '-xzf', '/go1.13.8.linux-amd64.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/go1.13.8.linux-amd64.tar.gz']},
+  {action = 'append', to = '/etc/profile.d/golang.sh', data = "# Make Go tools available via path\nexport PATH=$PATH:/usr/local/go/bin\n"},
+]

@@ -164,7 +164,7 @@ install_grub () {
 # Main code
 trap 'on_error $LINENO' ERR EXIT
 
-mk_img_file ${IMG_PATH} 10240
+mk_img_file ${IMG_PATH} 12288
 
 mount_img
 

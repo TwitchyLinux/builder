@@ -13,9 +13,12 @@ type InstallAction struct {
 	Action string `toml:"action"`
 
 	URL  string `toml:"url"`
+	From string `toml:"from"`
 	To   string `toml:"to"`
 	Data string `toml:"data"`
 	Dir  string `toml:"dir"`
+
+	Expected string `toml:"expected"`
 
 	Bin  string   `toml:"bin"`
 	Args []string `toml:"args"`
@@ -110,6 +113,8 @@ func actionToUnit(a InstallAction) (units.Unit, error) {
 		return &units.Download{URL: a.URL, To: a.To}, nil
 	case "run":
 		return &units.Cmd{Bin: a.Bin, Args: a.Args}, nil
+	case "sha256sum":
+		return &units.CheckHash{File: a.From, ExpectedHash: a.Expected}, nil
 	case "append":
 		return &units.Append{To: a.To, Data: a.Data}, nil
 	case "mkdir":

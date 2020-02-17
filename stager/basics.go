@@ -24,12 +24,6 @@ var (
 		Default:  "en_US.UTF-8",
 	}
 
-	golangDefault = GolangConf{
-		Version: "1.13.8",
-		URL:     "https://dl.google.com/go/go1.13.8.linux-amd64.tar.gz",
-		SHA256:  "0567734d558aef19112f2b2873caa0c600f1b4a5827930eb5a7f35235219e9d8",
-	}
-
 	linuxDefault = LinuxConf{
 		Version: "5.1.18",
 		URL:     "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.1.18.tar.xz",
@@ -61,35 +55,6 @@ func debootstrapConf(tree *toml.Tree) (*units.Debootstrap, error) {
 	return &units.Debootstrap{
 		Track: conf.Track,
 		URL:   conf.URL,
-	}, nil
-}
-
-// GolangConf describes what Go toolchain to install.
-type GolangConf struct {
-	Version string `toml:"version"`
-	URL     string `toml:"url"`
-	SHA256  string `toml:"sha256"`
-}
-
-func golangConf(tree *toml.Tree) (*units.Golang, error) {
-	conf := golangDefault
-	if t := tree.Get(rootKeyGolang); t != nil {
-		ge, ok := t.(*toml.Tree)
-		if !ok {
-			if i, isInt := t.(int64); isInt && i == 0 {
-				return nil, nil
-			}
-			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyGolang, t)
-		}
-		if err := ge.Unmarshal(&conf); err != nil {
-			return nil, err
-		}
-	}
-
-	return &units.Golang{
-		Version: conf.Version,
-		URL:     conf.URL,
-		SHA256:  conf.SHA256,
 	}, nil
 }
 
@@ -201,7 +166,7 @@ func releaseConf(tree *toml.Tree) ([]units.Unit, error) {
 	if t := tree.Get(keyReleaseInfo); t != nil {
 		ge, ok := t.(*toml.Tree)
 		if !ok {
-			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyGolang, t)
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", keyReleaseInfo, t)
 		}
 		var conf ReleaseConf
 		if err := ge.Unmarshal(&conf); err != nil {

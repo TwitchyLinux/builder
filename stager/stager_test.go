@@ -62,22 +62,6 @@ func TestLoadDebootstrapDefaults(t *testing.T) {
 	}
 }
 
-func TestLoadGolangDefaults(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/empty")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	got := getUnit(t, c, reflect.TypeOf(&units.Golang{})).(*units.Golang)
-	if want := (&units.Golang{
-		Version: golangDefault.Version,
-		URL:     golangDefault.URL,
-		SHA256:  golangDefault.SHA256,
-	}); !reflect.DeepEqual(got, want) {
-		t.Errorf("golang = %v, want %v", got, want)
-	}
-}
-
 func TestLoadLinuxDefaults(t *testing.T) {
 	c, err := UnitsFromConfig("testdata/empty")
 	if err != nil {
