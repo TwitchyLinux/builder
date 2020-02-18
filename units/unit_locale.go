@@ -116,11 +116,20 @@ func (d *Locale) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
+	if err := ioutil.WriteFile(filepath.Join(opts.Dir, "etc", "timezone"), []byte(d.Area+"/"+d.Zone+"\n"), 0644); err != nil {
+		return err
+	}
+
 	if cmd, err = chroot.CmdContext(ctx, &opts, "dpkg-reconfigure", "--frontend=noninteractive", "locales"); err != nil {
 		return err
 	}
 	cmd.Env = localeEnv
 	cmd.Stdout = opts.L.Stdout()
 	cmd.Stderr = opts.L.Stderr()
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	os.Remove(filepath.Join(opts.Dir, "etc", "localtime"))
+	return os.Symlink("../usr/share/zoneinfo/"+d.Area+"/"+d.Zone, filepath.Join(opts.Dir, "etc", "localtime"))
 }
