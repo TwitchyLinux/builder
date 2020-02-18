@@ -213,8 +213,14 @@ type ShellConf struct {
 	Profiles []ShellProfile `toml:"profile"`
 }
 
-func shellConf(tree *toml.Tree) (*units.ShellCustomization, error) {
-	conf := ShellConf{}
+type MainUserConf struct {
+	Name            string   `toml:"name"`
+	DefaultPassword string   `toml:"default_password"`
+	Groups          []string `toml:"groups"`
+}
+
+func shellUserConf(tree *toml.Tree) (*units.ShellCustomization, error) {
+	shellConf := ShellConf{}
 	if t := tree.Get(keyShellCust); t != nil {
 		ge, ok := t.(*toml.Tree)
 		if !ok {
@@ -223,17 +229,37 @@ func shellConf(tree *toml.Tree) (*units.ShellCustomization, error) {
 			}
 			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", keyShellCust, t)
 		}
-		if err := ge.Unmarshal(&conf); err != nil {
+		if err := ge.Unmarshal(&shellConf); err != nil {
+			return nil, err
+		}
+	}
+
+	userConf := MainUserConf{}
+	if t := tree.Get(keyMainUser); t != nil {
+		ge, ok := t.(*toml.Tree)
+		if !ok {
+			if i, isInt := t.(int64); isInt && i == 0 {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", keyMainUser, t)
+		}
+		if err := ge.Unmarshal(&userConf); err != nil {
 			return nil, err
 		}
 	}
 
 	out := &units.ShellCustomization{
-		AdditionalSkel:           []byte(conf.Skel),
+		AdditionalSkel:           []byte(shellConf.Skel),
 		AdditionalProfileScripts: map[string][]byte{},
-		Users:                    defaultUsers,
+		Users: []units.UserSpec{
+			{
+				Username: userConf.Name,
+				Password: userConf.DefaultPassword,
+				Groups:   userConf.Groups,
+			},
+		},
 	}
-	for _, p := range conf.Profiles {
+	for _, p := range shellConf.Profiles {
 		out.AdditionalProfileScripts[p.Name] = []byte(p.Script)
 	}
 

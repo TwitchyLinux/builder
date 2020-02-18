@@ -126,7 +126,13 @@ func TestLoadShellCustomization(t *testing.T) {
 		AdditionalProfileScripts: map[string][]byte{
 			"twl.sh": []byte("maaaaate\n"),
 		},
-		Users: defaultUsers,
+		Users: []units.UserSpec{
+			{
+				Username: "twl",
+				Password: "twl",
+				Groups:   []string{"yeet"},
+			},
+		},
 	}); !reflect.DeepEqual(got, want) {
 		t.Errorf("sc.AdditionalSkel = %v, want %v", got, want)
 	}

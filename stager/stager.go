@@ -16,6 +16,7 @@ const (
 	keyLinux       = rootKeyBase + ".linux"
 	keyReleaseInfo = rootKeyBase + ".release_info"
 	keyShellCust   = rootKeyBase + ".shell_customization"
+	keyMainUser    = rootKeyBase + ".main_user"
 
 	rootKeyGraphicalEnv = "graphical_environment"
 	installKeyPostBase  = "post_base.install"
@@ -123,7 +124,7 @@ func baseUnitsFromConf(out []units.Unit, conf *toml.Tree) ([]units.Unit, error) 
 	}
 	out = append(out, linux)
 
-	shellUnits, err := shellConf(conf)
+	shellUnits, err := shellUserConf(conf)
 	if err != nil {
 		return nil, err
 	}

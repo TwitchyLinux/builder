@@ -67,12 +67,4 @@ var (
 			},
 		},
 	}
-
-	defaultUsers = []units.UserSpec{
-		{
-			Username: "twl",
-			Password: "twl",
-			Groups:   []string{"sudo", "systemd-journal", "netdev"},
-		},
-	}
 )

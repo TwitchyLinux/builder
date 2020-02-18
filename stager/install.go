@@ -3,6 +3,7 @@ package stager
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/pelletier/go-toml"
 	"github.com/twitchylinux/builder/units"
@@ -47,7 +48,7 @@ func installsUnderKey(tree *toml.Tree, key string) ([]units.Unit, error) {
 
 		out := make([]units.Unit, 0, len(conf))
 		for k, c := range conf {
-			ut, err := makeInstallUnit(k, c)
+			ut, err := makeInstallUnit(k, c, tree)
 			if err != nil {
 				return nil, err
 			}
@@ -77,7 +78,7 @@ func installsUnderKey(tree *toml.Tree, key string) ([]units.Unit, error) {
 	return nil, nil
 }
 
-func makeInstallUnit(k string, c InstallConf) (units.Unit, error) {
+func makeInstallUnit(k string, c InstallConf, tree *toml.Tree) (units.Unit, error) {
 	// Simple case - only packages to install.
 	if len(c.Actions) == 0 {
 		return &units.InstallTools{
@@ -98,7 +99,7 @@ func makeInstallUnit(k string, c InstallConf) (units.Unit, error) {
 	}}
 	// Add the actions.
 	for _, a := range c.Actions {
-		u, err := actionToUnit(a)
+		u, err := actionToUnit(a, tree)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +108,16 @@ func makeInstallUnit(k string, c InstallConf) (units.Unit, error) {
 	return &out, nil
 }
 
-func actionToUnit(a InstallAction) (units.Unit, error) {
+func actionToUnit(a InstallAction, tree *toml.Tree) (units.Unit, error) {
+	for i := range a.Args {
+		if strings.HasPrefix(a.Args[i], "{{") && strings.HasSuffix(a.Args[i], "}}") && len(a.Args[i]) > 4 {
+			key := a.Args[i][2 : len(a.Args[i])-2]
+			if v, ok := tree.GetPath(strings.Split(key, ".")).(string); ok {
+				a.Args[i] = v
+			}
+		}
+	}
+
 	switch a.Action {
 	case "download":
 		return &units.Download{URL: a.URL, To: a.To}, nil

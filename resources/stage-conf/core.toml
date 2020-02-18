@@ -20,3 +20,8 @@ pretty_name = "TwitchyLinux (Debian GNU/Linux stable derivative)"
 id = "twitchylinux"
 url = "https://github.com/TwitchyLinux"
 issue = "TwitchyLinux (/w GNU/Linux on Debian buster) \\n \\l"
+
+[base.main_user]
+name = 'twl'
+default_password = 'twl'
+groups = ['sudo', 'systemd-journal', 'netdev']

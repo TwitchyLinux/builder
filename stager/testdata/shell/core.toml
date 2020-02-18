@@ -6,3 +6,9 @@ skel = '''yeet'''
   name = 'twl.sh'
   script = '''maaaaate
 '''
+
+
+[base.main_user]
+name = 'twl'
+default_password = 'twl'
+groups = ['yeet']
