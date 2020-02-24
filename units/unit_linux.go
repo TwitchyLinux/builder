@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -76,6 +77,10 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 
+	if err := l.applyPatches(ctx, opts); err != nil {
+		return err
+	}
+
 	if err := chroot.Shell(ctx, &opts, "make", "-C", l.dirFilename(), opts.makeNumThreadsArg(), "clean"); err != nil {
 		return err
 	}
@@ -85,6 +90,32 @@ func (l *Linux) Run(ctx context.Context, opts Opts) error {
 	}
 
 	return l.runInstallLinux(ctx, chroot, opts)
+}
+
+func (l *Linux) applyPatches(ctx context.Context, opts Opts) error {
+	opts.L.SetSubstage("Patching")
+	patchDir := filepath.Join(opts.Resources, "linux", "patches")
+	patches, err := ioutil.ReadDir(patchDir)
+	if err != nil {
+		return err
+	}
+	for _, p := range patches {
+		pd, err := os.Open(filepath.Join(patchDir, p.Name()))
+		if err != nil {
+			return err
+		}
+		c := exec.CommandContext(ctx, "patch", "-f", "-p1")
+		c.Dir = filepath.Join(opts.Dir, l.dirFilename())
+		c.Stdin = pd
+		c.Stdout = opts.L.Stdout()
+		c.Stderr = opts.L.Stderr()
+		if err := c.Run(); err != nil {
+			pd.Close()
+			return err
+		}
+		pd.Close()
+	}
+	return nil
 }
 
 func (l *Linux) installDeps(ctx context.Context, chroot *Chroot, opts Opts) error {
