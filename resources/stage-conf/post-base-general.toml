@@ -65,3 +65,13 @@ do = [
   {action = 'run', bin = 'rm', args = ['/go1.13.8.linux-amd64.tar.gz']},
   {action = 'append', to = '/etc/profile.d/golang.sh', data = "# Make Go tools available via path\nexport PATH=$PATH:/usr/local/go/bin\n"},
 ]
+
+[post_base.install.protoc]
+order_priority = 88
+do = [
+  {action = 'download', url = 'https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protoc-3.11.4-linux-x86_64.zip', to = '/protoc-3.11.4.zip'},
+  {action = 'sha256sum', from = '/protoc-3.11.4.zip', expected = '6d0f18cd84b918c7b3edd0203e75569e0c8caecb1367bbbe409b45e28514f5be'},
+  {action = 'run', bin = 'unzip', args = ['/protoc-3.11.4.zip', '-d', '/usr/local/protoc']},
+  {action = 'run', bin = 'rm', args = ['/protoc-3.11.4.zip']},
+  {action = 'append', to = '/etc/profile.d/protoc.sh', data = "# Make protoc available via path\nexport PATH=$PATH:/usr/local/protoc/bin\n"},
+]

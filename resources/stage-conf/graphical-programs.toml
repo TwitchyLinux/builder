@@ -49,4 +49,5 @@ do = [
   {action = 'run', bin = 'runuser', args = ['-l', '{{base.main_user.name}}', '-c', '/usr/bin/apm install atom-beautify']},
   {action = 'run', bin = 'runuser', args = ['-l', '{{base.main_user.name}}', '-c', '/usr/bin/apm install language-ccr']},
   {action = 'run', bin = 'runuser', args = ['-l', '{{base.main_user.name}}', '-c', '/usr/bin/apm install language-hcl']},
+  {action = 'run', bin = 'runuser', args = ['-l', '{{base.main_user.name}}', '-c', '/usr/bin/apm install language-proto']},
 ]
