@@ -34,6 +34,10 @@ do = [
   {action = 'run', bin = 'apt-get', args = ['-y', 'install', 'google-chrome-stable']},
 ]
 
+[graphical_environment.post.install.rawtherapee]
+order_priority = 40
+packages = ["rawtherapee"]
+
 [graphical_environment.post.install.atom]
 order_priority = 45
 do = [
