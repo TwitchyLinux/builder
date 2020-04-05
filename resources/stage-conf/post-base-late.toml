@@ -6,6 +6,18 @@ packages = ["sudo"]
 order_priority = 84
 packages = ["iw", "wireless-tools", "wpasupplicant", "rfkill", "net-tools"]
 
+[post_base.install.v4l2loopback]
+order_priority = 83
+do = [
+  {action = 'download', url = 'https://github.com/umlaeute/v4l2loopback/archive/v0.12.3.tar.gz', to = '/v4l2loopback.tar.gz'},
+  {action = 'mkdir', dir = '/v4l2loopback'},
+  {action = 'run', bin = 'tar', args = ['-C', '/v4l2loopback', '-xzf', '/v4l2loopback.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/v4l2loopback.tar.gz']},
+  {action = 'run', bin = 'make', args = ['-C', '/v4l2loopback/v4l2loopback-0.12.3']},
+  {action = 'run', bin = 'make', args = ['-C', '/v4l2loopback/v4l2loopback-0.12.3', 'install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/v4l2loopback']},
+]
+
 [post_base.install.bash-completion]
 order_priority = 80
 packages = ["bash-completion", "bash-doc", "bash-builtins"]
