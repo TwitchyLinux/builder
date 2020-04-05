@@ -1,0 +1,46 @@
+[post_base.install.any-exist]
+order_priority = 5
+if.any = ["true"]
+
+[post_base.install.any-not-exist]
+order_priority = 5
+if.any = ["!true"]
+
+[post_base.install.any-def-conf-true]
+order_priority = 4
+if.any = ["conf.some.value.set"]
+
+[post_base.install.any-def-conf-not-true]
+order_priority = 4
+if.any = ["conf.some.value.not_set"]
+
+[post_base.install.any-def-conf-missing]
+order_priority = 4
+if.any = ["has(conf.fgkldfjshgfkdljh)"]
+
+
+[post_base.install.not-some-true]
+order_priority = 4
+if.not = ["false", "true"]
+
+[post_base.install.not-all-false]
+order_priority = 3
+if.not = ["false", "false"]
+
+
+
+
+[post_base.install.all-some-false]
+order_priority = 3
+if.all = ["has(features.nope)", "false", "true"]
+
+[post_base.install.all-true]
+order_priority = 2
+if.all = ["true", "true", "conf.some.value.set", "has(features.yeet)"]
+
+
+[post_base.install.composite]
+order_priority = 1
+if.all = ["true", "true", "true"]
+if.not = ['false', 'false', 'conf.some.value.not_set']
+if.any = ["false", "true"]

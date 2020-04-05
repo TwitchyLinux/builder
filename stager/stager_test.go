@@ -378,3 +378,44 @@ func TestOverrides(t *testing.T) {
 		t.Errorf("sc.AdditionalSkel = %v, want %v", got, want)
 	}
 }
+
+func TestConditional(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/conditional", Options{
+		Overrides: map[string]interface{}{
+			"some.value.set":     true,
+			"some.value.not_set": false,
+			"features.yeet":      true,
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tools := getUnits(t, c, reflect.TypeOf(&units.InstallTools{}))
+	if got, want := tools, []units.Unit{
+		&units.InstallTools{
+			UnitName: "any-exist",
+			Order:    5,
+		},
+		&units.InstallTools{
+			UnitName: "any-def-conf-true",
+			Order:    4,
+		},
+		&units.InstallTools{
+			UnitName: "not-all-false",
+			Order:    3,
+		},
+		&units.InstallTools{
+			UnitName: "all-true",
+			Order:    2,
+		},
+		&units.InstallTools{
+			UnitName: "composite",
+			Order:    1,
+		},
+	}; !reflect.DeepEqual(got, want) {
+		for i := range want {
+			t.Errorf("tools[%d] = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+}

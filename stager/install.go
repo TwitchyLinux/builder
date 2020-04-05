@@ -2,12 +2,22 @@ package stager
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 
+	"github.com/google/cel-go/cel"
+	"github.com/google/cel-go/checker/decls"
 	"github.com/pelletier/go-toml"
 	"github.com/twitchylinux/builder/units"
 )
+
+// InstallCondition constrains an install step.
+type InstallCondition struct {
+	All []string `toml:"all"`
+	Not []string `toml:"not"`
+	Any []string `toml:"any"`
+}
 
 // InstallAction describes a step during installation.
 type InstallAction struct {
@@ -27,12 +37,106 @@ type InstallAction struct {
 
 // InstallConf desribes a set of packages to be installed.
 type InstallConf struct {
-	Order    int             `toml:"order_priority"`
-	Packages []string        `toml:"packages"`
-	Actions  []InstallAction `toml:"do"`
+	Order    int               `toml:"order_priority"`
+	If       *InstallCondition `toml:"if"`
+	Packages []string          `toml:"packages"`
+	Actions  []InstallAction   `toml:"do"`
 }
 
-func installsUnderKey(tree *toml.Tree, key string) ([]units.Unit, error) {
+// ShouldSkip returns true if evaluation of the conditionals indicates
+// that this block should be skipped.
+func (c *InstallConf) ShouldSkip(tree *toml.Tree, opts Options) (bool, error) {
+	if c.If == nil {
+		return false, nil
+	}
+	env, err := cel.NewEnv(cel.Declarations(decls.NewIdent("conf", decls.Dyn, nil),
+		decls.NewIdent("opts", decls.Dyn, nil),
+		decls.NewIdent("features", decls.Dyn, nil)))
+	if err != nil {
+		return false, err
+	}
+
+	var f map[string]interface{}
+	if features := tree.Get("features"); features != nil {
+		switch ft := features.(type) {
+		case *toml.Tree:
+			f = ft.ToMap()
+		case map[string]interface{}:
+			f = ft
+		case []string:
+			f = make(map[string]interface{}, len(ft))
+			for _, v := range ft {
+				f[v] = true
+			}
+		}
+	}
+
+	m := map[string]interface{}{
+		"conf":     tree.ToMap(),
+		"opts":     opts,
+		"features": f,
+	}
+
+	for i, e := range c.If.All {
+		outcome, err := c.eval(env, e, m)
+		if err != nil {
+			return false, fmt.Errorf("evaluating if.all[%d]: %v", i, err)
+		}
+		if !outcome {
+			return true, nil
+		}
+	}
+
+	for i, e := range c.If.Not {
+		outcome, err := c.eval(env, e, m)
+		if err != nil {
+			return false, fmt.Errorf("evaluating if.none[%d]: %v", i, err)
+		}
+		if outcome {
+			return true, nil
+		}
+	}
+
+	if len(c.If.Any) > 0 {
+		for i, e := range c.If.Any {
+			outcome, err := c.eval(env, e, m)
+			if err != nil {
+				return false, fmt.Errorf("evaluating if.any[%d]: %v", i, err)
+			}
+			if outcome {
+				return false, nil
+			}
+		}
+		return true, nil
+	}
+	return false, nil
+}
+
+func (c *InstallConf) eval(env *cel.Env, expr string, m map[string]interface{}) (bool, error) {
+	parsed, issues := env.Parse(expr)
+	if issues != nil && issues.Err() != nil {
+		return false, issues.Err()
+	}
+	checked, issues := env.Check(parsed)
+	if issues != nil && issues.Err() != nil {
+		return false, issues.Err()
+	}
+	prg, err := env.Program(checked)
+	if err != nil {
+		return false, err
+	}
+	out, _, err := prg.Eval(m)
+	if err != nil {
+		return false, err
+	}
+	v, err := out.ConvertToNative(reflect.TypeOf(true))
+	if err != nil {
+		return false, err
+	}
+	return v.(bool), nil
+}
+
+func installsUnderKey(opts Options, tree *toml.Tree, key string) ([]units.Unit, error) {
 	if t := tree.Get(key); t != nil {
 		installs, ok := t.(*toml.Tree)
 		if !ok {
@@ -48,6 +152,13 @@ func installsUnderKey(tree *toml.Tree, key string) ([]units.Unit, error) {
 
 		out := make([]units.Unit, 0, len(conf))
 		for k, c := range conf {
+			skip, err := c.ShouldSkip(tree, opts)
+			if err != nil {
+				return nil, err
+			}
+			if skip {
+				continue
+			}
 			ut, err := makeInstallUnit(k, c, tree)
 			if err != nil {
 				return nil, err

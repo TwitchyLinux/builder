@@ -85,7 +85,7 @@ func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 	}
 
 	// Install specified packages.
-	installs, err := installsUnderKey(conf, installKeyPostBase)
+	installs, err := installsUnderKey(opts, conf, installKeyPostBase)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 
 	// Install post-GUI packages.
 	if ge != nil {
-		if installs, err = installsUnderKey(conf, installKeyPostGUI); err != nil {
+		if installs, err = installsUnderKey(opts, conf, installKeyPostGUI); err != nil {
 			return nil, err
 		}
 		out = append(out, installs...)

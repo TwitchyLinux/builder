@@ -7,6 +7,7 @@ require (
 	github.com/cavaliercoder/grab v2.0.0+incompatible
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v1.13.1
+	github.com/google/cel-go v0.4.1
 	github.com/pelletier/go-toml v1.6.0
 	github.com/tredoe/osutil v0.0.0-20191018075336-e272fdda81c8
 )
