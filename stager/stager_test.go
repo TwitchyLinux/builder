@@ -31,7 +31,7 @@ func getUnits(t *testing.T, in []units.Unit, typ reflect.Type) []units.Unit {
 }
 
 func TestLoadLocale(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/locale")
+	c, err := UnitsFromConfig("testdata/locale", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func TestLoadLocale(t *testing.T) {
 }
 
 func TestLoadDebootstrapDefaults(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/empty")
+	c, err := UnitsFromConfig("testdata/empty", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ func TestLoadDebootstrapDefaults(t *testing.T) {
 }
 
 func TestLoadLinuxDefaults(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/empty")
+	c, err := UnitsFromConfig("testdata/empty", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +79,7 @@ func TestLoadLinuxDefaults(t *testing.T) {
 }
 
 func TestLoadGraphical(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/graphics")
+	c, err := UnitsFromConfig("testdata/graphics", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func TestLoadGraphical(t *testing.T) {
 }
 
 func TestLoadGraphicalDefaults(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/empty")
+	c, err := UnitsFromConfig("testdata/empty", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func TestLoadGraphicalDefaults(t *testing.T) {
 }
 
 func TestLoadGraphicalDisabled(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/graphics_none")
+	c, err := UnitsFromConfig("testdata/graphics_none", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func TestLoadGraphicalDisabled(t *testing.T) {
 }
 
 func TestLoadShellCustomization(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/shell")
+	c, err := UnitsFromConfig("testdata/shell", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +139,7 @@ func TestLoadShellCustomization(t *testing.T) {
 }
 
 func TestLoadPostInstall(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/post_base_install")
+	c, err := UnitsFromConfig("testdata/post_base_install", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -170,7 +170,7 @@ func TestLoadPostInstall(t *testing.T) {
 }
 
 func TestLoadComposites(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/composite")
+	c, err := UnitsFromConfig("testdata/composite", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,7 +204,7 @@ func TestLoadComposites(t *testing.T) {
 }
 
 func TestLoadStageConf(t *testing.T) {
-	c, err := UnitsFromConfig("../resources/stage-conf")
+	c, err := UnitsFromConfig("../resources/stage-conf", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,7 +226,7 @@ toolLoop:
 }
 
 func TestStageConfOrdering(t *testing.T) {
-	c, err := UnitsFromConfig("../resources/stage-conf")
+	c, err := UnitsFromConfig("../resources/stage-conf", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -318,7 +318,7 @@ func TestStageConfOrdering(t *testing.T) {
 }
 
 func TestLoadUnionsOverlaps(t *testing.T) {
-	c, err := UnitsFromConfig("testdata/overlap_across_files")
+	c, err := UnitsFromConfig("testdata/overlap_across_files", Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -348,5 +348,33 @@ expectLoop:
 			}
 		}
 		t.Errorf("missing unit: %+v", exp)
+	}
+}
+
+func TestOverrides(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/shell", Options{
+		Overrides: map[string]interface{}{
+			"base.main_user.name": "yolo_swaggins",
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sc := getUnit(t, c, reflect.TypeOf(&units.ShellCustomization{})).(*units.ShellCustomization)
+	if got, want := sc, (&units.ShellCustomization{
+		AdditionalSkel: []byte("yeet"),
+		AdditionalProfileScripts: map[string][]byte{
+			"twl.sh": []byte("maaaaate\n"),
+		},
+		Users: []units.UserSpec{
+			{
+				Username: "yolo_swaggins",
+				Password: "twl",
+				Groups:   []string{"yeet"},
+			},
+		},
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("sc.AdditionalSkel = %v, want %v", got, want)
 	}
 }

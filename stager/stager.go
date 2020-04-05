@@ -42,9 +42,17 @@ func unionTree(target, in *toml.Tree, inPrefix []string) error {
 	return nil
 }
 
+// Options describes settings which change how stages are selected
+// and generated.
+type Options struct {
+	// Overrides specifies the value for a given config key. If the key is
+	// already set in the config file, this value will take precedence.
+	Overrides map[string]interface{}
+}
+
 // UnitsFromConfig returns a set of units that represent the configuration
 // in the directory provided.
-func UnitsFromConfig(dir string) ([]units.Unit, error) {
+func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 	var (
 		conf, _ = toml.Load("")
 		out     []units.Unit
@@ -63,6 +71,11 @@ func UnitsFromConfig(dir string) ([]units.Unit, error) {
 				return nil, err
 			}
 		}
+	}
+
+	// Apply any configuration overrides.
+	for key, val := range opts.Overrides {
+		conf.Set(key, val)
 	}
 
 	// Build base system.

@@ -9,8 +9,10 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"syscall"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/twitchylinux/builder/stager"
 	"github.com/twitchylinux/builder/units"
 )
@@ -20,13 +22,17 @@ var (
 	outputOnly   = flag.Bool("output-only", false, "Only output to stdout in a non-interactive fashion.")
 	version      = flag.String("twl-version", "0.4.5", "The current version of TwitchyLinux.")
 	debProxyAddr = flag.String("deb-proxy-addr", "", "The address:port of a proxy to use when fetching deb packages.")
+	printUnits   = flag.Bool("print-units", false, "Print the computed build units before exiting.")
 
 	defaultNumThreads = int(math.Max(1, float64(runtime.NumCPU()-1)))
 	numThreads        = flag.Int("j", defaultNumThreads, "Number of concurrent threads to use while building.")
 )
 
 func printUsage() {
-	fmt.Fprintf(os.Stderr, "USAGE: %s [options] <build-directory>\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "USAGE: %s [options] <build-directory> [<build-options>...]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "\nBuild options:\n")
+	fmt.Fprintf(os.Stderr, "  -D <key>=<value>\n    \tOverride or set a configuration value.\n")
+	fmt.Fprintf(os.Stderr, "\nRegular options:\n")
 	flag.PrintDefaults()
 }
 
@@ -69,7 +75,11 @@ func cancelCtxOnSignal(cancel context.CancelFunc) {
 }
 
 func selectUnits(config units.Opts, logger logger) ([]*unitState, error) {
-	uts, err := stager.UnitsFromConfig(filepath.Join(config.Resources, "stage-conf"))
+	opts, err := stageConfigOpts(flag.CommandLine)
+	if err != nil {
+		return nil, err
+	}
+	uts, err := stager.UnitsFromConfig(filepath.Join(config.Resources, "stage-conf"), opts)
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +118,15 @@ func run(ctx context.Context, config units.Opts, logger logger) error {
 		return err
 	}
 
+	if *printUnits {
+		for i, s := range candidateUnits {
+			fmt.Printf("Unit %d/%d: %s\n", i, len(candidateUnits), s.unit.Name())
+			spew.Dump(s.unit)
+			fmt.Println()
+		}
+		return nil
+	}
+
 	for _, ul := range candidateUnits {
 		unit := ul.unit
 		ul.setStarting()
@@ -122,6 +141,31 @@ func run(ctx context.Context, config units.Opts, logger logger) error {
 		}
 	}
 	return nil
+}
+
+// stageConfigOpts computes options to be provided to the stager.
+func stageConfigOpts(f *flag.FlagSet) (stager.Options, error) {
+	out := stager.Options{
+		Overrides: map[string]interface{}{},
+	}
+
+	for i := 1; i < f.NArg(); i++ {
+		switch a := f.Arg(i); a {
+		case "-D", "--D":
+			s := f.Arg(i + 1)
+			eqIdx := strings.Index(s, "=")
+			if eqIdx == -1 {
+				return stager.Options{}, fmt.Errorf("invalid override string %q: must be form key=value", s)
+			}
+			out.Overrides[s[:eqIdx]] = s[eqIdx+1:]
+			i++
+
+		default:
+			return stager.Options{}, fmt.Errorf("invalid option: %q", a)
+		}
+	}
+
+	return out, nil
 }
 
 // resourceDir returns the path to the resources directory. The program
