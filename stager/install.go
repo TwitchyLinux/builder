@@ -90,7 +90,7 @@ func (c *InstallConf) ShouldSkip(tree *toml.Tree, opts Options) (bool, error) {
 	for i, e := range c.If.Not {
 		outcome, err := c.eval(env, e, m)
 		if err != nil {
-			return false, fmt.Errorf("evaluating if.none[%d]: %v", i, err)
+			return false, fmt.Errorf("evaluating if.not[%d]: %v", i, err)
 		}
 		if outcome {
 			return true, nil
@@ -154,7 +154,7 @@ func installsUnderKey(opts Options, tree *toml.Tree, key string) ([]units.Unit, 
 		for k, c := range conf {
 			skip, err := c.ShouldSkip(tree, opts)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("%s: %v", k, err)
 			}
 			if skip {
 				continue

@@ -17,6 +17,7 @@ order_priority = 99
 packages = ["lzip", "unzip", "zip", "tar", "rar", "unrar"]
 
 [post_base.install.cli-tools]
+if.not = ["features.essential"]
 order_priority = 98
 packages = [
   "htop", "screen", "tmux", "minicom",
@@ -32,18 +33,22 @@ packages = [
 ]
 
 [post_base.install.usb]
+if.not = ["features.essential"]
 order_priority = 90
 packages = ["usbutils", "libusb-1.0-0", "libusb-1.0-0-dev", "libusb-1.0-doc"]
 
 [post_base.install.c-toolchain]
+if.not = ["features.essential"]
 order_priority = 90
 packages = ["build-essential", "cmake", "sqlite3", "libsqlite3-0", "libsqlite3-dev", "sqlite3-doc"]
 
 [post_base.install.c-toolchain-arm]
+if.not = ["features.essential"]
 order_priority = 90
 packages = ["gcc-arm-none-eabi"]
 
 [post_base.install.rust]
+if.not = ["features.essential"]
 order_priority = 89
 do = [
   {action = 'download', url = 'https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init', to = '/rustup-init'},
@@ -57,6 +62,7 @@ do = [
 ]
 
 [post_base.install.golang]
+if.not = ["features.essential"]
 order_priority = 89
 do = [
   {action = 'download', url = 'https://dl.google.com/go/go1.13.8.linux-amd64.tar.gz', to = '/go1.13.8.linux-amd64.tar.gz'},
@@ -67,6 +73,7 @@ do = [
 ]
 
 [post_base.install.protoc]
+if.not = ["features.essential"]
 order_priority = 88
 do = [
   {action = 'download', url = 'https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protoc-3.11.4-linux-x86_64.zip', to = '/protoc-3.11.4.zip'},

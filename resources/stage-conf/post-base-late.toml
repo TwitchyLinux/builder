@@ -3,10 +3,12 @@ order_priority = 85
 packages = ["sudo"]
 
 [post_base.install.wifi]
+if.not = ["features.essential"]
 order_priority = 84
 packages = ["iw", "wireless-tools", "wpasupplicant", "rfkill", "net-tools"]
 
 [post_base.install.v4l2loopback]
+if.not = ["features.essential"]
 order_priority = 83
 do = [
   {action = 'download', url = 'https://github.com/umlaeute/v4l2loopback/archive/v0.12.3.tar.gz', to = '/v4l2loopback.tar.gz'},
@@ -23,6 +25,7 @@ order_priority = 80
 packages = ["bash-completion", "bash-doc", "bash-builtins"]
 
 [post_base.install.cryptsetup]
+if.not = ["features.essential"]
 order_priority = 20
 packages = ["cryptsetup", "kbd", "console-setup", "keyutils"]
 
@@ -31,6 +34,7 @@ order_priority = 20
 packages = ["apparmor", "apparmor-utils", "auditd", "libapparmor-dev"]
 
 [post_base.install.firmware]
+if.not = ["features.essential"]
 order_priority = 18
 packages = [
   "firmware-iwlwifi", "firmware-amd-graphics", "firmware-atheros", "firmware-brcm80211",

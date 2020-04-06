@@ -1,28 +1,41 @@
 [graphical_environment.post.install.non-latin-fonts]
+if.not = ["features.essential"]
 order_priority = 95
 packages = ["fonts-indic", "fonts-noto", "fonts-noto-cjk"]
 
 [graphical_environment.post.install.nmap-tools]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 90
 packages = ["nmap", "ncat", "ndiff", "zenmap"]
 
 [graphical_environment.post.install.gui-dev-tools]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 85
 packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-dev"]
 
 [graphical_environment.post.install.cad-and-images]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 80
 packages = ["openscad", "inkscape"]
 
 [graphical_environment.post.install.qemu-gui]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 80
 packages = ["qemu-system-gui"]
 
 [graphical_environment.post.install.wireshark]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 75
 packages = ["wireshark"]
 
 [graphical_environment.post.install.chrome]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 50
 do = [
   {action = 'download', url = 'https://dl.google.com/linux/linux_signing_key.pub', to = '/chrome-signing-key.pub'},
@@ -35,10 +48,14 @@ do = [
 ]
 
 [graphical_environment.post.install.rawtherapee]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 40
 packages = ["rawtherapee"]
 
 [graphical_environment.post.install.atom]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 45
 do = [
   {action = 'download', url = 'https://packagecloud.io/AtomEditor/atom/gpgkey', to = '/atom-signing-key.pub'},

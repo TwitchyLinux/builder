@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -157,7 +158,13 @@ func stageConfigOpts(f *flag.FlagSet) (stager.Options, error) {
 			if eqIdx == -1 {
 				return stager.Options{}, fmt.Errorf("invalid override string %q: must be form key=value", s)
 			}
-			out.Overrides[s[:eqIdx]] = s[eqIdx+1:]
+
+			var v interface{} = s[eqIdx+1:]
+			switch v {
+			case "false", "true":
+				v, _ = strconv.ParseBool(s[eqIdx+1:])
+			}
+			out.Overrides[s[:eqIdx]] = v
 			i++
 
 		default:
