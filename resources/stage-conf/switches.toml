@@ -1,3 +1,5 @@
 [features]
 essential = false
 graphical = true
+SWE = true
+maker = true
