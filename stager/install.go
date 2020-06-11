@@ -2,6 +2,9 @@ package stager
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
@@ -23,11 +26,12 @@ type InstallCondition struct {
 type InstallAction struct {
 	Action string `toml:"action"`
 
-	URL  string `toml:"url"`
-	From string `toml:"from"`
-	To   string `toml:"to"`
-	Data string `toml:"data"`
-	Dir  string `toml:"dir"`
+	URL   string      `toml:"url"`
+	From  string      `toml:"from"`
+	To    string      `toml:"to"`
+	Data  string      `toml:"data"`
+	Dir   string      `toml:"dir"`
+	Perms os.FileMode `toml:"perms"`
 
 	Expected string `toml:"expected"`
 
@@ -136,7 +140,7 @@ func (c *InstallConf) eval(env *cel.Env, expr string, m map[string]interface{}) 
 	return v.(bool), nil
 }
 
-func installsUnderKey(opts Options, tree *toml.Tree, key string) ([]units.Unit, error) {
+func installsUnderKey(opts Options, tree *toml.Tree, key string, resDir string) ([]units.Unit, error) {
 	if t := tree.Get(key); t != nil {
 		installs, ok := t.(*toml.Tree)
 		if !ok {
@@ -159,7 +163,7 @@ func installsUnderKey(opts Options, tree *toml.Tree, key string) ([]units.Unit, 
 			if skip {
 				continue
 			}
-			ut, err := makeInstallUnit(k, c, tree)
+			ut, err := makeInstallUnit(k, c, tree, resDir)
 			if err != nil {
 				return nil, err
 			}
@@ -189,7 +193,7 @@ func installsUnderKey(opts Options, tree *toml.Tree, key string) ([]units.Unit, 
 	return nil, nil
 }
 
-func makeInstallUnit(k string, c InstallConf, tree *toml.Tree) (units.Unit, error) {
+func makeInstallUnit(k string, c InstallConf, tree *toml.Tree, resDir string) (units.Unit, error) {
 	// Simple case - only packages to install.
 	if len(c.Actions) == 0 {
 		return &units.InstallTools{
@@ -210,7 +214,7 @@ func makeInstallUnit(k string, c InstallConf, tree *toml.Tree) (units.Unit, erro
 	}}
 	// Add the actions.
 	for _, a := range c.Actions {
-		u, err := actionToUnit(a, tree)
+		u, err := actionToUnit(a, tree, resDir)
 		if err != nil {
 			return nil, err
 		}
@@ -219,7 +223,7 @@ func makeInstallUnit(k string, c InstallConf, tree *toml.Tree) (units.Unit, erro
 	return &out, nil
 }
 
-func actionToUnit(a InstallAction, tree *toml.Tree) (units.Unit, error) {
+func actionToUnit(a InstallAction, tree *toml.Tree, resDir string) (units.Unit, error) {
 	for i := range a.Args {
 		if strings.HasPrefix(a.Args[i], "{{") && strings.HasSuffix(a.Args[i], "}}") && len(a.Args[i]) > 4 {
 			key := a.Args[i][2 : len(a.Args[i])-2]
@@ -240,6 +244,22 @@ func actionToUnit(a InstallAction, tree *toml.Tree) (units.Unit, error) {
 		return &units.Append{To: a.To, Data: a.Data}, nil
 	case "mkdir":
 		return &units.Mkdir{Dir: a.Dir}, nil
+	case "install-resource":
+		d, err := ioutil.ReadFile(filepath.Join(resDir, a.From))
+		if err != nil {
+			return nil, err
+		}
+		var perms os.FileMode = 0744
+		if a.Perms != 0 {
+			perms = a.Perms
+		}
+		return &units.InstallFiles{
+			UnitName: "install-resource: " + filepath.Base(a.From),
+			Mkdir:    a.Dir,
+			Files: []units.FileInfo{
+				{Path: a.To, Perms: perms, Data: d},
+			},
+		}, nil
 	}
 	return nil, fmt.Errorf("unknown action: %q", a.Action)
 }

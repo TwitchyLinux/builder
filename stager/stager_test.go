@@ -172,14 +172,14 @@ func TestLoadPostInstall(t *testing.T) {
 func TestLoadComposites(t *testing.T) {
 	c, err := UnitsFromConfig("testdata/composite", Options{})
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("UnitsFromConfig() failed: %v", err)
 	}
 
 	i := getUnit(t, c, reflect.TypeOf(&units.Composite{})).(*units.Composite)
 	if got, want := i.UnitName, "cli"; got != want {
 		t.Errorf("UnitName = %v, want %v", got, want)
 	}
-	if got, want := len(i.Ops), 3; got != want {
+	if got, want := len(i.Ops), 4; got != want {
 		t.Fatalf("len(Ops) = %v, want %v", got, want)
 	}
 
@@ -200,6 +200,14 @@ func TestLoadComposites(t *testing.T) {
 		Args: []string{"add", "/chrome-signing-key.pub"},
 	}); !reflect.DeepEqual(got, want) {
 		t.Errorf("Op[2] = %v, want %v", got, want)
+	}
+	if got, want := i.Ops[3], (&units.InstallFiles{
+		UnitName: "install-resource: yeet",
+		Files: []units.FileInfo{
+			{Path: "/yeets", Perms: 0744, Data: []byte("Something\n")},
+		},
+	}); !reflect.DeepEqual(got, want) {
+		t.Errorf("Op[3] = %v, want %v", got, want)
 	}
 }
 
