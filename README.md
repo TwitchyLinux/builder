@@ -13,10 +13,10 @@ go build -o twl-builder github.com/twitchylinux/builder
 # The installer will now exist at ./twl-builder
 ```
 
-### Build the root filesystem
+### Build the root filesystem with kernel
 
 ```shell
-sudo ./twl-builder /tmp/twitchylinux-fs
+sudo ./twl-builder /tmp/twitchylinux-fs -D features.essential=false
 # Will create a twitchylinux system in /tmp/twitchylinux-fs
 ```
 

@@ -1,5 +1,5 @@
 [post_base.install.ffmpeg]
-if.not = ["features.essential"]
+if.any = ["features.av"]
 order_priority = 88
 packages = ["ffmpeg", "ffmpeg-doc", "libavcodec-dev", "libavdevice-dev", "libavdevice58", "libavfilter-dev"]
 

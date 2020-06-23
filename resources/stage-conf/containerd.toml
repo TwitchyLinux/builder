@@ -1,6 +1,5 @@
 [post_base.install.containerd]
-if.all = ["features.SWE", "features.containerd"]
-if.not = ["features.essential"]
+if.all = ["features.containerd"]
 order_priority = 88
 do = [
   {action = 'mkdir', dir = '/containerd-scripts'},

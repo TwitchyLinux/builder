@@ -1,6 +1,22 @@
 [features]
+# When essential is set, useful but not essential packages which are not
+# controlled by another switch are removed.
 essential = true
+# When graphical is set, a graphical environment will be installed.
 graphical = false
+
+# When SWE is set, build tools will be installed.
 SWE = true
+# When container_tools is set, tooling for manipulating and running containers
+# will be installed.
+container_tools = true
+# When embedded is set, build tools for embedded development will be installed.
+embedded = true
+# When AV is set, audio-visual and editing tools will be installed.
+av = true
+# When maker is set, common tools used by makers will be installed.
 maker = true
+
+
+# When containerd is set, containerd will be installed.
 containerd = false

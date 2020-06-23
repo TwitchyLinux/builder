@@ -1,5 +1,6 @@
 [graphical_environment.post.install.non-latin-fonts]
 if.not = ["features.essential"]
+if.all = ["features.graphical"]
 order_priority = 95
 packages = ["fonts-indic", "fonts-noto", "fonts-noto-cjk"]
 
@@ -10,20 +11,18 @@ order_priority = 90
 packages = ["nmap", "ncat", "ndiff", "zenmap"]
 
 [graphical_environment.post.install.gui-dev-tools]
-if.not = ["features.essential"]
 if.all = ["features.graphical", "features.SWE"]
 order_priority = 85
 packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-dev"]
 
 [graphical_environment.post.install.cad-and-images]
-if.not = ["features.essential"]
-if.all = ["features.graphical", "features.maker"]
+if.all = ["features.graphical"]
+if.any = ["features.av", "features.maker"]
 order_priority = 80
 packages = ["openscad", "inkscape"]
 
 [graphical_environment.post.install.qemu-gui]
-if.not = ["features.essential"]
-if.all = ["features.graphical"]
+if.all = ["features.container_tools"]
 order_priority = 80
 packages = ["qemu-system-gui"]
 
@@ -48,13 +47,11 @@ do = [
 ]
 
 [graphical_environment.post.install.rawtherapee]
-if.not = ["features.essential"]
-if.all = ["features.graphical"]
+if.all = ["features.graphical", "features.av"]
 order_priority = 40
 packages = ["rawtherapee"]
 
 [graphical_environment.post.install.kite]
-if.not = ["features.essential"]
 if.all = ["features.graphical", "features.maker"]
 order_priority = 40
 do = [
@@ -65,8 +62,7 @@ do = [
 ]
 
 [graphical_environment.post.install.kcgen]
-if.not = ["features.essential"]
-if.all = ["features.maker"]
+if.all = ["features.graphical", "features.maker"]
 order_priority = 40
 do = [
   {action = 'download', url = 'https://github.com/twitchyliquid64/kcgen/releases/download/v0.3.0/kcgen_0.3.0_amd64.deb', to = '/kcgen_0.3.0_amd64.deb'},
@@ -76,7 +72,6 @@ do = [
 ]
 
 [graphical_environment.post.install.atom]
-if.not = ["features.essential"]
 if.all = ["features.graphical", "features.SWE"]
 order_priority = 45
 do = [
