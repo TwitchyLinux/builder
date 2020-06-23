@@ -2,9 +2,13 @@
 package stager
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"reflect"
 
+	"github.com/google/cel-go/cel"
+	"github.com/google/cel-go/checker/decls"
 	"github.com/pelletier/go-toml"
 	"github.com/twitchylinux/builder/units"
 )
@@ -91,19 +95,24 @@ func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 	}
 	out = append(out, installs...)
 
-	ge, err := graphicsConf(conf)
+	doGraphicalInstaller, err := featuresAreSet([]string{"graphical"}, conf)
 	if err != nil {
 		return nil, err
 	}
-	out = append(out, ge)
-
-	// Install post-GUI packages.
-	if ge != nil {
-		if installs, err = installsUnderKey(opts, conf, installKeyPostGUI, dir); err != nil {
+	if doGraphicalInstaller {
+		ge, err := graphicsConf(conf)
+		if err != nil {
 			return nil, err
 		}
-		out = append(out, installs...)
-		out = append(out, afterGUIUnits...)
+		out = append(out, ge)
+		// Install post-GUI packages.
+		if ge != nil {
+			if installs, err = installsUnderKey(opts, conf, installKeyPostGUI, dir); err != nil {
+				return nil, err
+			}
+			out = append(out, installs...)
+			out = append(out, afterGUIUnits...)
+		}
 	}
 
 	udev, err := udevConf(conf)
@@ -112,8 +121,81 @@ func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 	}
 	out = append(out, udev)
 
+	if doGraphicalInstaller {
+		out = append(out, &units.Installer{})
+	}
 	out = append(out, finalUnits...)
 	return out, nil
+}
+
+func featuresAreSet(wantFeatures []string, tree *toml.Tree) (bool, error) {
+	env, err := cel.NewEnv(cel.Declarations(decls.NewIdent("features", decls.Dyn, nil)))
+	if err != nil {
+		return false, err
+	}
+
+	var f map[string]interface{}
+	if features := tree.Get("features"); features != nil {
+		switch ft := features.(type) {
+		case *toml.Tree:
+			f = ft.ToMap()
+		case map[string]interface{}:
+			f = ft
+		case []string:
+			f = make(map[string]interface{}, len(ft))
+			for _, v := range ft {
+				f[v] = true
+			}
+		}
+	}
+	if f == nil {
+		f = map[string]interface{}{}
+	}
+	for feature, v := range defaultFeatures {
+		if _, present := f[feature]; !present {
+			f[feature] = v
+		}
+	}
+
+	m := map[string]interface{}{
+		"conf":     tree.ToMap(),
+		"features": f,
+	}
+
+	for _, e := range wantFeatures {
+		outcome, err := evalCEL(env, "features."+e, m)
+		if err != nil {
+			return false, fmt.Errorf("evaluating feature %q: %v", e, err)
+		}
+		if !outcome {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func evalCEL(env *cel.Env, expr string, m map[string]interface{}) (bool, error) {
+	parsed, issues := env.Parse(expr)
+	if issues != nil && issues.Err() != nil {
+		return false, issues.Err()
+	}
+	checked, issues := env.Check(parsed)
+	if issues != nil && issues.Err() != nil {
+		return false, issues.Err()
+	}
+	prg, err := env.Program(checked)
+	if err != nil {
+		return false, err
+	}
+	out, _, err := prg.Eval(m)
+	if err != nil {
+		return false, err
+	}
+	v, err := out.ConvertToNative(reflect.TypeOf(true))
+	if err != nil {
+		return false, err
+	}
+	return v.(bool), nil
 }
 
 func baseUnitsFromConf(out []units.Unit, conf *toml.Tree) ([]units.Unit, error) {

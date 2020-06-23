@@ -1,5 +1,6 @@
 [features]
-essential = false
-graphical = true
+essential = true
+graphical = false
 SWE = true
 maker = true
+containerd = false

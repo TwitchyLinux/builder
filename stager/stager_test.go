@@ -218,7 +218,7 @@ func TestLoadStageConf(t *testing.T) {
 	}
 
 toolLoop:
-	for _, tool := range []string{"fs-tools", "cli-tools", "wifi", "compression-tools", "gui-dev-tools"} {
+	for _, tool := range []string{"fs-tools", "compression-tools"} {
 		for _, u := range c {
 			if inst, ok := u.(*units.InstallTools); ok && inst.UnitName == tool {
 				continue toolLoop
@@ -234,7 +234,13 @@ toolLoop:
 }
 
 func TestStageConfOrdering(t *testing.T) {
-	c, err := UnitsFromConfig("../resources/stage-conf", Options{})
+	c, err := UnitsFromConfig("../resources/stage-conf", Options{
+		Overrides: map[string]interface{}{
+			"features.essential":   false,
+			"features.graphical":   true,
+			"features.rootfs-only": false,
+		},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

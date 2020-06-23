@@ -7,6 +7,9 @@ fi
 set -eu -o pipefail
 set -x
 
+wget -O /bin/runc https://github.com/opencontainers/runc/releases/download/v1.0.0-rc90/runc.amd64
+chmod +x /bin/runc
+
 export BIN_PATH='/usr/local/containerd/bin'
 export CONTAINERD_VERSION="1.4.0-beta.1"
 export BUILD_PATH="$(mktemp -d)"

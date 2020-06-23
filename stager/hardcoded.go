@@ -11,6 +11,11 @@ var (
 		&units.Systemd{},
 	}
 
+	defaultFeatures = map[string]bool{
+		"graphical":            true,
+		"features.rootfs-only": true,
+	}
+
 	afterGUIUnits = []units.Unit{
 		&units.Dconf{
 			Profiles: map[string]dconf.Profile{
@@ -52,7 +57,6 @@ var (
 	}
 
 	finalUnits = []units.Unit{
-		&units.Installer{},
 		&units.Clean{},
 		&units.Grub2{
 			DistroName: "TwitchyLinux",
