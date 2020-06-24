@@ -95,6 +95,12 @@ type GraphicsConf struct {
 }
 
 func graphicsConf(tree *toml.Tree) (*units.Gnome, error) {
+	wantEnv := tree.GetDefault(keyGraphicalEnvName, "gnome")
+	env, ok := wantEnv.(string)
+	if !ok {
+		return nil, fmt.Errorf("%s is %T, not string", keyGraphicalEnvName, wantEnv)
+	}
+
 	conf := graphicalEnvDefault
 	if t := tree.Get(rootKeyGraphicalEnv); t != nil {
 		ge, ok := t.(*toml.Tree)
@@ -104,9 +110,11 @@ func graphicsConf(tree *toml.Tree) (*units.Gnome, error) {
 			}
 			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyGraphicalEnv, t)
 		}
-		if err := ge.Unmarshal(&conf); err != nil {
+		var allConfs map[string]GraphicsConf
+		if err := ge.Unmarshal(&allConfs); err != nil {
 			return nil, err
 		}
+		conf = allConfs[env]
 	}
 
 	return &units.Gnome{

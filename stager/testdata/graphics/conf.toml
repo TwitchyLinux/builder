@@ -1,2 +1,5 @@
-[graphical_environment]
+[graphical_environment.yolo]
 packages = ['test', 'yolo']
+
+[features]
+graphical_environment = 'yolo'

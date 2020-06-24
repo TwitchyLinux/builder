@@ -1,4 +1,4 @@
-[graphical_environment]
+[graphical_environment.gnome]
 packages = [
   # Basic components
   "gdm3", "gnome-menus", "gnome-session", "gnome-shell", "at-spi2-core", "baobab", "caribou", "dconf-cli",

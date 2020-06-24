@@ -23,6 +23,7 @@ const (
 	keyMainUser    = rootKeyBase + ".main_user"
 
 	rootKeyGraphicalEnv = "graphical_environment"
+	keyGraphicalEnvName = "features.graphical_environment"
 	installKeyPostBase  = "post_base.install"
 	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
 	rootKeyUdev         = "udev"
