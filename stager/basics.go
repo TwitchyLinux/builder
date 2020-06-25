@@ -89,39 +89,6 @@ func linuxConf(tree *toml.Tree) (*units.Linux, error) {
 	}, nil
 }
 
-// GraphicsConf describes how a graphical environment should be installed.
-type GraphicsConf struct {
-	Packages []string `toml:"packages"`
-}
-
-func graphicsConf(tree *toml.Tree) (*units.Gnome, error) {
-	wantEnv := tree.GetDefault(keyGraphicalEnvName, "gnome")
-	env, ok := wantEnv.(string)
-	if !ok {
-		return nil, fmt.Errorf("%s is %T, not string", keyGraphicalEnvName, wantEnv)
-	}
-
-	conf := graphicalEnvDefault
-	if t := tree.Get(rootKeyGraphicalEnv); t != nil {
-		ge, ok := t.(*toml.Tree)
-		if !ok {
-			if i, isInt := t.(int64); isInt && i == 0 {
-				return nil, nil
-			}
-			return nil, fmt.Errorf("invalid config: %s is not a structure (got %T)", rootKeyGraphicalEnv, t)
-		}
-		var allConfs map[string]GraphicsConf
-		if err := ge.Unmarshal(&allConfs); err != nil {
-			return nil, err
-		}
-		conf = allConfs[env]
-	}
-
-	return &units.Gnome{
-		NeedPkgs: conf.Packages,
-	}, nil
-}
-
 // LocaleConf describes the locale of the system.
 type LocaleConf struct {
 	Area     string   `toml:"area"`

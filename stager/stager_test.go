@@ -84,9 +84,9 @@ func TestLoadGraphical(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	gnome := getUnit(t, c, reflect.TypeOf(&units.Gnome{})).(*units.Gnome)
-	if got, want := gnome.NeedPkgs, []string{"test", "yolo"}; !reflect.DeepEqual(got, want) {
-		t.Errorf("gnome.NeedPkgs = %v, want %v", got, want)
+	pkgs := getUnit(t, c, reflect.TypeOf(&units.InstallTools{})).(*units.InstallTools)
+	if got, want := pkgs.Pkgs, []string{"test", "yolo"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("pkgs.Pkgs = %v, want %v", got, want)
 	}
 }
 
@@ -96,9 +96,9 @@ func TestLoadGraphicalDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	gnome := getUnit(t, c, reflect.TypeOf(&units.Gnome{})).(*units.Gnome)
-	if got, want := gnome.NeedPkgs, graphicalEnvDefault.Packages; !reflect.DeepEqual(got, want) {
-		t.Errorf("gnome.NeedPkgs = %v, want %v", got, want)
+	pkgs := getUnit(t, c, reflect.TypeOf(&units.InstallTools{})).(*units.InstallTools)
+	if got, want := pkgs.Pkgs, []string{"gnome"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("pkgs.Pkgs = %v, want %v", got, want)
 	}
 }
 
@@ -108,9 +108,12 @@ func TestLoadGraphicalDisabled(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	gnome := getUnit(t, c, reflect.TypeOf(&units.Gnome{})).(*units.Gnome)
-	if gnome != nil {
-		t.Errorf("expected nil unit, got %v", gnome)
+	for _, u := range c {
+		if it, ok := u.(*units.InstallTools); ok {
+			if it.UnitName == "gnome" {
+				t.Error("gnome unit was found")
+			}
+		}
 	}
 }
 
@@ -161,6 +164,10 @@ func TestLoadPostInstall(t *testing.T) {
 			UnitName: "last",
 			Pkgs:     []string{"last"},
 			Order:    1,
+		},
+		&units.InstallTools{
+			UnitName: "gnome",
+			Pkgs:     []string{"gnome"},
 		},
 	}; !reflect.DeepEqual(got, want) {
 		for i := range want {
@@ -288,7 +295,7 @@ func TestStageConfOrdering(t *testing.T) {
 		{
 			name:   "FS tools before Gnome",
 			before: stageFinder(reflect.TypeOf(&units.InstallTools{}), "fs-tools"),
-			after:  stageFinder(reflect.TypeOf(&units.Gnome{}), ""),
+			after:  stageFinder(reflect.TypeOf(&units.InstallTools{}), "gnome"),
 		},
 		{
 			name:   "FS tools before firmware",
@@ -297,7 +304,7 @@ func TestStageConfOrdering(t *testing.T) {
 		},
 		{
 			name:   "GUI tools after Gnome",
-			before: stageFinder(reflect.TypeOf(&units.Gnome{}), ""),
+			before: stageFinder(reflect.TypeOf(&units.InstallTools{}), "gnome"),
 			after:  stageFinder(reflect.TypeOf(&units.InstallTools{}), "gui-dev-tools"),
 		},
 		{
@@ -426,6 +433,10 @@ func TestConditional(t *testing.T) {
 		&units.InstallTools{
 			UnitName: "composite",
 			Order:    1,
+		},
+		&units.InstallTools{
+			UnitName: "gnome",
+			Pkgs:     []string{"gnome"},
 		},
 	}; !reflect.DeepEqual(got, want) {
 		for i := range want {

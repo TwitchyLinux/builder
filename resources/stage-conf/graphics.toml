@@ -17,3 +17,7 @@ packages = [
   "glib-networking", "gnome-bluetooth", "gnome-settings-daemon", "gnome-keyring", "gstreamer1.0-libav",
   "dconf-gsettings-backend", "gnome-color-manager", "libgsf-bin", "gkbd-capplet", "tracker"
 ]
+steps.install-background.do = [
+  {action = 'mkdir', dir = '/usr/share/backgrounds'},
+  {action = 'install-resource', from = '../twitchy_background.png', to = '/usr/share/backgrounds/twitchy_background.png'},
+]

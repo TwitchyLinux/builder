@@ -1,5 +1,9 @@
 [graphical_environment.yolo]
 packages = ['test', 'yolo']
+steps.install-background.do = [
+  {action = 'mkdir', dir = '/usr/share/backgrounds'},
+]
+
 
 [features]
 graphical_environment = 'yolo'

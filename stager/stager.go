@@ -101,11 +101,11 @@ func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 		return nil, err
 	}
 	if doGraphicalInstaller {
-		ge, err := graphicsConf(conf)
+		ge, err := graphicsConf(opts, conf, dir)
 		if err != nil {
 			return nil, err
 		}
-		out = append(out, ge)
+		out = append(out, ge...)
 		// Install post-GUI packages.
 		if ge != nil {
 			if installs, err = installsUnderKey(opts, conf, installKeyPostGUI, dir); err != nil {
