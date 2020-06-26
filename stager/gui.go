@@ -38,7 +38,7 @@ func graphicsConf(opts Options, tree *toml.Tree, resDir string) ([]units.Unit, e
 
 	out := make([]units.Unit, 0, len(conf.Steps))
 	for k, c := range conf.Steps {
-		skip, err := c.ShouldSkip(tree, opts)
+		skip, err := c.If.ShouldSkip(tree, opts)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %v", k, err)
 		}

@@ -15,8 +15,9 @@ const (
 
 // UdevRules describes a collection of udev rules.
 type UdevRules struct {
-	Name  string     `toml:"name"`
-	Rules []UdevRule `toml:"rules"`
+	Name  string         `toml:"name"`
+	If    *StepCondition `toml:"if"`
+	Rules []UdevRule     `toml:"rules"`
 }
 
 // UdevRule describes a udev rule.
@@ -63,7 +64,7 @@ func makeUdevRule(r UdevRule) *udev.Rule {
 	return &rule
 }
 
-func udevConf(tree *toml.Tree) (*units.InstallFiles, error) {
+func udevConf(opts Options, tree *toml.Tree) (*units.InstallFiles, error) {
 	conf := map[string]UdevRules{}
 	t := tree.Get(keyUdevRules)
 	if t == nil {
@@ -85,6 +86,14 @@ func udevConf(tree *toml.Tree) (*units.InstallFiles, error) {
 		i        int
 	)
 	for name, ruleSet := range conf {
+		skip, err := ruleSet.If.ShouldSkip(tree, opts)
+		if err != nil {
+			return nil, err
+		}
+		if skip {
+			continue
+		}
+
 		var ruleContents bytes.Buffer
 		for i, r := range ruleSet.Rules {
 			if err := makeUdevRule(r).Serialize(&ruleContents); err != nil {

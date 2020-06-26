@@ -444,3 +444,61 @@ func TestConditional(t *testing.T) {
 		}
 	}
 }
+
+func TestSystemdNetworkDHCP(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/sysd-network", Options{
+		Overrides: map[string]interface{}{
+			"features.static": false,
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tools := getUnits(t, c, reflect.TypeOf(&units.InstallFiles{}))
+	if got, want := tools, []units.Unit{
+		&units.InstallFiles{
+			UnitName: "systemd-network",
+			Mkdir:    "/etc/systemd/network",
+			Files: []units.FileInfo{
+				{
+					Path: "/etc/systemd/network/test_dhcp.network",
+					Data: []byte("[Match]\nName=en*\n\n[Network]\nDHCP=ipv4\n\n"),
+				},
+			},
+		},
+	}; !reflect.DeepEqual(got, want) {
+		for i := range want {
+			t.Errorf("tools[%d] = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+}
+
+func TestSystemdNetworkStatic(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/sysd-network", Options{
+		Overrides: map[string]interface{}{
+			"features.static": true,
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tools := getUnits(t, c, reflect.TypeOf(&units.InstallFiles{}))
+	if got, want := tools, []units.Unit{
+		&units.InstallFiles{
+			UnitName: "systemd-network",
+			Mkdir:    "/etc/systemd/network",
+			Files: []units.FileInfo{
+				{
+					Path: "/etc/systemd/network/test_static.network",
+					Data: []byte("[Match]\nName=en*\n\n[Network]\nAddress=192.168.1.8/24\nGateway=192.168.1.1\nDNS=8.8.8.8\n\n"),
+				},
+			},
+		},
+	}; !reflect.DeepEqual(got, want) {
+		for i := range want {
+			t.Errorf("tools[%d] = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+}

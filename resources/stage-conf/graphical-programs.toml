@@ -13,7 +13,7 @@ packages = ["nmap", "ncat", "ndiff", "zenmap"]
 [graphical_environment.post.install.gui-dev-tools]
 if.all = ["features.graphical", "features.SWE"]
 order_priority = 85
-packages = ["gpick", "glade", "mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-dev"]
+packages = ["gpick", "glade"]
 
 [graphical_environment.post.install.cad-and-images]
 if.all = ["features.graphical"]

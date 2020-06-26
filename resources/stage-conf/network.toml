@@ -1,0 +1,5 @@
+[systemd.networks.default]
+if.any = ["!features.graphical"]
+match.name = "en*"
+  [systemd.networks.default.config]
+  dhcp = "ipv4"

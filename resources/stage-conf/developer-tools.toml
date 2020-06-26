@@ -44,6 +44,11 @@ do = [
   {action = 'append', to = '/etc/profile.d/protoc.sh', data = "# Make protoc available via path\nexport PATH=$PATH:/usr/local/protoc/bin\n"},
 ]
 
+[post_base.install.gui-libs]
+if.any = ["features.SWE"]
+order_priority = 88
+packages = ["mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-dev"]
+
 [post_base.install.skopeo]
 if.any = ["features.container_tools"]
 order_priority = 88

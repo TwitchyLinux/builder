@@ -28,6 +28,8 @@ const (
 	installKeyPostGUI   = rootKeyGraphicalEnv + ".post.install"
 	rootKeyUdev         = "udev"
 	keyUdevRules        = rootKeyUdev + ".rules"
+	rootKeySysd         = "systemd"
+	keySysdNetworks     = rootKeySysd + ".networks"
 )
 
 func unionTree(target, in *toml.Tree, inPrefix []string) error {
@@ -116,11 +118,20 @@ func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 		}
 	}
 
-	udev, err := udevConf(conf)
+	udev, err := udevConf(opts, conf)
 	if err != nil {
 		return nil, err
 	}
-	out = append(out, udev)
+	if udev != nil {
+		out = append(out, udev)
+	}
+	sysdNet, err := systemdNetConfig(opts, conf)
+	if err != nil {
+		return nil, err
+	}
+	if sysdNet != nil {
+		out = append(out, sysdNet)
+	}
 
 	if doGraphicalInstaller {
 		out = append(out, &units.Installer{})

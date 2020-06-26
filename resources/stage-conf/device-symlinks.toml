@@ -1,5 +1,6 @@
 [udev.rules.buspirate]
 name = 'buspirate'
+if.any = ["features.embedded", "features.maker"]
 
 [[udev.rules.buspirate.rules]]
   comment = 'Bus pirate v3'

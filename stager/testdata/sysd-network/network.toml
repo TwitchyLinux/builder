@@ -1,0 +1,14 @@
+[systemd.networks.test_dhcp]
+if.any = ["!features.static"]
+match.name = "en*"
+  [systemd.networks.test_dhcp.config]
+  dhcp = "ipv4"
+
+
+[systemd.networks.test_static]
+if.any = ["features.static"]
+match.name = "en*"
+  [systemd.networks.test_static.config]
+  address = "192.168.1.8/24"
+  gateway = "192.168.1.1"
+  dns_servers = ["8.8.8.8"]
