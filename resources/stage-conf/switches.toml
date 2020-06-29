@@ -17,7 +17,3 @@ embedded = true
 av = true
 # When maker is set, common tools used by makers will be installed.
 maker = true
-
-
-# When containerd is set, containerd will be installed.
-containerd = false

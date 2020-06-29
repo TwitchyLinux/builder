@@ -455,16 +455,23 @@ func TestSystemdNetworkDHCP(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tools := getUnits(t, c, reflect.TypeOf(&units.InstallFiles{}))
+	tools := getUnits(t, c, reflect.TypeOf(&units.Composite{}))
 	if got, want := tools, []units.Unit{
-		&units.InstallFiles{
+		&units.Composite{
 			UnitName: "systemd-network",
-			Mkdir:    "/etc/systemd/network",
-			Files: []units.FileInfo{
-				{
-					Path: "/etc/systemd/network/test_dhcp.network",
-					Data: []byte("[Match]\nName=en*\n\n[Network]\nDHCP=ipv4\n\n"),
+			Ops: []units.Unit{
+				&units.InstallFiles{
+					UnitName: "systemd-network",
+					Mkdir:    "/etc/systemd/network",
+					Files: []units.FileInfo{
+						{
+							Path: "/etc/systemd/network/test_dhcp.network",
+							Data: []byte("[Match]\nName=en*\n\n[Network]\nDHCP=ipv4\n\n"),
+						},
+					},
 				},
+				&units.EnableUnit{Target: "multi-user.target", Unit: "systemd-networkd.service"},
+				&units.EnableUnit{Target: "network-online.target", Unit: "systemd-networkd-wait-online.service"},
 			},
 		},
 	}; !reflect.DeepEqual(got, want) {
@@ -484,16 +491,23 @@ func TestSystemdNetworkStatic(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tools := getUnits(t, c, reflect.TypeOf(&units.InstallFiles{}))
+	tools := getUnits(t, c, reflect.TypeOf(&units.Composite{}))
 	if got, want := tools, []units.Unit{
-		&units.InstallFiles{
+		&units.Composite{
 			UnitName: "systemd-network",
-			Mkdir:    "/etc/systemd/network",
-			Files: []units.FileInfo{
-				{
-					Path: "/etc/systemd/network/test_static.network",
-					Data: []byte("[Match]\nName=en*\n\n[Network]\nAddress=192.168.1.8/24\nGateway=192.168.1.1\nDNS=8.8.8.8\n\n"),
+			Ops: []units.Unit{
+				&units.InstallFiles{
+					UnitName: "systemd-network",
+					Mkdir:    "/etc/systemd/network",
+					Files: []units.FileInfo{
+						{
+							Path: "/etc/systemd/network/test_static.network",
+							Data: []byte("[Match]\nName=en*\n\n[Network]\nAddress=192.168.1.8/24\nGateway=192.168.1.1\nDNS=8.8.8.8\n\n"),
+						},
+					},
 				},
+				&units.EnableUnit{Target: "multi-user.target", Unit: "systemd-networkd.service"},
+				&units.EnableUnit{Target: "network-online.target", Unit: "systemd-networkd-wait-online.service"},
 			},
 		},
 	}; !reflect.DeepEqual(got, want) {

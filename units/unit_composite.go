@@ -116,6 +116,63 @@ func (d *Download) Run(ctx context.Context, opts Opts) error {
 	return DownloadFile(ctx, &opts, d.URL, filepath.Join(opts.Dir, d.To))
 }
 
+// EnableUnit enables a systemd unit.
+type EnableUnit struct {
+	Unit, Target string
+}
+
+// Name implements Unit.
+func (c *EnableUnit) Name() string {
+	return "enable " + c.Unit
+}
+
+func (c *EnableUnit) isEnabled(opts Opts, unit, target string) (bool, error) {
+	s, err := os.Lstat(filepath.Join(opts.Dir, "etc/systemd/system", target+".wants", unit))
+	switch {
+	case err != nil && !os.IsNotExist(err):
+		return false, err
+	case err == nil && s.Mode()&os.ModeSymlink == 0:
+		return false, fmt.Errorf("expected symlink on %s", filepath.Join("/etc/systemd/system", target+".wants"))
+	case err == nil && s.Mode()&os.ModeSymlink != 0:
+		return true, nil
+	}
+
+	s, err = os.Lstat(filepath.Join(opts.Dir, "lib/systemd/system", target+".wants", unit))
+	switch {
+	case err != nil && !os.IsNotExist(err):
+		return false, err
+	case err == nil && s.Mode()&os.ModeSymlink == 0:
+		return false, fmt.Errorf("expected symlink on %s", filepath.Join("/lib/systemd/system", target+".wants"))
+	case err == nil && s.Mode()&os.ModeSymlink != 0:
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// Run implements Unit.
+func (c *EnableUnit) Run(ctx context.Context, opts Opts) error {
+	enabled, err := c.isEnabled(opts, c.Unit, c.Target)
+	if err != nil {
+		return err
+	}
+	if enabled {
+		fmt.Fprintf(opts.L.Stdout(), "Unit %q was already enabled for target %q.", c.Unit, c.Target)
+		return nil
+	}
+
+	if _, err := os.Stat(filepath.Join(opts.Dir, "lib/systemd/system", c.Target+".wants")); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		if err := os.Mkdir(filepath.Join(opts.Dir, "lib/systemd/system", c.Target+".wants"), 755); err != nil {
+			return err
+		}
+	}
+
+	return os.Symlink("../"+c.Unit, filepath.Join(opts.Dir, "lib/systemd/system", c.Target+".wants", c.Unit))
+}
+
 // Composite is a unit made up of a sequence of simpler operations.
 type Composite struct {
 	UnitName string

@@ -25,7 +25,7 @@ type systemdNetConf struct {
 	DNS            []string     `toml:"dns_servers"`
 }
 
-func systemdNetConfig(opts Options, tree *toml.Tree) (*units.InstallFiles, error) {
+func systemdNetConfig(opts Options, tree *toml.Tree) (*units.Composite, error) {
 	conf := map[string]systemdNetwork{}
 	t := tree.Get(keySysdNetworks)
 	if t == nil {
@@ -79,9 +79,16 @@ func systemdNetConfig(opts Options, tree *toml.Tree) (*units.InstallFiles, error
 	if len(outFiles) == 0 {
 		return nil, nil
 	}
-	return &units.InstallFiles{
+	return &units.Composite{
 		UnitName: "systemd-network",
-		Mkdir:    "/etc/systemd/network",
-		Files:    outFiles,
+		Ops: []units.Unit{
+			&units.InstallFiles{
+				UnitName: "systemd-network",
+				Mkdir:    "/etc/systemd/network",
+				Files:    outFiles,
+			},
+			&units.EnableUnit{Target: "multi-user.target", Unit: "systemd-networkd.service"},
+			&units.EnableUnit{Target: "network-online.target", Unit: "systemd-networkd-wait-online.service"},
+		},
 	}, nil
 }
