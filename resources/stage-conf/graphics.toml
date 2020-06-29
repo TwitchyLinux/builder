@@ -21,3 +21,55 @@ steps.install-background.do = [
   {action = 'mkdir', dir = '/usr/share/backgrounds'},
   {action = 'install-resource', from = '../twitchy_background.png', to = '/usr/share/backgrounds/twitchy_background.png'},
 ]
+
+[graphical_environment.sway]
+packages = [
+  # Build tools
+  "ninja-build", "python3", "git", "autoconf", "libtool",
+  # Libraries
+  "build-essential", "cmake", "libwayland-dev", "wayland-protocols",
+  "libegl1-mesa-dev", "libgles2-mesa-dev", "libdrm-dev", "libgbm-dev", "libinput-dev",
+  "libxkbcommon-dev", "libudev-dev", "libpixman-1-dev", "libsystemd-dev", "libcap-dev",
+  "libxcb1-dev", "libxcb-composite0-dev", "libxcb-xfixes0-dev", "libxcb-xinput-dev",
+  "libxcb-image0-dev", "libxcb-render-util0-dev", "libx11-xcb-dev", "libxcb-icccm4-dev",
+  "freerdp2-dev", "libwinpr2-dev", "libpng-dev", "libavutil-dev", "libavcodec-dev",
+  "libavformat-dev", "universal-ctags",
+  "libelogind-dev", "libxcb-util0-dev",
+]
+steps.build-sway.do = [
+  {action = 'download', url = 'http://ftp.debian.org/debian/pool/main/m/meson/meson_0.54.3-1_all.deb', to = '/meson_0.54.3-1_all.deb'},
+  {action = 'run', bin = 'apt-get', args=['install', '-y', '/meson_0.54.3-1_all.deb']},
+  {action = 'run', bin = 'rm', args=['/meson_0.54.3-1_all.deb']},
+  {action = 'mkdir', dir = '/sway-src'},
+
+  # Wlroots
+  {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/wlroots.git', '/sway-src/wlroots']},
+  {action = 'run', bin = 'git', args = ['-C', '/sway-src/wlroots', 'checkout', '0.10.0']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/wlroots && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/wlroots && ninja -C build install']},
+
+  # json-c
+  {action = 'run', bin = 'git', args = ['clone', 'https://github.com/json-c/json-c.git', '/sway-src/json-c']},
+  {action = 'run', bin = 'git', args = ['-C', '/sway-src/json-c', 'checkout', 'json-c-0.13.1-20180305']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/json-c && sh autogen.sh']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/json-c && ./configure --enable-threading --prefix=/usr/local']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/json-c && make "-j$(nproc)"']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/json-c && make install']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/json-c && ldconfig']},
+
+  # Sway
+  {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/sway.git', '/sway-src/sway']},
+  {action = 'run', bin = 'git', args = ['-C', '/sway-src/sway', 'checkout', '1.4']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/sway && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/sway && ninja -C build install']},
+
+  # Swaybg
+  {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/swaybg.git', '/sway-src/swaybg']},
+  {action = 'run', bin = 'git', args = ['-C', '/sway-src/swaybg', 'checkout', '1.0']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/swaybg && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/swaybg && ninja -C build install']},
+]
+steps.install-background.do = [
+  {action = 'mkdir', dir = '/usr/share/backgrounds'},
+  {action = 'install-resource', from = '../twitchy_background.png', to = '/usr/share/backgrounds/twitchy_background.png'},
+]
