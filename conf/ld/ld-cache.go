@@ -74,6 +74,12 @@ type Cache struct {
 	Entries []CacheEntry
 }
 
+// Lookup returns a library entry from the cache which satisfies the
+// given parameters.
+//
+// TODO: Add ability to specify ABI version constraints and HWCAP / HWCAP2
+// constraints from the ELF section. Add support for falling back to basic ELF
+// libraries if nothing more specific is present.
 func (c *Cache) Lookup(name string, platform Platform) *CacheEntry {
 	i := sort.Search(len(c.Entries), func(i int) bool {
 		return libNameCompare(name, c.Entries[i].Key) >= 0
