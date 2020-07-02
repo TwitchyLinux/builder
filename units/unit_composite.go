@@ -12,6 +12,7 @@ import (
 type Cmd struct {
 	Bin  string
 	Args []string
+	Env  map[string]string
 }
 
 // Name implements Unit.
@@ -26,7 +27,21 @@ func (c *Cmd) Run(ctx context.Context, opts Opts) error {
 		return err
 	}
 	defer chroot.Close()
-	return chroot.Shell(ctx, &opts, c.Bin, c.Args...)
+
+	cmd, err := chroot.CmdContext(ctx, &opts, c.Bin, c.Args...)
+	if err != nil {
+		return err
+	}
+	if len(c.Env) > 0 {
+		env := os.Environ()
+		for k, v := range c.Env {
+			env = append(env, fmt.Sprintf("%s=%s", k, v))
+		}
+		cmd.Env = env
+	}
+	cmd.Stdout = opts.L.Stdout()
+	cmd.Stderr = opts.L.Stderr()
+	return cmd.Run()
 }
 
 // Mkdir represents the execution of mkdir on the target system.

@@ -27,6 +27,8 @@ type Chroot struct {
 		dev  bool
 	}
 
+	env map[string]string
+
 	previousResolv []byte
 }
 

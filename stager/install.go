@@ -2,6 +2,8 @@ package stager
 
 import (
 	"fmt"
+	"go/scanner"
+	"go/token"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -25,8 +27,9 @@ type InstallAction struct {
 
 	Expected string `toml:"expected"`
 
-	Bin  string   `toml:"bin"`
-	Args []string `toml:"args"`
+	Bin  string            `toml:"bin"`
+	Args []string          `toml:"args"`
+	Env  map[string]string `toml:"env"`
 }
 
 // InstallConf desribes a set of packages to be installed.
@@ -120,13 +123,70 @@ func makeInstallUnit(k string, c InstallConf, tree *toml.Tree, resDir string) (u
 	return &out, nil
 }
 
+func evalStringSection(src string, tree *toml.Tree) (string, error) {
+	var s scanner.Scanner
+	fset := token.NewFileSet()
+	file := fset.AddFile("", fset.Base(), len(src)) // register input "file"
+	s.Init(file, []byte(src), nil, 0)
+
+	// Repeated calls to Scan yield the token sequence found in the input.
+	var out, accumulator string
+	for {
+		pos, tok, lit := s.Scan()
+		if tok == token.EOF {
+			break
+		}
+		switch tok {
+		case token.ADD:
+			if accumulator != "" {
+				switch v := tree.GetPath(strings.Split(accumulator, ".")).(type) {
+				case string:
+					out += v
+				default:
+					out += fmt.Sprint(v)
+				}
+				accumulator = ""
+			}
+		case token.STRING, token.CHAR:
+			out += lit[1 : len(lit)-1]
+		case token.IDENT:
+			accumulator += lit
+		case token.SEMICOLON:
+		case token.PERIOD:
+			accumulator += "."
+		default:
+			return "", fmt.Errorf("unexpected token %s at %s (%q)", tok, fset.Position(pos), lit)
+		}
+	}
+	if accumulator != "" {
+		switch v := tree.GetPath(strings.Split(accumulator, ".")).(type) {
+		case string:
+			out += v
+		default:
+			out += fmt.Sprint(v)
+		}
+	}
+	return out, nil
+}
+
 func actionToUnit(a InstallAction, tree *toml.Tree, resDir string) (units.Unit, error) {
 	for i := range a.Args {
 		if strings.HasPrefix(a.Args[i], "{{") && strings.HasSuffix(a.Args[i], "}}") && len(a.Args[i]) > 4 {
-			key := a.Args[i][2 : len(a.Args[i])-2]
-			if v, ok := tree.GetPath(strings.Split(key, ".")).(string); ok {
-				a.Args[i] = v
+			out, err := evalStringSection(a.Args[i][2:len(a.Args[i])-2], tree)
+			if err != nil {
+				return nil, err
 			}
+			a.Args[i] = out
+		}
+	}
+
+	for key, val := range a.Env {
+		if strings.HasPrefix(val, "{{") && strings.HasSuffix(val, "}}") && len(val) > 4 {
+			out, err := evalStringSection(val[2:len(val)-2], tree)
+			if err != nil {
+				return nil, err
+			}
+			a.Env[key] = out
 		}
 	}
 
@@ -134,7 +194,7 @@ func actionToUnit(a InstallAction, tree *toml.Tree, resDir string) (units.Unit, 
 	case "download":
 		return &units.Download{URL: a.URL, To: a.To}, nil
 	case "run":
-		return &units.Cmd{Bin: a.Bin, Args: a.Args}, nil
+		return &units.Cmd{Bin: a.Bin, Args: a.Args, Env: a.Env}, nil
 	case "sha256sum":
 		return &units.CheckHash{File: a.From, ExpectedHash: a.Expected}, nil
 	case "append":
