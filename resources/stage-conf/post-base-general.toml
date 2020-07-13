@@ -2,7 +2,7 @@
 packages = ["e2fsprogs", "e2fsck-static", "gpart", "parted", "kpartx",
 "libfuse2", "ntfs-3g", "fuse2fs", "fuseiso", "fatcat", "fatattr", "exfat-utils", "exfat-fuse",
 "cpio", "disktype", "cpio-doc", "multipath-tools", "smartmontools", "dosfstools",
-"sg3-utils", "squashfs-tools", "libext2fs2", "apt-file"]
+"sg3-utils", "squashfs-tools", "libext2fs2", "apt-file", "fuse-overlayfs"]
 order_priority = 100
 
 [post_base.install.net-tools]
