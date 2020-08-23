@@ -9,6 +9,7 @@ import (
 
 // FinalizeApt configures apt into an ideal state.
 type FinalizeApt struct {
+	Track string
 }
 
 // Name implements Unit.
@@ -42,7 +43,7 @@ func (u *FinalizeApt) fixAptSources(path string) error {
 
 	// Hack in the non-free component.
 	if !strings.Contains(s, "non-free contrib") {
-		s = strings.Replace(s, " stable main\n", " stable main non-free contrib\n", -1)
+		s = strings.Replace(s, " "+u.Track+" main\n", " "+u.Track+" main non-free contrib\n", -1)
 	}
 	return ioutil.WriteFile(path, []byte(s), 0644)
 }

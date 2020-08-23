@@ -47,7 +47,7 @@ do = [
 [post_base.install.gui-libs]
 if.any = ["features.SWE"]
 order_priority = 88
-packages = ["mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-dev"]
+packages = ["mesa-utils", "libgtk-3-dev", "libcairo2-dev", "libglib2.0-dev", "libwxgtk3.0-gtk3-dev"]
 
 [post_base.install.skopeo]
 if.any = ["features.container_tools"]
@@ -76,7 +76,7 @@ do = [
 [post_base.install.esp8266]
 if.all = ["features.maker"]
 order_priority = 88
-packages = ["python-pip"]
+packages = ["python3-pip"]
 do = [
   # TODO: download and setup nodemcu-uploader from github (pip is out of date).
   {action = 'run', bin = 'pip', args = ['install', 'esptool']},

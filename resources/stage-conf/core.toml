@@ -1,5 +1,5 @@
 [base]
-debian.track = "stable"
+debian.track = "testing"
 debian.url = "http://deb.debian.org/debian/"
 
 [base.locale]

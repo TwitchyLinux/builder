@@ -217,7 +217,7 @@ func baseUnitsFromConf(out []units.Unit, conf *toml.Tree) ([]units.Unit, error) 
 		return nil, err
 	}
 	out = append(out, dbstrp)
-	out = append(out, &units.FinalizeApt{})
+	out = append(out, &units.FinalizeApt{Track: dbstrp.Track})
 
 	locale, err := localeConf(conf)
 	if err != nil {
