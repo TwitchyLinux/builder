@@ -38,6 +38,12 @@ func TestSerialize(t *testing.T) {
 					Key: ActionSymlink,
 					Val: "buspirate",
 				},
+				{
+					Op:     Assign,
+					Key:    ActionEnv,
+					Subkey: "ID_MM_DEVICE_IGNORE",
+					Val:    "1",
+				},
 			},
 		},
 	}
@@ -47,7 +53,7 @@ func TestSerialize(t *testing.T) {
 		}
 	}
 
-	want := "# ello\nSUBSYSTEM==\"tty\", ATTRS{idProduct}==\"6001\", GROUP=\"users\", MODE=\"0666\", SYMLINK+=\"buspirate\"\n"
+	want := "# ello\nSUBSYSTEM==\"tty\", ATTRS{idProduct}==\"6001\", GROUP=\"users\", MODE=\"0666\", SYMLINK+=\"buspirate\", ENV{ID_MM_DEVICE_IGNORE}=\"1\"\n"
 	if want != out.String() {
 		t.Errorf("got = %q, want %q", out.String(), want)
 	}

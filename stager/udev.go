@@ -38,6 +38,7 @@ type UdevMatch struct {
 type UdevAction struct {
 	Action string `toml:"action"`
 	Val    string `toml:"value"`
+	Key    string `toml:"key"`
 	Op     string `toml:"op" default:"="`
 }
 
@@ -56,9 +57,10 @@ func makeUdevRule(r UdevRule) *udev.Rule {
 	}
 	for i := range r.Then {
 		rule.Actions[i] = udev.Action{
-			Key: r.Then[i].Action,
-			Val: r.Then[i].Val,
-			Op:  udev.ActionOp(r.Then[i].Op),
+			Key:    r.Then[i].Action,
+			Subkey: r.Then[i].Key,
+			Val:    r.Then[i].Val,
+			Op:     udev.ActionOp(r.Then[i].Op),
 		}
 	}
 	return &rule

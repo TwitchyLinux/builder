@@ -27,3 +27,44 @@ if.any = ["features.embedded", "features.maker"]
     {action = 'GROUP', value = 'users'},
     {action = 'SYMLINK', value = 'buspirate', op = '+='},
   ]
+
+
+[udev.rules.wio-terminal]
+name = 'wio-terminal'
+if.any = ["features.embedded", "features.maker"]
+
+[[udev.rules.wio-terminal.rules]]
+  comment = 'Disallow use by ModemManager'
+  if = [
+    {key = 'ATTRS{idVendor}', value = '2886'},
+    {key = 'ATTRS{idProduct}', value = '002d'},
+  ]
+  then = [
+    {action = '{ENV}', key = 'ID_MM_DEVICE_IGNORE', value = '1'},
+  ]
+
+
+[[udev.rules.wio-terminal.rules]]
+  comment = 'Open up access from USB system'
+  if = [
+    {key = 'SUBSYSTEM', value = 'usb'},
+    {key = 'ATTRS{idVendor}', value = '2886'},
+    {key = 'ATTRS{idProduct}', value = '002d'},
+  ]
+  then = [
+    {action = 'MODE', value = '0666'},
+    {action = 'GROUP', value = 'users'},
+  ]
+
+[[udev.rules.wio-terminal.rules]]
+  comment = 'Open up access from TTY system'
+  if = [
+    {key = 'SUBSYSTEM', value = 'tty'},
+    {key = 'ATTRS{idVendor}', value = '2886'},
+    {key = 'ATTRS{idProduct}', value = '002d'},
+  ]
+  then = [
+    {action = 'MODE', value = '0666'},
+    {action = 'GROUP', value = 'users'},
+    {action = 'SYMLINK', value = 'wio-terminal', op = '+='},
+  ]

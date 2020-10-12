@@ -34,4 +34,6 @@ const (
 	ActionGroup = "GROUP"
 	// ActionMode sets the node mode.
 	ActionMode = "MODE"
+	// ActionEnv sets a device property value.
+	ActionEnv = "{ENV}"
 )
