@@ -1,9 +1,9 @@
 [features]
 # When essential is set, useful but not essential packages which are not
 # controlled by another switch are removed.
-essential = true
+essential = false
 # When graphical is set, a graphical environment will be installed.
-graphical = false
+graphical = true
 graphical_environment = 'gnome'
 
 # When SWE is set, build tools will be installed.

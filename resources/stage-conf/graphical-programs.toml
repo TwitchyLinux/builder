@@ -8,7 +8,7 @@ packages = ["fonts-indic", "fonts-noto", "fonts-noto-cjk"]
 if.not = ["features.essential"]
 if.all = ["features.graphical"]
 order_priority = 90
-packages = ["nmap", "ncat", "ndiff", "zenmap"]
+packages = ["nmap", "ncat", "ndiff"]
 
 [graphical_environment.post.install.gui-dev-tools]
 if.all = ["features.graphical", "features.SWE"]
@@ -19,7 +19,7 @@ packages = ["gpick", "glade"]
 if.all = ["features.graphical"]
 if.any = ["features.av", "features.maker"]
 order_priority = 80
-packages = ["openscad", "inkscape"]
+packages = ["inkscape"] # TODO: Add back openscad
 
 [graphical_environment.post.install.qemu-gui]
 if.all = ["features.container_tools"]
@@ -31,6 +31,12 @@ if.not = ["features.essential"]
 if.all = ["features.graphical"]
 order_priority = 75
 packages = ["wireshark"]
+
+[graphical_environment.post.install.meld]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.SWE"]
+order_priority = 75
+packages = ["meld"]
 
 [graphical_environment.post.install.chrome]
 if.not = ["features.essential"]
@@ -70,6 +76,13 @@ do = [
   {action = 'run', bin = 'dpkg', args = ['-i', '/kcgen_0.3.0_amd64.deb']},
   {action = 'run', bin = 'rm', args = ['/kcgen_0.3.0_amd64.deb']},
 ]
+
+[optional.packages.kicad]
+if.all = ["features.graphical", "features.maker"]
+display_name = "KiCad"
+version = "5.x.x"
+packages = ["kicad", "kicad-libraries", "kicad-doc-en", "kicad-packages3d"]
+
 
 [graphical_environment.post.install.atom]
 if.all = ["features.graphical", "features.SWE"]

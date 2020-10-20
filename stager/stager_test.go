@@ -516,3 +516,33 @@ func TestSystemdNetworkStatic(t *testing.T) {
 		}
 	}
 }
+
+func TestOptionalPackages(t *testing.T) {
+	c, err := UnitsFromConfig("testdata/optional-packages", Options{
+		Overrides: map[string]interface{}{
+			"features.kicad": true,
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tools := getUnits(t, c, reflect.TypeOf(&units.Composite{}))
+	if got, want := tools, []units.Unit{
+		&units.Composite{
+			UnitName: "opt-packages",
+			Ops: []units.Unit{
+				&units.OptPackage{
+					OptName:     "kicad",
+					DisplayName: "KiCad",
+					Version:     "5.x.x",
+					Packages:    []string{"kicad"},
+				},
+			},
+		},
+	}; !reflect.DeepEqual(got, want) {
+		for i := range want {
+			t.Errorf("tools[%d] = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+}

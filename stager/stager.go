@@ -30,6 +30,8 @@ const (
 	keyUdevRules        = rootKeyUdev + ".rules"
 	rootKeySysd         = "systemd"
 	keySysdNetworks     = rootKeySysd + ".networks"
+	rootKeyOptional     = "optional"
+	keyOptPackages      = rootKeyOptional + ".packages"
 )
 
 func unionTree(target, in *toml.Tree, inPrefix []string) error {
@@ -135,6 +137,14 @@ func UnitsFromConfig(dir string, opts Options) ([]units.Unit, error) {
 
 	if doGraphicalInstaller {
 		out = append(out, &units.Installer{})
+	}
+
+	optPkgs, err := optPackagesConfig(opts, conf)
+	if err != nil {
+		return nil, err
+	}
+	if optPkgs != nil {
+		out = append(out, optPkgs)
 	}
 	out = append(out, finalUnits...)
 	return out, nil

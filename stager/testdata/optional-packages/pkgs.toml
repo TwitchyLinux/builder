@@ -1,0 +1,5 @@
+[optional.packages.kicad]
+if.any = ["features.kicad"]
+display_name = "KiCad"
+version = "5.x.x"
+packages = ["kicad"]
