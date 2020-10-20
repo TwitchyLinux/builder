@@ -28,7 +28,7 @@ func (i *OptPackage) Name() string {
 
 // Run implements Unit.
 func (i *OptPackage) Run(ctx context.Context, opts Opts) error {
-	if err := os.Mkdir(filepath.Join(opts.Dir, "deb-pkgs", i.OptName), 0755); err != nil && !os.IsExist(err) {
+	if err := os.MkdirAll(filepath.Join(opts.Dir, "deb-pkgs", i.OptName), 0755); err != nil && !os.IsExist(err) {
 		return err
 	}
 

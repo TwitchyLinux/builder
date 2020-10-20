@@ -26,10 +26,10 @@ do = [
 if.any = ["features.SWE"]
 order_priority = 89
 do = [
-  {action = 'download', url = 'https://golang.org/dl/go1.14.4.linux-amd64.tar.gz', to = '/go1.14.4.linux-amd64.tar.gz'},
-  {action = 'sha256sum', from = '/go1.14.4.linux-amd64.tar.gz', expected = 'aed845e4185a0b2a3c3d5e1d0a35491702c55889192bb9c30e67a3de6849c067'},
-  {action = 'run', bin = 'tar', args = ['-v', '-C', '/usr/local', '-xzf', '/go1.14.4.linux-amd64.tar.gz']},
-  {action = 'run', bin = 'rm', args = ['/go1.14.4.linux-amd64.tar.gz']},
+  {action = 'download', url = 'https://golang.org/dl/go1.15.3.linux-amd64.tar.gz', to = '/go1.15.3.linux-amd64.tar.gz'},
+  {action = 'sha256sum', from = '/go1.15.3.linux-amd64.tar.gz', expected = '010a88df924a81ec21b293b5da8f9b11c176d27c0ee3962dc1738d2352d3c02d'},
+  {action = 'run', bin = 'tar', args = ['-v', '-C', '/usr/local', '-xzf', '/go1.15.3.linux-amd64.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/go1.15.3.linux-amd64.tar.gz']},
   {action = 'append', to = '/etc/profile.d/golang.sh', data = "# Make Go tools available via path\nexport PATH=$PATH:/usr/local/go/bin\n"},
 ]
 
