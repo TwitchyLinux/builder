@@ -26,10 +26,10 @@ do = [
 if.any = ["features.SWE"]
 order_priority = 89
 do = [
-  {action = 'download', url = 'https://golang.org/dl/go1.15.3.linux-amd64.tar.gz', to = '/go1.15.3.linux-amd64.tar.gz'},
-  {action = 'sha256sum', from = '/go1.15.3.linux-amd64.tar.gz', expected = '010a88df924a81ec21b293b5da8f9b11c176d27c0ee3962dc1738d2352d3c02d'},
-  {action = 'run', bin = 'tar', args = ['-v', '-C', '/usr/local', '-xzf', '/go1.15.3.linux-amd64.tar.gz']},
-  {action = 'run', bin = 'rm', args = ['/go1.15.3.linux-amd64.tar.gz']},
+  {action = 'download', url = 'https://golang.org/dl/go1.15.5.linux-amd64.tar.gz', to = '/go1.15.5.linux-amd64.tar.gz'},
+  {action = 'sha256sum', from = '/go1.15.5.linux-amd64.tar.gz', expected = '9a58494e8da722c3aef248c9227b0e9c528c7318309827780f16220998180a0d'},
+  {action = 'run', bin = 'tar', args = ['-v', '-C', '/usr/local', '-xzf', '/go1.15.5.linux-amd64.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/go1.15.5.linux-amd64.tar.gz']},
   {action = 'append', to = '/etc/profile.d/golang.sh', data = "# Make Go tools available via path\nexport PATH=$PATH:/usr/local/go/bin\n"},
 ]
 
@@ -37,10 +37,10 @@ do = [
 if.any = ["features.SWE"]
 order_priority = 88
 do = [
-  {action = 'download', url = 'https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protoc-3.11.4-linux-x86_64.zip', to = '/protoc-3.11.4.zip'},
-  {action = 'sha256sum', from = '/protoc-3.11.4.zip', expected = '6d0f18cd84b918c7b3edd0203e75569e0c8caecb1367bbbe409b45e28514f5be'},
-  {action = 'run', bin = 'unzip', args = ['/protoc-3.11.4.zip', '-d', '/usr/local/protoc']},
-  {action = 'run', bin = 'rm', args = ['/protoc-3.11.4.zip']},
+  {action = 'download', url = 'https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protoc-3.14.0-linux-x86_64.zip', to = '/protoc-3.14.0.zip'},
+  {action = 'sha256sum', from = '/protoc-3.14.0.zip', expected = 'a2900100ef9cda17d9c0bbf6a3c3592e809f9842f2d9f0d50e3fba7f3fc864f0'},
+  {action = 'run', bin = 'unzip', args = ['/protoc-3.14.0.zip', '-d', '/usr/local/protoc']},
+  {action = 'run', bin = 'rm', args = ['/protoc-3.14.0.zip']},
   {action = 'append', to = '/etc/profile.d/protoc.sh', data = "# Make protoc available via path\nexport PATH=$PATH:/usr/local/protoc/bin\n"},
 ]
 
