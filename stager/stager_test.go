@@ -293,9 +293,9 @@ func TestStageConfOrdering(t *testing.T) {
 			after:  stageFinder(reflect.TypeOf(&units.ShellCustomization{}), ""),
 		},
 		{
-			name:   "FS tools before Gnome",
+			name:   "FS tools before Sway",
 			before: stageFinder(reflect.TypeOf(&units.InstallTools{}), "fs-tools"),
-			after:  stageFinder(reflect.TypeOf(&units.InstallTools{}), "gnome"),
+			after:  stageFinder(reflect.TypeOf(&units.InstallTools{}), "sway"),
 		},
 		{
 			name:   "FS tools before firmware",
@@ -303,8 +303,8 @@ func TestStageConfOrdering(t *testing.T) {
 			after:  stageFinder(reflect.TypeOf(&units.InstallTools{}), "firmware"),
 		},
 		{
-			name:   "GUI tools after Gnome",
-			before: stageFinder(reflect.TypeOf(&units.InstallTools{}), "gnome"),
+			name:   "GUI tools after Sway",
+			before: stageFinder(reflect.TypeOf(&units.InstallTools{}), "sway"),
 			after:  stageFinder(reflect.TypeOf(&units.InstallTools{}), "gui-dev-tools"),
 		},
 		{

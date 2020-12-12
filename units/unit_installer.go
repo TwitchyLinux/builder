@@ -70,9 +70,6 @@ func (i *Installer) copyResources(ctx context.Context, opts *Opts) error {
 			return err
 		}
 	}
-	if err := CopyResource(ctx, opts, filepath.Join("installer", "gnome-installer-setup.json"), "usr/share/gnome-shell/modes/initial-setup.json"); err != nil {
-		return err
-	}
 	if err := CopyResource(ctx, opts, filepath.Join("installer", "twlinst-start"), "usr/sbin/twlinst-start"); err != nil {
 		return err
 	}

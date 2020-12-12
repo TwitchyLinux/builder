@@ -19,7 +19,7 @@ packages = ["gpick", "glade"]
 if.all = ["features.graphical"]
 if.any = ["features.av", "features.maker"]
 order_priority = 80
-packages = ["inkscape"] # TODO: Add back openscad
+packages = ["inkscape", "gthumb", "openscad"]
 
 [graphical_environment.post.install.qemu-gui]
 if.all = ["features.container_tools"]

@@ -4,7 +4,7 @@
 essential = false
 # When graphical is set, a graphical environment will be installed.
 graphical = true
-graphical_environment = 'gnome'
+graphical_environment = 'sway'
 
 # When SWE is set, build tools will be installed.
 SWE = true

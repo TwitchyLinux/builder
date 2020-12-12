@@ -1,7 +1,6 @@
 package stager
 
 import (
-	"github.com/twitchylinux/builder/conf/dconf"
 	"github.com/twitchylinux/builder/units"
 )
 
@@ -16,45 +15,7 @@ var (
 		"features.rootfs-only": true,
 	}
 
-	afterGUIUnits = []units.Unit{
-		&units.Dconf{
-			Profiles: map[string]dconf.Profile{
-				"user": dconf.Profile{
-					RW: dconf.Directive{
-						Type: dconf.User,
-						Name: "user",
-					},
-					ROs: []dconf.Directive{
-						dconf.Directive{
-							Type: dconf.System,
-							Name: "local",
-						},
-					},
-				},
-				"gdm": dconf.Profile{
-					RW: dconf.Directive{
-						Type: dconf.User,
-						Name: "user",
-					},
-					ROs: []dconf.Directive{
-						dconf.Directive{
-							Type: dconf.System,
-							Name: "gdm",
-						},
-						dconf.Directive{
-							Type: dconf.File,
-							Name: "/usr/share/gdm/greeter-dconf-defaults",
-						},
-					},
-				},
-			},
-			LocalLocks: map[string]dconf.Lock{
-				"screensaver": dconf.Lock("/org/gnome/desktop/screensaver/idle-activation-enabled"),
-				"session":     dconf.Lock("/org/gnome/desktop/session"),
-				"lockdown":    dconf.Lock("/org/gnome/desktop/lockdown"),
-			},
-		},
-	}
+	afterGUIUnits = []units.Unit{}
 
 	finalUnits = []units.Unit{
 		&units.Clean{},

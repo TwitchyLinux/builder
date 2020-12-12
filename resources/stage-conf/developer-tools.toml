@@ -79,6 +79,6 @@ order_priority = 88
 packages = ["python3-pip"]
 do = [
   # TODO: download and setup nodemcu-uploader from github (pip is out of date).
-  {action = 'run', bin = 'pip', args = ['install', 'esptool']},
-  {action = 'run', bin = 'pip', args = ['install', 'nodemcu-uploader']},
+  {action = 'run', bin = 'pip3', args = ['install', 'esptool']},
+  {action = 'run', bin = 'pip3', args = ['install', 'nodemcu-uploader']},
 ]
