@@ -9,9 +9,9 @@ generate_locales = ["en_US.UTF-8 UTF-8", "en_US ISO-8859-1"]
 default = "en_US.UTF-8"
 
 [base.linux]
-version = "5.6.19"
-url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.6.19.tar.xz"
-sha256 = "62532fb257fe98a68601e4ca36bd3d34300b4f26f447bf495df4693442601ee8"
+version = "5.9.14"
+url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.9.14.tar.xz"
+sha256 = "39fcfb41dcdf71b6b42b88eff3d8cedbe7523830ccae847f3914c0b97e1e6b49"
 build_packages = ["build-essential", "fakeroot", "devscripts", "wget", "libncurses-dev"]
 
 [base.release_info]
