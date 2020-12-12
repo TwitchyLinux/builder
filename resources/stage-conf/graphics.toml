@@ -46,7 +46,7 @@ steps.build-sway.do = [
 
   # Wlroots
   {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/wlroots.git', '/sway-src/wlroots']},
-  {action = 'run', bin = 'git', args = ['-C', '/sway-src/wlroots', 'checkout', '0.10.0']},
+  {action = 'run', bin = 'git', args = ['-C', '/sway-src/wlroots', 'checkout', '0.10.0']}, # 'checkout', '0.12.0'
   {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/wlroots && meson build']},
   {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/wlroots && ninja -C build install']},
 
@@ -61,7 +61,7 @@ steps.build-sway.do = [
 
   # Sway
   {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/sway.git', '/sway-src/sway']},
-  {action = 'run', bin = 'git', args = ['-C', '/sway-src/sway', 'checkout', '1.4']},
+  {action = 'run', bin = 'git', args = ['-C', '/sway-src/sway', 'checkout', '1.4']}, # 'checkout', '1.5.1'
   {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/sway && meson build']},
   {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/sway && ninja -C build install']},
 
@@ -73,6 +73,9 @@ steps.build-sway.do = [
 
   # Update perms
   {action = 'run', bin = 'chmod', args = ['u+s', '/usr/local/bin/sway']},
+
+  # Cleanup
+  {action = 'run', bin = 'rm', args = ['-rf', '/sway-src']},
 ]
 steps.install-background.do = [
   {action = 'mkdir', dir = '/usr/share/backgrounds'},

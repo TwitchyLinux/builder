@@ -1,7 +1,38 @@
+[graphical_environment.post.install.mako]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 95
+do = [
+  {action = 'download', url = 'https://github.com/emersion/mako/releases/download/v1.4.1/mako-1.4.1.tar.gz', to = '/mako-1.4.1.tar.gz'},
+  {action = 'sha256sum', from = '/mako-1.4.1.tar.gz', expected = '27ab63264a74389de2119393fe64fd578a4c1d04c8409990ef7cfbb6eb9309bb'},
+  {action = 'run', bin = 'tar', args = ['-v', '-xzf', '/mako-1.4.1.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/mako-1.4.1.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /mako-1.4.1 && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /mako-1.4.1 && ninja -C build']},
+  {action = 'run', bin = 'cp', args = ['/mako-1.4.1/build/mako', '/usr/local/bin/mako']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/mako-1.4.1']},
+]
+
+[graphical_environment.post.install.gammastep]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 95
+packages = ["intltool"]
+do = [
+  {action = 'mkdir', dir = '/gammastep-src'},
+  {action = 'run', bin = 'git', args = ['clone', 'https://gitlab.com/chinstrap/gammastep', '/gammastep-src/gammastep']},
+  {action = 'run', bin = 'git', args = ['-C', '/gammastep-src/gammastep', 'checkout', 'v2.0.5']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /gammastep-src/gammastep && ./bootstrap']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /gammastep-src/gammastep && ./configure']},
+  {action = 'run', bin = 'make', args = ['-C', '/gammastep-src/gammastep']},
+  {action = 'run', bin = 'make', args = ['-C', '/gammastep-src/gammastep', 'install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/gammastep-src']},
+]
+
 [graphical_environment.post.install.non-latin-fonts]
 if.not = ["features.essential"]
 if.all = ["features.graphical"]
-order_priority = 95
+order_priority = 94
 packages = ["fonts-indic", "fonts-noto", "fonts-noto-cjk"]
 
 [graphical_environment.post.install.nmap-tools]
