@@ -7,7 +7,7 @@ do = [
   {action = 'sha256sum', from = '/mako-1.4.1.tar.gz', expected = '27ab63264a74389de2119393fe64fd578a4c1d04c8409990ef7cfbb6eb9309bb'},
   {action = 'run', bin = 'tar', args = ['-v', '-xzf', '/mako-1.4.1.tar.gz']},
   {action = 'run', bin = 'rm', args = ['/mako-1.4.1.tar.gz']},
-  {action = 'run', bin = 'bash', args = ['-c', 'cd /mako-1.4.1 && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /mako-1.4.1 && meson build -Dman-pages=enabled -Dsd-bus-provider=libsystemd -Dicons=enabled']},
   {action = 'run', bin = 'bash', args = ['-c', 'cd /mako-1.4.1 && ninja -C build']},
   {action = 'run', bin = 'cp', args = ['/mako-1.4.1/build/mako', '/usr/local/bin/mako']},
   {action = 'run', bin = 'rm', args = ['-rf', '/mako-1.4.1']},
@@ -33,7 +33,7 @@ do = [
 if.not = ["features.essential"]
 if.all = ["features.graphical"]
 order_priority = 94
-packages = ["fonts-indic", "fonts-noto", "fonts-noto-cjk", "noto-fonts-emoji"]
+packages = ["fonts-indic", "fonts-noto", "fonts-noto-cjk", "fonts-noto-color-emoji"]
 
 
 [graphical_environment.post.install.alacritty]

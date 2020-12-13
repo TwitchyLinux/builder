@@ -35,14 +35,26 @@ packages = [
   "freerdp2-dev", "libwinpr2-dev", "libpng-dev", "libavutil-dev", "libavcodec-dev",
   "libavformat-dev", "universal-ctags",
   "libelogind-dev", "libxcb-util0-dev",
+  "libgdk-pixbuf2.0-dev",
   # Additional components
   "dbus", "dbus-x11", "dbus-user-session",
 ]
 steps.build-sway.do = [
+  # Meson
   {action = 'download', url = 'http://ftp.debian.org/debian/pool/main/m/meson/meson_0.56.0-1.1_all.deb', to = '/meson_0.56.0-1.1_all.deb'},
+  {action = 'sha256sum', from = '/meson_0.56.0-1.1_all.deb', expected = '30f8fba68cf3e4ccf7bd6bccde6d9b42b11500507f4b9906e668b8ef8ccc8013'},
   {action = 'run', bin = 'apt-get', args=['install', '-y', '/meson_0.56.0-1.1_all.deb']},
   {action = 'run', bin = 'rm', args=['/meson_0.56.0-1.1_all.deb']},
   {action = 'mkdir', dir = '/sway-src'},
+
+  # Scdoc
+  {action = 'download', url = 'https://git.sr.ht/~sircmpwn/scdoc/archive/1.11.1.tar.gz', to = '/sway-src/1.11.1.tar.gz'},
+  {action = 'sha256sum', from = '/sway-src/1.11.1.tar.gz', expected = 'e529fcb00508e7e4c5025a745591b805b754b3bd5c84c5192acaefabdfa8f700'},
+  {action = 'run', bin = 'tar', args=['-C', '/sway-src', '-xvf', '/sway-src/1.11.1.tar.gz']},
+  {action = 'run', bin = 'make', args = ['-C', '/sway-src/scdoc-1.11.1', 'PREFIX=/usr/local']},
+  {action = 'run', bin = 'make', args = ['-C', '/sway-src/scdoc-1.11.1', 'PREFIX=/usr/local', 'install']},
+  {action = 'run', bin = 'rm', args=['/sway-src/1.11.1.tar.gz']},
+  {action = 'run', bin = 'rm', args=['-rf', '/sway-src/scdoc-1.11.1']},
 
   # Wlroots
   {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/wlroots.git', '/sway-src/wlroots']},
@@ -62,13 +74,13 @@ steps.build-sway.do = [
   # Sway
   {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/sway.git', '/sway-src/sway']},
   {action = 'run', bin = 'git', args = ['-C', '/sway-src/sway', 'checkout', '1.4']}, # 'checkout', '1.5.1'
-  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/sway && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/sway && meson build -Dman-pages=enabled -Dxwayland=enabled -Dgdk-pixbuf=enabled -Dsd-bus-provider=libsystemd']},
   {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/sway && ninja -C build install']},
 
   # Swaybg
   {action = 'run', bin = 'git', args = ['clone', 'https://github.com/swaywm/swaybg.git', '/sway-src/swaybg']},
   {action = 'run', bin = 'git', args = ['-C', '/sway-src/swaybg', 'checkout', '1.0']},
-  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/swaybg && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/swaybg && meson build -Dman-pages=enabled -Dgdk-pixbuf=enabled']},
   {action = 'run', bin = 'bash', args = ['-c', 'cd /sway-src/swaybg && ninja -C build install']},
 
   # Update perms
