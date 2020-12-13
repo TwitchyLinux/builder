@@ -16,7 +16,7 @@ export XDG_RUNTIME_DIR=/tmp/installer-xdg
 
 export WLR_DIRECT_TTY=/dev/tty0
 export WLR_SESSION=direct
-dbus-run-session sudo -E -u twl sway &
+sudo -E -u twl dbus-run-session sway -c /usr/share/twlinst/sway.config &
 
 sleep 5
 

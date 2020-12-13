@@ -36,5 +36,8 @@ func (i *Clean) Run(ctx context.Context, opts Opts) error {
 	if err := os.Remove(filepath.Join(opts.Dir, "etc", "apt", "apt.conf.d", "05-temp-install-proxy")); err != nil && !os.IsNotExist(err) {
 		return err
 	}
+	if err := chroot.Shell(ctx, &opts, "rm", "-rf", "/home/twl/.cargo/registry"); err != nil {
+		return err
+	}
 	return chroot.Shell(ctx, &opts, "apt-get", "clean")
 }
