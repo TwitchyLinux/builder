@@ -92,3 +92,76 @@ steps.install-swaynagmode.do = [
   {action = 'run', bin = 'chmod', args = ['+x', '/usr/bin/swaynagmode']},
   {action = 'run', bin = 'rm', args = ['-rf', '/swaynagmode-src']},
 ]
+
+[graphical_environment.post.install.mako]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 95
+packages = ["libnotify-bin", "libnotify-dev"]
+do = [
+  {action = 'download', url = 'https://github.com/emersion/mako/releases/download/v1.4.1/mako-1.4.1.tar.gz', to = '/mako-1.4.1.tar.gz'},
+  {action = 'sha256sum', from = '/mako-1.4.1.tar.gz', expected = '27ab63264a74389de2119393fe64fd578a4c1d04c8409990ef7cfbb6eb9309bb'},
+  {action = 'run', bin = 'tar', args = ['-v', '-xzf', '/mako-1.4.1.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/mako-1.4.1.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /mako-1.4.1 && meson build -Dman-pages=enabled -Dsd-bus-provider=libsystemd -Dicons=enabled']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /mako-1.4.1 && ninja -C build']},
+  {action = 'run', bin = 'cp', args = ['/mako-1.4.1/build/mako', '/usr/local/bin/mako']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/mako-1.4.1']},
+]
+
+[graphical_environment.post.install.gammastep]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 95
+packages = ["intltool"]
+do = [
+  {action = 'mkdir', dir = '/gammastep-src'},
+  {action = 'run', bin = 'git', args = ['clone', 'https://gitlab.com/chinstrap/gammastep', '/gammastep-src/gammastep']},
+  {action = 'run', bin = 'git', args = ['-C', '/gammastep-src/gammastep', 'checkout', 'v2.0.5']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /gammastep-src/gammastep && ./bootstrap']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /gammastep-src/gammastep && ./configure']},
+  {action = 'run', bin = 'make', args = ['-C', '/gammastep-src/gammastep']},
+  {action = 'run', bin = 'make', args = ['-C', '/gammastep-src/gammastep', 'install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/gammastep-src']},
+]
+
+[graphical_environment.post.install.wob]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 95
+packages = ["libseccomp-dev"]
+do = [
+  {action = 'mkdir', dir = '/wob-src'},
+  {action = 'download', url = 'https://github.com/francma/wob/archive/0.10.tar.gz', to = '/wob-src/0.10.tar.gz'},
+  {action = 'sha256sum', from = '/wob-src/0.10.tar.gz', expected = '706fc2469924ca34d2af60997460fc9723dc4825669a57017024906dc444654c'},
+  {action = 'run', bin = 'tar', args = ['-C', '/wob-src', '-v', '-xzf', '/wob-src/0.10.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/wob-src/0.10.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wob-src/wob-0.10 && meson build -Dman-pages=enabled -Dseccomp=enabled']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wob-src/wob-0.10 && ninja -C build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wob-src/wob-0.10 && ninja -C build install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/wob-src']},
+]
+
+[graphical_environment.post.install.i3status]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+packages = ["libdbus-1-dev", "fonts-font-awesome", "fonts-powerline"]
+order_priority = 94
+do = [
+  {action = 'mkdir', dir = '/i3status-src'},
+  {action = 'run', bin = 'git', args = ['clone', 'https://github.com/greshake/i3status-rust', '/i3status-src/i3status-rust']},
+  {action = 'run', bin = 'git', args = ['-C', '/i3status-src/i3status-rust', 'checkout', 'v0.14.3']},
+  {action = 'run', bin = 'chown', args = ['-R', 'twl', '/i3status-src/i3status-rust']},
+  # TODO: Make username agnostic in below command.
+  {action = 'run', bin = 'runuser', args = [
+        '-l', '{{base.main_user.name}}',
+        '-c', 'source $HOME/.cargo/env && cd /i3status-src/i3status-rust && cargo build --release',
+  ]},
+  {action = 'run', bin = 'cp', args = ['/i3status-src/i3status-rust/target/release/i3status-rs', '/usr/local/bin/i3status-rs']},
+  {action = 'run', bin = 'bash', args = ['-c', 'gzip -c /i3status-src/i3status-rust/man/i3status-rs.1 | sudo tee /usr/local/share/man/man1/i3status-rs.1.gz > /dev/null']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/i3status-src']},
+  {action = 'mkdir', dir = '/home/twl/.config/i3status-rust'},
+  {action = 'install-resource', from = '../sway/i3status-rs.toml', to = '/home/twl/.config/i3status-rust/config.toml'},
+  {action = 'run', bin = 'chown', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/i3status-rust']},
+  {action = 'run', bin = 'chgrp', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/i3status-rust']},
+]

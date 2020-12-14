@@ -73,6 +73,9 @@ func (i *Installer) copyResources(ctx context.Context, opts *Opts) error {
 	if err := CopyResource(ctx, opts, filepath.Join("installer", "sway.config"), "usr/share/twlinst/sway.config"); err != nil {
 		return err
 	}
+	if err := CopyResource(ctx, opts, filepath.Join("installer", "i3status.toml"), "usr/share/twlinst/i3status.toml"); err != nil {
+		return err
+	}
 	if err := CopyResource(ctx, opts, filepath.Join("installer", "twlinst-start"), "usr/sbin/twlinst-start"); err != nil {
 		return err
 	}
