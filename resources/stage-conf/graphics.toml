@@ -14,6 +14,8 @@ packages = [
   "libgdk-pixbuf2.0-dev",
   # Additional components
   "dbus", "dbus-x11", "dbus-user-session",
+  # Backwards compatibility
+  "xwayland",
 ]
 steps.build-sway.do = [
   # Meson
