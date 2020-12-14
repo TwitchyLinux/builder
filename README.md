@@ -5,7 +5,7 @@ the files located in resources/.
 
 ## Building TwitchyLinux
 
-Make sure you have [Go 1.13](https://golang.org/dl/) or greater installed.
+Make sure you have [Go 1.13.4](https://golang.org/dl/) or greater installed.
 
 ```shell
 go get github.com/twitchylinux/builder
@@ -16,7 +16,7 @@ go build -o twl-builder github.com/twitchylinux/builder
 ### Build the root filesystem with kernel
 
 ```shell
-sudo ./twl-builder /tmp/twitchylinux-fs -D features.essential=false
+sudo ./twl-builder /tmp/twitchylinux-fs
 # Will create a twitchylinux system in /tmp/twitchylinux-fs
 ```
 
@@ -27,6 +27,12 @@ to pass the path to the `resources/` directory, like this:
 sudo ./twl-builder --resources-dir ~/builder/resources /tmp/twitchylinux-fs
 ```
 
+### Write a LiveUSB
+
+```shell
+sudo packscripts/write_usb.sh /dev/sdd /tmp/twitchylinux-fs
+# Assumes your USB is /dev/sdd
+```
 
 ### Pack an image
 
@@ -41,7 +47,7 @@ sudo ./packscripts/pack_qemu.sh my-image.img /tmp/twitchylinux-fs
 
 ```shell
 xhost si:localuser:root
-sudo qemu-system-x86_64 -enable-kvm -cpu host -smp 2 -m 4G -drive format=raw,file=my-image.img
+sudo qemu-system-x86_64 -vga qxl -enable-kvm -cpu host -smp 2 -m 4G -drive format=raw,file=my-image.img
 ```
 
 **Create virtual drive & install**

@@ -24,4 +24,4 @@ issue = "TwitchyLinux (/w GNU/Linux on Debian buster) \\n \\l"
 [base.main_user]
 name = 'twl'
 default_password = 'twl'
-groups = ['sudo', 'systemd-journal', 'netdev']
+groups = ['sudo', 'systemd-journal', 'netdev', 'lp', 'dialout', 'audio', 'video', 'kvm']

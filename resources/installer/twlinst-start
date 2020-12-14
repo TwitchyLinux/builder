@@ -18,7 +18,11 @@ export WLR_DIRECT_TTY=/dev/tty0
 export WLR_SESSION=direct
 sudo -E -u twl dbus-run-session sway -c /usr/share/twlinst/sway.config &
 
-sleep 5
+while [[ ! -e "${XDG_RUNTIME_DIR}/wayland-0" ]]
+do
+  sleep 1
+  echo "Waiting for wayland socket to come up"
+done
 
 cd /usr/share/twlinst
 /usr/share/twlinst/twlinst --version VERSION_MARKER

@@ -125,6 +125,10 @@ do = [
   {action = 'run', bin = 'make', args = ['-C', '/gammastep-src/gammastep']},
   {action = 'run', bin = 'make', args = ['-C', '/gammastep-src/gammastep', 'install']},
   {action = 'run', bin = 'rm', args = ['-rf', '/gammastep-src']},
+  {action = 'mkdir', dir = '/home/twl/.config/gammastep'},
+  {action = 'install-resource', from = '../sway/gammastep.ini', to = '/home/twl/.config/gammastep/config.ini'},
+  {action = 'run', bin = 'chown', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/gammastep']},
+  {action = 'run', bin = 'chgrp', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/gammastep']},
 ]
 
 [graphical_environment.post.install.wob]
