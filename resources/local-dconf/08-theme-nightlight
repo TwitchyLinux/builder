@@ -1,7 +1,0 @@
-[org/gnome/desktop/interface]
-gtk-theme='Adwaita-dark'
-[org/gnome/settings-daemon/plugins/color]
-night-light-enabled=true
-night-light-schedule-automatic=false
-night-light-schedule-from=22.25
-night-light-schedule-to=6.0

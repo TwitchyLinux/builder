@@ -1,27 +1,3 @@
-[graphical_environment.gnome]
-packages = [
-  # Basic components
-  "gdm3", "gnome-menus", "gnome-session", "gnome-shell", "at-spi2-core", "baobab", "caribou", "dconf-cli",
-  # Basic styling
-  "desktop-base", "adwaita-icon-theme", "gnome-backgrounds", "fonts-cantarell", "gnome-themes-extra",
-  # Useful programs
-  "cheese", "gnome-system-monitor", "gnome-terminal", "nautilus", "totem", "zenity", "network-manager-gnome",
-  "eog", "evince", "gedit", "gnome-calculator", "gnome-characters", "gnome-control-center", "gnome-disk-utility",
-  "gnome-font-viewer", "file-roller", "gnome-calendar", "gnome-clocks", "gnome-screenshot", "orca", "gnome-logs",
-  "transmission-gtk", "gnome-sushi",
-  # Seems important
-  "gnome-shell-extensions", "gsettings-desktop-schemas", "gstreamer1.0-packagekit", "gstreamer1.0-plugins-base",
-  "gstreamer1.0-plugins-good", "gstreamer1.0-pulseaudio", "gvfs-backends", "gvfs-fuse", "libatk-adaptor", "libcanberra-pulse", "libglib2.0-bin",
-  "libpam-gnome-keyring", "libproxy1-plugin-gsettings", "libproxy1-plugin-webkit", "pulseaudio", "pulseaudio-module-bluetooth",
-  "sound-theme-freedesktop", "system-config-printer-common", "system-config-printer-udev", "libproxy1-plugin-networkmanager",
-  "glib-networking", "gnome-bluetooth", "gnome-settings-daemon", "gnome-keyring", "gstreamer1.0-libav",
-  "dconf-gsettings-backend", "gnome-color-manager", "libgsf-bin", "gkbd-capplet", "tracker"
-]
-steps.install-background.do = [
-  {action = 'mkdir', dir = '/usr/share/backgrounds'},
-  {action = 'install-resource', from = '../twitchy_background.png', to = '/usr/share/backgrounds/twitchy_background.png'},
-]
-
 [graphical_environment.sway]
 packages = [
   # Build tools
@@ -92,4 +68,27 @@ steps.build-sway.do = [
 steps.install-background.do = [
   {action = 'mkdir', dir = '/usr/share/backgrounds'},
   {action = 'install-resource', from = '../twitchy_background.png', to = '/usr/share/backgrounds/twitchy_background.png'},
+]
+steps.install-sway-config.do = [
+  {action = 'mkdir', dir = '/etc/sway'},
+  {action = 'install-resource', from = '../sway/sway.config', to = '/etc/sway/config'},
+]
+steps.install-sway-config-twl.do = [
+  {action = 'mkdir', dir = '/home/twl/.config/sway'},
+  {action = 'install-resource', from = '../sway/sway.config', to = '/home/twl/.config/sway/config'},
+  {action = 'run', bin = 'chown', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config']},
+  {action = 'run', bin = 'chgrp', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config']},
+]
+steps.install-sway-floating.do = [
+  {action = 'install-resource', from = '../sway/run-floating', to = '/usr/bin/sway-float'},
+  {action = 'run', bin = 'chmod', args = ['+x', '/usr/bin/sway-float']},
+]
+steps.install-swaynagmode.do = [
+  {action = 'mkdir', dir = '/swaynagmode-src'},
+  {action = 'download', url = 'https://github.com/b0o/swaynagmode/archive/v0.2.1.tar.gz', to = '/swaynagmode-src/v0.2.1.tar.gz'},
+  {action = 'sha256sum', from = '/swaynagmode-src/v0.2.1.tar.gz', expected = 'f513395a27ac63192a9f188b6f4f5b36c2c5fa8fa8d71b936e6f069ec5a63f24'},
+  {action = 'run', bin = 'tar', args = ['-C', '/swaynagmode-src', '-xvf', '/swaynagmode-src/v0.2.1.tar.gz']},
+  {action = 'run', bin = 'cp', args = ['/swaynagmode-src/swaynagmode-0.2.1/swaynagmode', '/usr/bin/swaynagmode']},
+  {action = 'run', bin = 'chmod', args = ['+x', '/usr/bin/swaynagmode']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/swaynagmode-src']},
 ]
