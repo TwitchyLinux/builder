@@ -38,6 +38,14 @@ packages = [
   "asciidoc",
 ]
 
+[post_base.install.audio]
+if.not = ["features.essential"]
+order_priority = 97
+packages = [
+  "pulseaudio", "pulseaudio-utils", "pulseaudio-equalizer", "libpulse-dev", "pamix",
+  "alsa-utils", "alsaplayer-text",
+]
+
 [post_base.install.usb]
 if.not = ["features.essential"]
 order_priority = 90

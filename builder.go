@@ -21,7 +21,7 @@ import (
 var (
 	resourcesDir = flag.String("resources-dir", "resources", "Path to the builder resources directory.")
 	outputOnly   = flag.Bool("output-only", false, "Only output to stdout in a non-interactive fashion.")
-	version      = flag.String("twl-version", "0.7.7", "The current version of TwitchyLinux.")
+	version      = flag.String("twl-version", "0.7.8", "The current version of TwitchyLinux.")
 	debProxyAddr = flag.String("deb-proxy-addr", "", "The address:port of a proxy to use when fetching deb packages.")
 	printUnits   = flag.Bool("print-units", false, "Print the computed build units before exiting.")
 
