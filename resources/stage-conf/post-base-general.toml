@@ -46,6 +46,21 @@ packages = [
   "alsa-utils", "alsaplayer-text",
 ]
 
+[post_base.install.power]
+if.not = ["features.essential"]
+order_priority = 97
+packages = [
+  "upower", "upower-doc",
+]
+
+[post_base.install.network-manager]
+if.not = ["features.essential"]
+if.all = ["features.graphical"]
+order_priority = 96
+packages = [
+  "network-manager",
+]
+
 [post_base.install.usb]
 if.not = ["features.essential"]
 order_priority = 90

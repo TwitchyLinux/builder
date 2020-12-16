@@ -15,3 +15,6 @@ interval = 4
 block = "time"
 interval = 60
 format = "%a %d/%m %R"
+
+[[block]]
+block = "sound"

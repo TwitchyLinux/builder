@@ -38,7 +38,9 @@ packages = ["apparmor", "apparmor-utils", "auditd", "libapparmor-dev"]
 if.not = ["features.essential"]
 order_priority = 18
 packages = [
-  "firmware-iwlwifi", "firmware-amd-graphics", "firmware-atheros", "firmware-brcm80211",
-  "firmware-cavium", "firmware-intel-sound", "intel-microcode", "firmware-misc-nonfree",
-  "firmware-realtek", "firmware-zd1211"
+  "firmware-iwlwifi", "firmware-atheros", "firmware-brcm80211",
+  "firmware-libertas", "firmware-realtek",
+  "firmware-cavium", "firmware-intel-sound", "intel-microcode",  "amd64-microcode",
+  "firmware-misc-nonfree", "firmware-linux-free",
+  "firmware-zd1211", "firmware-amd-graphics",
 ]
