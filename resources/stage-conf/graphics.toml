@@ -13,7 +13,7 @@ packages = [
   "libelogind-dev", "libxcb-util0-dev",
   "libgdk-pixbuf2.0-dev",
   # Additional components
-  "dbus", "dbus-x11", "dbus-user-session",
+  "dbus", "dbus-x11", "dbus-user-session", "mesa-vulkan-drivers",
   # Backwards compatibility
   "xwayland",
 ]
@@ -170,4 +170,29 @@ do = [
   {action = 'install-resource', from = '../sway/i3status-rs.toml', to = '/home/twl/.config/i3status-rust/config.toml'},
   {action = 'run', bin = 'chown', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/i3status-rust']},
   {action = 'run', bin = 'chgrp', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/i3status-rust']},
+]
+
+[graphical_environment.post.install.wofi]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+packages = ["libwayland-dev", "libgtk-3-dev", "pkg-config"] # Meson should have already been installed
+order_priority = 94
+do = [
+  {action = 'mkdir', dir = '/wofi-src'},
+  {action = 'download', url = 'https://github.com/GNOME/glib/archive/2.64.2.zip', to = '/wofi-src/2.64.2.zip'},
+  {action = 'sha256sum', from = '/wofi-src/2.64.2.zip', expected = '00761dcf835c97beae8a25ac060647b081113b7295d4081485b05723ea8bd0ac'},
+  {action = 'run', bin = 'unzip', args = ['/wofi-src/2.64.2.zip', '-d', '/wofi-src']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wofi-src/glib-2.64.2 && meson _build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wofi-src/glib-2.64.2 && ninja -C _build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wofi-src/glib-2.64.2 && ninja -C _build install']},
+
+  {action = 'download', url = 'https://hg.sr.ht/~scoopta/wofi/archive/v1.2.3.tar.gz', to = '/wofi-src/v1.2.3.tar.gz'},
+  {action = 'sha256sum', from = '/wofi-src/v1.2.3.tar.gz', expected = '6940a941e253942f172056aafa3f22e9647cfe080542e27331e5eefae382d4cd'},
+  {action = 'run', bin = 'tar', args = ['-C', '/wofi-src', '-v', '-xzf', '/wofi-src/v1.2.3.tar.gz']},
+
+  {action = 'run', bin = 'rm', args = ['/wofi-src/v1.2.3.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wofi-src/wofi-v1.2.3 && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wofi-src/wofi-v1.2.3 && ninja -C build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wofi-src/wofi-v1.2.3 && ninja -C build install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/wofi-src']},
 ]
