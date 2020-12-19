@@ -95,6 +95,21 @@ steps.install-swaynagmode.do = [
   {action = 'run', bin = 'rm', args = ['-rf', '/swaynagmode-src']},
 ]
 
+[graphical_environment.post.install.wev]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 95
+packages = ["libnotify-bin", "libnotify-dev"]
+do = [
+  {action = 'download', url = 'https://git.sr.ht/~sircmpwn/wev/archive/1.0.0.tar.gz', to = '/wev-1.0.0.tar.gz'},
+  {action = 'sha256sum', from = '/wev-1.0.0.tar.gz', expected = '6f004dedf3f5ce10d2fe3cd233d59912756d8a0af021214158d6ec54d66c9d6e'},
+  {action = 'run', bin = 'tar', args = ['-v', '-xzf', '/wev-1.0.0.tar.gz']},
+  {action = 'run', bin = 'rm', args = ['/wev-1.0.0.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wev-1.0.0 && make']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wev-1.0.0 && make install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/wev-1.0.0']},
+]
+
 [graphical_environment.post.install.mako]
 if.not = ["features.essential"]
 if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
