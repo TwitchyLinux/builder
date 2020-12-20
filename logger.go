@@ -61,7 +61,7 @@ func (u *unitState) SetSubstage(ss string) {
 // SetProgress shows a progress bar.
 func (u *unitState) SetProgress(msg string, fraction float64) {
 	if _, supportsProgress := u.output.(*interactiveOutput); supportsProgress {
-		if fraction == 0 {
+		if fraction <= 0 {
 			u.showProgress = false
 		} else {
 			u.showProgress = true

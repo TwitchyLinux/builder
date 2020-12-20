@@ -148,6 +148,14 @@ copy_files () {
   sed -i "s/BOOT_DEV/UUID=${BOOT_PART_UUID}/g" ${MAIN_IMG_MOUNT_POINT}/etc/fstab
   sed -i "s/MAIN_PART_UUID/${MAIN_PART_UUID}/g" ${BOOT_IMG_MOUNT_POINT}/boot/grub/grub.cfg
   sed -i "s/BOOT_PART_UUID/${BOOT_PART_UUID}/g" ${BOOT_IMG_MOUNT_POINT}/boot/grub/grub.cfg
+
+  # Configure startup.
+  echo "# Start TwitchyLinux trailing section" >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
+  echo 'if [[ $(tty) == ''/dev/tty1'' ]]; then' >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
+  echo '  sway' >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
+  echo 'fi' >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
+  cp -v "${SCRIPT_BASE_DIR}/autologin@.service" ${MAIN_IMG_MOUNT_POINT}/lib/systemd/system/autologin@.service
+  ln -s '../autologin@.service' ${MAIN_IMG_MOUNT_POINT}/lib/systemd/system/getty.target.wants/autologin@tty1.service
 }
 
 install_grub () {

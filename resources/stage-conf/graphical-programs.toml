@@ -23,6 +23,13 @@ do = [
   {action = 'run', bin = 'cp', args = ['/alacritty-src/alacritty/extra/logo/alacritty-term.svg', '/usr/share/pixmaps/Alacritty.svg']},
   {action = 'run', bin = 'bash', args = ['-c', 'gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null']},
   {action = 'run', bin = 'rm', args = ['-rf', '/alacritty-src']},
+
+  {action = 'mkdir', dir = '/home/twl/.config/alacritty'},
+  {action = 'install-resource', from = '../alacritty/default-config.yaml', to = '/home/twl/.config/alacritty/alacritty.yml'},
+  {action = 'install-resource', from = '../alacritty/schemes.yaml', to = '/home/twl/.config/alacritty/color-schemes.yml'},
+  {action = 'install-resource', from = '../alacritty/alacritty-theme.license', to = '/home/twl/.config/alacritty/alacritty-theme.license'},
+  {action = 'run', bin = 'chown', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/alacritty']},
+  {action = 'run', bin = 'chgrp', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config/alacritty']},
 ]
 
 [graphical_environment.post.install.grim]

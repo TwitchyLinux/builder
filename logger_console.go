@@ -78,6 +78,9 @@ func (o *interactiveOutput) writeProgress(ws *term.Winsize) {
 	if barUnits > 15 && doneUnits > 0 {
 		doneUnits--
 	}
+	if emptyUnits < 0 {
+		emptyUnits = 0
+	}
 
 	fmt.Fprint(os.Stdout, o.currentUnit.progressMsg)
 	fmt.Fprint(os.Stdout, "[")

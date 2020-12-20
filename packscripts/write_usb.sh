@@ -155,6 +155,10 @@ copy_files () {
   sed -i "s/FSTAB_DEV/UUID=${MAIN_PART_UUID}/g" ${MAIN_IMG_MOUNT_POINT}/etc/fstab
   sed -i "s/BOOT_DEV/UUID=${BOOT_PART_UUID}/g" ${MAIN_IMG_MOUNT_POINT}/etc/fstab
 
+  echo "# Start TwitchyLinux trailing section" >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
+  echo 'if [[ $(tty) == ''/dev/tty1'' ]]; then' >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
+  echo '  sway' >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
+  echo 'fi' >> ${MAIN_IMG_MOUNT_POINT}/home/twl/.bashrc
   echo "Finished copying files."
 }
 
