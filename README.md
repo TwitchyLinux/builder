@@ -57,7 +57,7 @@ qemu-img create -f qcow2 /tmp/qemu_hdd.img 25G # Make a hdd.
 # Run once to install TwitchyLinux
 sudo qemu-system-x86_64 -enable-kvm -serial stdio -vga qxl -cpu host -smp 4 -m 4G -drive format=raw,file=my-image.img -drive id=disk,file=/tmp/qemu_hdd.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0
 # Run every time after to use
-sudo qemu-system-x86_64 -enable-kvm -serial stdio -vga qxl -cpu host -smp 4 -m 4G -drive id=disk,file=/tmp/qemu_hdd.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0
+sudo qemu-system-x86_64 -soundhw hda -enable-kvm -serial stdio -vga qxl -cpu host -smp 4 -m 4G -drive id=disk,file=/tmp/qemu_hdd.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0
 ```
 
 ## Notes on debugging sway

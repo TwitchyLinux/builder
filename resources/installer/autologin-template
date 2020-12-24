@@ -8,7 +8,7 @@
 #  (at your option) any later version.
 
 [Unit]
-Description=Autologin for user twl on %I
+Description=Autologin for user USERNAME on %I
 Documentation=man:agetty(8) man:systemd-getty-generator(8)
 Documentation=http://0pointer.de/blog/projects/serial-console.html
 After=systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
@@ -37,7 +37,7 @@ ConditionPathExists=/dev/tty0
 # The '-o' option value tells agetty to replace 'login' arguments with an
 # option to preserve environment (-p), followed by '--' for safety, and then
 # the entered username.
-ExecStart=-/sbin/agetty --noclear -a twl %I $TERM
+ExecStart=-/sbin/agetty --noclear -a USERNAME %I $TERM
 Type=idle
 Restart=always
 RestartSec=0
