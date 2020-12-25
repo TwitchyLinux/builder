@@ -211,3 +211,26 @@ do = [
   {action = 'run', bin = 'bash', args = ['-c', 'cd /wofi-src/wofi-v1.2.3 && ninja -C build install']},
   {action = 'run', bin = 'rm', args = ['-rf', '/wofi-src']},
 ]
+
+[graphical_environment.post.install.shortcuts]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 94
+do = [
+  {action = 'install-resource', from = '../sway/shortcut-template', to = '/usr/share/applications/shutdown.desktop'},
+  {action = 'run', bin = 'sed', args = ['-i', 's/CMD/systemctl poweroff -i/g', '/usr/share/applications/shutdown.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/NAME/Shutdown/g', '/usr/share/applications/shutdown.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/ICON/system-shutdown/g', '/usr/share/applications/shutdown.desktop']},
+
+  {action = 'install-resource', from = '../sway/shortcut-template', to = '/usr/share/applications/reboot.desktop'},
+  {action = 'run', bin = 'sed', args = ['-i', 's/CMD/systemctl reboot/g', '/usr/share/applications/reboot.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/NAME/Reboot/g', '/usr/share/applications/reboot.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/ICON/system-reboot/g', '/usr/share/applications/reboot.desktop']},
+  {action = 'append', to = '/usr/share/applications/reboot.desktop', data = "\nKeywords=restart"},
+
+  {action = 'install-resource', from = '../sway/shortcut-template', to = '/usr/share/applications/configure-network.desktop'},
+  {action = 'run', bin = 'sed', args = ['-i', 's/CMD/nmtui/g', '/usr/share/applications/configure-network.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/NAME/Configure networking/g', '/usr/share/applications/configure-network.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/ICON/preferences-system-network/g', '/usr/share/applications/configure-network.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/Terminal=false/Terminal=true/g', '/usr/share/applications/configure-network.desktop']},
+]

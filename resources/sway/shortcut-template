@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=CMD
+Name=NAME
+NoDisplay=false
+Terminal=false
+Type=Application
+Icon=ICON
