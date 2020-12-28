@@ -73,6 +73,14 @@ if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
 order_priority = 91
 packages = ["pcmanfm"]
 
+# Simple image preview
+[graphical_environment.post.install.feh]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 91
+packages = ["feh"]
+
+
 [graphical_environment.post.install.nmap-tools]
 if.not = ["features.essential"]
 if.all = ["features.graphical"]
@@ -125,6 +133,16 @@ do = [
 if.all = ["features.graphical", "features.av"]
 order_priority = 40
 packages = ["rawtherapee"]
+
+[graphical_environment.post.install.vlc]
+if.all = ["features.graphical", "features.av"]
+order_priority = 40
+packages = ["vlc"]
+
+[graphical_environment.post.install.galculator]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+order_priority = 45
+packages = ["galculator"]
 
 [graphical_environment.post.install.kite]
 if.all = ["features.graphical", "features.maker"]

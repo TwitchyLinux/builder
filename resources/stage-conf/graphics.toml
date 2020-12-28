@@ -212,6 +212,63 @@ do = [
   {action = 'run', bin = 'rm', args = ['-rf', '/wofi-src']},
 ]
 
+[graphical_environment.post.install.waypipe]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+packages = ["liblz4-dev", "pkg-config", "libdrm-dev", "libgbm-dev", "libva-dev"] # Meson + Scdoc + ninja should have already been installed
+order_priority = 94
+do = [
+  {action = 'mkdir', dir = '/waypipe-src'},
+
+  {action = 'download', url = 'https://gitlab.freedesktop.org/mstoeckl/waypipe/-/archive/v0.7.1/waypipe-v0.7.1.tar.gz', to = '/waypipe-src/waypipe-v0.7.1.tar.gz'},
+  {action = 'sha256sum', from = '/waypipe-src/waypipe-v0.7.1.tar.gz', expected = '38ac7ff16a21a18ac0bc99162dff20601654ff412ddc7450fbae4d244f57cab9'},
+  {action = 'run', bin = 'tar', args = ['-C', '/waypipe-src', '-v', '-xzf', '/waypipe-src/waypipe-v0.7.1.tar.gz']},
+
+  {action = 'run', bin = 'rm', args = ['/waypipe-src/waypipe-v0.7.1.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /waypipe-src/waypipe-v0.7.1 && meson build -Dman-pages=enabled -Dwith_video=enabled -Dwith_dmabuf=enabled -Dwith_lz4=enabled -Dwith_vaapi=enabled']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /waypipe-src/waypipe-v0.7.1 && ninja -C build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /waypipe-src/waypipe-v0.7.1 && ninja -C build install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/waypipe-src']},
+]
+
+[graphical_environment.post.install.wl-clipboard]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+packages = ["xdg-utils", "pkg-config"] # Meson + Scdoc + ninja should have already been installed
+order_priority = 94
+do = [
+  {action = 'mkdir', dir = '/wlclipboard-src'},
+
+  {action = 'download', url = 'https://github.com/bugaevc/wl-clipboard/archive/v2.0.0.tar.gz', to = '/wlclipboard-src/v2.0.0.tar.gz'},
+  {action = 'sha256sum', from = '/wlclipboard-src/v2.0.0.tar.gz', expected = '2c42f182432adabe56da0f1144d5fcc40b7aae3d8e14d2bc4dc4c3f91b51808d'},
+  {action = 'run', bin = 'tar', args = ['-C', '/wlclipboard-src', '-v', '-xzf', '/wlclipboard-src/v2.0.0.tar.gz']},
+
+  {action = 'run', bin = 'rm', args = ['/wlclipboard-src/v2.0.0.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wlclipboard-src/wl-clipboard-2.0.0 && meson build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wlclipboard-src/wl-clipboard-2.0.0 && ninja -C build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wlclipboard-src/wl-clipboard-2.0.0 && ninja -C build install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/wlclipboard-src']},
+]
+
+[graphical_environment.post.install.wl-recorder]
+if.not = ["features.essential"]
+if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
+packages = ["libavutil-dev", "libavcodec-dev", "libavformat-dev", "libswscale-dev", "libpulse-dev", "pkg-config"] # Meson + Scdoc + ninja should have already been installed
+order_priority = 94
+do = [
+  {action = 'mkdir', dir = '/wfrecorder-src'},
+
+  {action = 'download', url = 'https://github.com/ammen99/wf-recorder/archive/v0.2.1.tar.gz', to = '/wfrecorder-src/v0.2.1.tar.gz'},
+  {action = 'sha256sum', from = '/wfrecorder-src/v0.2.1.tar.gz', expected = '45cf04cf58cf241c22fa2fbb70481a3747ad33e6930e4bdba7b9cc7018789ad1'},
+  {action = 'run', bin = 'tar', args = ['-C', '/wfrecorder-src', '-v', '-xzf', '/wfrecorder-src/v0.2.1.tar.gz']},
+
+  {action = 'run', bin = 'rm', args = ['/wfrecorder-src/v0.2.1.tar.gz']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wfrecorder-src/wf-recorder-0.2.1 && meson build --prefix=/usr --buildtype=release -Dpulse=enabled']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wfrecorder-src/wf-recorder-0.2.1 && ninja -C build']},
+  {action = 'run', bin = 'bash', args = ['-c', 'cd /wfrecorder-src/wf-recorder-0.2.1 && ninja -C build install']},
+  {action = 'run', bin = 'rm', args = ['-rf', '/wfrecorder-src']},
+]
+
 [graphical_environment.post.install.shortcuts]
 if.not = ["features.essential"]
 if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
@@ -233,4 +290,19 @@ do = [
   {action = 'run', bin = 'sed', args = ['-i', 's/NAME/Configure networking/g', '/usr/share/applications/configure-network.desktop']},
   {action = 'run', bin = 'sed', args = ['-i', 's/ICON/preferences-system-network/g', '/usr/share/applications/configure-network.desktop']},
   {action = 'run', bin = 'sed', args = ['-i', 's/Terminal=false/Terminal=true/g', '/usr/share/applications/configure-network.desktop']},
+
+  {action = 'install-resource', from = '../sway/shortcut-template', to = '/usr/share/applications/screenshot-selection.desktop'},
+  {action = 'run', bin = 'sed', args = ['-i', "s/CMD/bash -c 'grim -g \"$(slurp)\"'/g", '/usr/share/applications/screenshot-selection.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/NAME/Screenshot selection (to file)/g', '/usr/share/applications/screenshot-selection.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/ICON/camera-web/g', '/usr/share/applications/screenshot-selection.desktop']},
+
+  {action = 'install-resource', from = '../sway/shortcut-template', to = '/usr/share/applications/screenshot-clipboard.desktop'},
+  {action = 'run', bin = 'sed', args = ['-i', "s/CMD/bash -c 'grim -g \"$(slurp)\" - | wl-copy'/g", '/usr/share/applications/screenshot-clipboard.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/NAME/Screenshot selection (to clipboard)/g', '/usr/share/applications/screenshot-clipboard.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/ICON/camera-web/g', '/usr/share/applications/screenshot-clipboard.desktop']},
+
+  {action = 'install-resource', from = '../sway/shortcut-template', to = '/usr/share/applications/record-region.desktop'},
+  {action = 'run', bin = 'sed', args = ['-i', "s/CMD/bash -c 'wf-recorder -g \"$(slurp)\"'/g", '/usr/share/applications/record-region.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/NAME/Record selection (to file)/g', '/usr/share/applications/record-region.desktop']},
+  {action = 'run', bin = 'sed', args = ['-i', 's/ICON/camera-video/g', '/usr/share/applications/record-region.desktop']},
 ]

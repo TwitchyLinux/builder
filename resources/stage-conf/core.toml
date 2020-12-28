@@ -12,7 +12,7 @@ default = "en_US.UTF-8"
 version = "5.9.14"
 url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.9.14.tar.xz"
 sha256 = "39fcfb41dcdf71b6b42b88eff3d8cedbe7523830ccae847f3914c0b97e1e6b49"
-build_packages = ["build-essential", "fakeroot", "devscripts", "wget", "libncurses-dev"]
+build_packages = ["build-essential", "fakeroot", "devscripts", "wget", "libncurses-dev", "texinfo"]
 
 [base.release_info]
 name = "TwitchyLinux (/w Debian GNU/Linux)"

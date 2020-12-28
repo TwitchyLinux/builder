@@ -9,7 +9,8 @@ order_priority = 100
 packages = ["curl", "curlftpfs", "net-tools", "netbase", "netcat-openbsd", "netwox",
 "iproute2", "iproute2-doc", "tcpdump", "tcpstat", "traceroute",
 "inetutils-ftp", "inetutils-ping", "inetutils-tools",
-"arping", "arptables", "dnsutils", "irssi"]
+"arping", "arptables", "dnsutils", "irssi",
+"nftables"]
 order_priority = 99
 
 [post_base.install.compression-tools]
@@ -50,7 +51,7 @@ packages = [
 if.not = ["features.essential"]
 order_priority = 97
 packages = [
-  "upower", "upower-doc",
+  "upower", "upower-doc", "lm-sensors"
 ]
 
 [post_base.install.network-manager]
