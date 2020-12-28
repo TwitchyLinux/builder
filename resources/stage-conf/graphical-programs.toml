@@ -71,7 +71,14 @@ do = [
 if.not = ["features.essential"]
 if.all = ["features.graphical", "features.graphical_environment == 'sway'"]
 order_priority = 91
-packages = ["pcmanfm"]
+packages = ["pcmanfm", "gnome-themes-extra-data"]
+do = [
+  {action = 'mkdir', dir = '/home/twl/.config'},
+  {action = 'install-resource', from = '../gtkrc-2.0', to = '/home/twl/.config/gtkrc-2.0'},
+  {action = 'run', bin = 'ln', args = ['-s', '.config/gtkrc-2.0', '/home/twl/.gtkrc-2.0']},
+  {action = 'run', bin = 'chown', args = ['-R', '{{base.main_user.name}}', '/home/twl/.gtkrc-2.0']},
+  {action = 'run', bin = 'chown', args = ['-R', '{{base.main_user.name}}', '/home/twl/.config']},
+]
 
 # Simple image preview
 [graphical_environment.post.install.feh]

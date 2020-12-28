@@ -1,0 +1,4 @@
+# sudo apt-get install gnome-themes-extra-data
+include "/usr/share/themes/Adwaita-dark/gtk-2.0/gtkrc"
+
+gtk-icon-theme-name = "Adwaita-dark"
