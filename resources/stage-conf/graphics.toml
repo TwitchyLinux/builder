@@ -19,15 +19,15 @@ packages = [
 ]
 steps.build-sway.do = [
   # Meson
-  {action = 'download', url = 'http://ftp.debian.org/debian/pool/main/m/meson/meson_0.56.0-1.1_all.deb', to = '/meson_0.56.0-1.1_all.deb'},
-  {action = 'sha256sum', from = '/meson_0.56.0-1.1_all.deb', expected = '30f8fba68cf3e4ccf7bd6bccde6d9b42b11500507f4b9906e668b8ef8ccc8013'},
-  {action = 'run', bin = 'apt-get', args=['install', '-y', '/meson_0.56.0-1.1_all.deb']},
-  {action = 'run', bin = 'rm', args=['/meson_0.56.0-1.1_all.deb']},
+  {action = 'download', url = 'http://ftp.debian.org/debian/pool/main/m/meson/meson_0.56.2-1_all.deb', to = '/meson_0.56.2-1_all.deb'},
+  {action = 'sha256sum', from = '/meson_0.56.2-1_all.deb', expected = 'ef6dda3268d41ceb6218da4668598242aee0b4ca1ff8394068b5243b73eb4544'},
+  {action = 'run', bin = 'apt-get', args=['install', '-y', '/meson_0.56.2-1_all.deb']},
+  {action = 'run', bin = 'rm', args=['/meson_0.56.2-1_all.deb']},
   {action = 'mkdir', dir = '/sway-src'},
 
   # Scdoc
   {action = 'download', url = 'https://git.sr.ht/~sircmpwn/scdoc/archive/1.11.1.tar.gz', to = '/sway-src/1.11.1.tar.gz'},
-  {action = 'sha256sum', from = '/sway-src/1.11.1.tar.gz', expected = 'e529fcb00508e7e4c5025a745591b805b754b3bd5c84c5192acaefabdfa8f700'},
+  {action = 'sha256sum', from = '/sway-src/1.11.1.tar.gz', expected = '1098a1ed2e087596fc0b3f657c1c8a5e00412267aa4baf3619e36824306645b1'},
   {action = 'run', bin = 'tar', args=['-C', '/sway-src', '-xvf', '/sway-src/1.11.1.tar.gz']},
   {action = 'run', bin = 'make', args = ['-C', '/sway-src/scdoc-1.11.1', 'PREFIX=/usr/local']},
   {action = 'run', bin = 'make', args = ['-C', '/sway-src/scdoc-1.11.1', 'PREFIX=/usr/local', 'install']},
@@ -102,7 +102,7 @@ order_priority = 95
 packages = ["libnotify-bin", "libnotify-dev"]
 do = [
   {action = 'download', url = 'https://git.sr.ht/~sircmpwn/wev/archive/1.0.0.tar.gz', to = '/wev-1.0.0.tar.gz'},
-  {action = 'sha256sum', from = '/wev-1.0.0.tar.gz', expected = '6f004dedf3f5ce10d2fe3cd233d59912756d8a0af021214158d6ec54d66c9d6e'},
+  {action = 'sha256sum', from = '/wev-1.0.0.tar.gz', expected = '613a1df1a4879d50ce72023de14aaf05be2e6f51346e84a69f50fc6d8502bbf4'},
   {action = 'run', bin = 'tar', args = ['-v', '-xzf', '/wev-1.0.0.tar.gz']},
   {action = 'run', bin = 'rm', args = ['/wev-1.0.0.tar.gz']},
   {action = 'run', bin = 'bash', args = ['-c', 'cd /wev-1.0.0 && make']},

@@ -56,7 +56,7 @@ packages = ["libgpgme-dev", "libassuan-dev", "libbtrfs-dev", "libdevmapper-dev"]
 do = [
   {action = 'mkdir', dir = '/skopeo/gopath'},
   {action = 'mkdir', dir = '/skopeo/head'},
-  {action = 'run', bin = 'git', args = ['clone', 'https://github.com/containers/skopeo', '/skopeo/head']},
+  {action = 'run', bin = 'git', args = ['clone', '--depth', '1', '--branch', 'release-1.2', 'https://github.com/containers/skopeo', '/skopeo/head']},
   {action = 'run', bin = 'bash', args = ['-c', 'GOPATH=/skopeo/gopath cd /skopeo/head && /usr/local/go/bin/go build -o /usr/bin/skopeo ./cmd/skopeo']},
   {action = 'run', bin = 'rm', args = ['-rf', '/skopeo']},
 ]
@@ -68,7 +68,7 @@ packages = ["libgpgme-dev", "libassuan-dev", "libbtrfs-dev", "libdevmapper-dev"]
 do = [
   {action = 'mkdir', dir = '/umoci/gopath'},
   {action = 'mkdir', dir = '/umoci/head'},
-  {action = 'run', bin = 'git', args = ['clone', 'https://github.com/openSUSE/umoci', '/umoci/head']},
+  {action = 'run', bin = 'git', args = ['clone', '--depth', '1', '--branch', 'v0.4.6', 'https://github.com/opencontainers/umoci', '/umoci/head']},
   {action = 'run', bin = 'bash', args = ['-c', 'GOPATH=/umoci/gopath cd /umoci/head && export V=$(cat /umoci/head/VERSION) && /usr/local/go/bin/go build -buildmode=pie -ldflags "-s -w -X main.version=${V}" -o /usr/bin/umoci ./cmd/umoci']},
   {action = 'run', bin = 'rm', args = ['-rf', '/umoci']},
 ]

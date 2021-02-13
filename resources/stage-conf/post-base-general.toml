@@ -44,7 +44,7 @@ if.not = ["features.essential"]
 order_priority = 97
 packages = [
   "pulseaudio", "pulseaudio-utils", "pulseaudio-equalizer", "libpulse-dev", "pamix",
-  "alsa-utils", "alsaplayer-text",
+  "alsa-utils", "alsaplayer-text", "libasound2-dev",
 ]
 
 [post_base.install.power]
@@ -66,3 +66,5 @@ packages = [
 if.not = ["features.essential"]
 order_priority = 90
 packages = ["usbutils", "libusb-1.0-0", "libusb-1.0-0-dev", "libusb-1.0-doc"]
+
+# TODO: Add lshw - shows local hardware
